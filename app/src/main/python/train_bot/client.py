@@ -2248,6 +2248,10 @@ def _pet_role(role):
     def deco(fn):
         @functools.wraps(fn)
         def wrap(self, *a, **k):
+            # Daily bam tay phai dung dung pet user da chon trong PET & Skill, khong de vai
+            # boss/quest tu dong doi sang mot pet khac.
+            if getattr(self, "_daily_use_selected_pet", False):
+                return fn(self, *a, **k)
             try:
                 self.ensure_pet_role(role)
             except Exception as e:
@@ -2321,6 +2325,19 @@ class GameClient:
         # protocol: kind=1 char, kind=2 pet (can capture tran that de xac nhan kind pet).
         self.combat_exp_log = collections.deque(maxlen=100)
         self.activity_log = collections.deque(maxlen=200)  # EXP + nhat/do dung, rieng tung account
+        # Thong ke farm theo phien login. EXP/gio dung thoi gian tu tran dau tien (gom ca
+        # khoang nghi giua cac tran), nen phan anh toc do farm thuc te thay vi chi noi suy combat.
+        self.exp_stats_started_at = None
+        self.exp_stats_char_total = 0
+        self.exp_stats_pet_total = 0
+        self._metrics_battle_started_at = None
+        self._metrics_battle_char_exp = 0
+        self._metrics_battle_pet_exp = 0
+        self._metrics_battle_char_exp_start = None
+        self.last_battle_seconds = None
+        self.last_battle_char_exp = 0
+        self.last_battle_pet_exp = 0
+        self.exp_stats_battles = 0
         self.pet_level = None        # cap pet dang dung - tu S2C 0x0f sub=08
         self.pet_levels = {}         # pid -> cap CUA TUNG con mang theo (0x0f, byte +7)
         # EVENT LIEN SERVER (vo gioi): lenh chuyen may tu S:001-020, va co dang o may do.
@@ -2684,6 +2701,8 @@ class GameClient:
                                       .get(getattr(self, "_username", None), False))
         self.state.battle_config = dict(getattr(config, "ACCOUNT_BATTLE", {})
                                         .get(getattr(self, "_username", None), {}) or {})
+        self._ui_selected_pet_id = int(getattr(config, "ACCOUNT_SELECTED_PET", {})
+                                       .get(getattr(self, "_username", None), 0) or 0)
         self._daily_date = _gift_day()
         self._connect_time = time.time()
         # Qua online dung state server (0x55 RoleCount id=10 + 0x51 BitFlag), khong dem local nua.
@@ -3963,8 +3982,81 @@ class GameClient:
                 self._refresh_online_claimed_from_bitflags()
                 self._refresh_quest_claimed_from_bitflags()
 
+    def _metrics_battle_start(self):
+        now = time.time()
+        if self.exp_stats_started_at is None:
+            self.exp_stats_started_at = now
+        if self._metrics_battle_started_at is None:
+            self._metrics_battle_started_at = now
+            self._metrics_battle_char_exp = 0
+            self._metrics_battle_pet_exp = 0
+            self._metrics_battle_char_exp_start = self.char_exp
+
+    def _metrics_exp_gain(self, who, amount):
+        amount = max(0, int(amount or 0))
+        if not amount:
+            return
+        if self.exp_stats_started_at is None:
+            self.exp_stats_started_at = time.time()
+        if who == "character":
+            self.exp_stats_char_total += amount
+            self._metrics_battle_char_exp += amount
+        else:
+            self.exp_stats_pet_total += amount
+            self._metrics_battle_pet_exp += amount
+
+    def _metrics_battle_end(self):
+        started = self._metrics_battle_started_at
+        if started is None:
+            return
+        # Mot so member khong nhan goi thuong 20-042 nhu leader. Neu server da cap nhat
+        # tong EXP nhan vat nhung goi delta khong vao nhanh parser, lay chenh lech dau/cuoi
+        # tran lam fallback. Chi dung khi chua dem duoc EXP de tranh cong hai lan.
+        _exp_start = self._metrics_battle_char_exp_start
+        if (not self._metrics_battle_char_exp and _exp_start is not None
+                and self.char_exp is not None and int(self.char_exp) > int(_exp_start)):
+            _fallback_gain = int(self.char_exp) - int(_exp_start)
+            self._metrics_battle_char_exp = _fallback_gain
+            self.exp_stats_char_total += _fallback_gain
+        self.last_battle_seconds = max(0.1, time.time() - started)
+        self.last_battle_char_exp = int(self._metrics_battle_char_exp)
+        self.last_battle_pet_exp = int(self._metrics_battle_pet_exp)
+        self.exp_stats_battles += 1
+        self._metrics_battle_started_at = None
+        self._metrics_battle_char_exp_start = None
+        log.info("[%s] THONG KE TRAN: %.1fs, nhan vat +%d EXP, pet +%d EXP",
+                 self._label, self.last_battle_seconds, self.last_battle_char_exp,
+                 self.last_battle_pet_exp)
+
+    def exp_rate_snapshot(self):
+        started = self.exp_stats_started_at
+        elapsed = max(0.0, time.time() - started) if started else 0.0
+        hours = elapsed / 3600.0
+        return {
+            "session_seconds": int(elapsed),
+            "battles": int(self.exp_stats_battles),
+            "last_battle_seconds": self.last_battle_seconds,
+            "last_battle_char_exp": int(self.last_battle_char_exp),
+            "last_battle_pet_exp": int(self.last_battle_pet_exp),
+            "char_exp_total": int(self.exp_stats_char_total),
+            "pet_exp_total": int(self.exp_stats_pet_total),
+            "battles_per_hour": (self.exp_stats_battles / hours) if hours > 0 else 0.0,
+            "char_exp_per_hour": int(self.exp_stats_char_total / hours) if hours > 0 else 0,
+            "pet_exp_per_hour": int(self.exp_stats_pet_total / hours) if hours > 0 else 0,
+        }
+
     def _dispatch(self, opcode: int, pkt: bytes):
         log.debug("[%s] RECV op=0x%02x len=%d %s", self._label, opcode, len(pkt), pkt.hex())
+        if opcode == protocol.OP_BATTLE_START:
+            self._metrics_battle_start()
+        # Giu ma ack Boss QD de khong gui lenh vao instance khi lenh mo da bi tu choi.
+        if opcode == 0x27 and len(pkt) >= 10 and pkt[7:9] == b"\x77\x00":
+            self._legion_start_result = int(pkt[9])
+            log.info("[%s] Boss QD: server tra ket qua mo=%d", self._label, self._legion_start_result)
+        elif opcode == 0x14 and len(pkt) >= 10 and pkt[7:9] == b"\x08\x00" \
+                and getattr(self, "_legion_enter_pending", False):
+            self._legion_enter_result = int(pkt[9])
+            log.info("[%s] Boss QD: server tra ket qua vao=%d", self._label, self._legion_enter_result)
         self._chot_minh_chet(opcode)
         # `S:006-001 <玩家移動> +玩家ID(8) +面朝向(1) +座標X(2) +座標Y(2)`
         #
@@ -4060,6 +4152,7 @@ class GameClient:
                         "pet": str(getattr(self, "pet_name", "") or "")}
                 self.combat_exp_log.appendleft(dict(_row))
                 self.activity_log.appendleft(dict(_row))
+                self._metrics_exp_gain(_who, _exp)
                 log.info("[%s] KET TRAN EXP: kind=%d who=%s +%d", self._label,
                          _exp_kind, _who, _exp)
             if not _pairs:
@@ -4078,6 +4171,7 @@ class GameClient:
             _in_team_dungeon = self.in_team_dungeon()
             self.state.reset_enemies(reset_quest=not _in_team_dungeon)
             self.state.in_battle = False
+            self._metrics_battle_end()
             self._heal_after_battle()   # hoi HP/SP NGAY khi ket tran (khong doi tick keepalive)
             self._flush_bag_queue()     # lenh tui do user bam giua tran -> gui bay gio
         # KET TRAN khi BO CHAY: flee KHONG sinh 0x14 sub0700 (man THANG) ma chuoi 0x14 0c00 -> 0900 ->
@@ -4103,6 +4197,7 @@ class GameClient:
             # tran cua leader da ket that -> 0x35 handler set lai in_battle=True oan.
             # -> mo grace period ngan de 0x35 KHONG duoc phep set lai in_battle trong luc nay.
             if was_true and pkt[7:9] == b"\x08\x00":
+                self._metrics_battle_end()
                 # tail byte (pkt[9]) KHONG phai hang so co dinh (thay ca 03 lan 04 o cac lan
                 # ket tran that khac nhau) -> co ve la bo dem tang dan, KHONG dung lam dieu
                 # kien. Chi can in_battle_TRUOC=True la du tin cay (moi lan False truoc do
@@ -4247,6 +4342,7 @@ class GameClient:
                             "total": int(_new_exp), "source": "0x08/01 attr36"}
                     self.combat_exp_log.appendleft(dict(_row))
                     self.activity_log.appendleft(dict(_row))
+                    self._metrics_exp_gain("character", _gain)
                     log.info("[%s] EXP NHAN VAT: +%d (tong=%d, S:008-001 attr=36)",
                              self._label, _gain, _new_exp)
         # S:008-002 <dat thuoc tinh pet>: humanKind(1), petIndex(2), attrKind(1), sign(1),
@@ -4269,6 +4365,7 @@ class GameClient:
                         "pet_id": int(_pet_index), "source": "0x08/02 attr36"}
                 self.combat_exp_log.appendleft(dict(_row))
                 self.activity_log.appendleft(dict(_row))
+                self._metrics_exp_gain("pet", _gain)
                 log.info("[%s] EXP PET %s: +%d (tong=%d, S:008-002 attr=36)",
                          self._label, _pet_label or _pet_index, _gain, _new_pet_exp)
         if opcode == 0x08 and len(pkt) >= 13 and pkt[7:9] == b"\x01\x00" and pkt[9] == STAT_INT and pkt[10] == 0x01:
@@ -7668,7 +7765,24 @@ class GameClient:
         self.heal_full()
         self.state.boss_mode = True
         self.flee_mode = False
-        self.send(0x27, b"\x77\x00"); time.sleep(0.6)          # start boss QD (0x27 7700)
+        self._legion_start_result = None
+        self._legion_enter_result = None
+        self._legion_enter_pending = True
+        self.send(0x27, b"\x77\x00")                            # start boss QD (0x27 7700)
+        _ack_deadline = time.time() + 1.5
+        while self.running and self._legion_start_result is None and time.time() < _ack_deadline:
+            time.sleep(0.05)
+        if self._legion_start_result not in (None, 0):
+            self._legion_enter_pending = False
+            self.state.boss_mode = False
+            _code = int(self._legion_start_result)
+            set_account_activity(self._username,
+                                 "Boss QĐ: server chưa mở/không có sự kiện (mã %d)" % _code,
+                                 phase=PHASE_BOSS_QD)
+            log.warning("[%s] Boss QD: server TU CHOI mo su kien (ma %d) -> khong gui lenh vao, "
+                        "giu ket noi", self._label, _code)
+            self.legion_boss_next = now + 15 * 60
+            return self.legion_boss_next
         self.send(0x14, b"\x08\x00\x01\x00"); time.sleep(1.0)  # vao instance boss (gate idx 1)
         entered = False
         t0 = time.time()
@@ -7688,12 +7802,14 @@ class GameClient:
             # that bai lien tuc. Fix DUY NHAT hieu qua: RELOGIN (dong ket noi + dang nhap lai) ngay
             # de lay lai current_map dung tu goi 0x03 self-spawn MOI, KHONG co gang tu sua cuc bo.
             self.state.boss_mode = False
+            self._legion_enter_pending = False
             log.warning("[%s] Boss QD: khong vao duoc tran (co the chua du dieu kien) -> RELOGIN "
                         "ngay de tranh current_map bi sai vinh vien trong phien", self._label)
             self.legion_boss_next = now + self.LEGION_BOSS_FAIL_COOLDOWN
             _save_legion_boss_next(self._label, self.legion_boss_next)   # luu ben - song qua reconnect/relogin
             self.relogin()
             return self.legion_boss_next
+        self._legion_enter_pending = False
         log.info("[%s] Boss QD: DA VAO TRAN -> danh cho het tran", self._label)
         # Nhu boss the gioi: cho moc ket tran THAT (0x14 sub0700), khong dem gio.
         t0 = time.time()
@@ -9581,7 +9697,7 @@ class GameClient:
                      self._label, self.mount_level,
                      {self.MOUNT_KIND_TEN[k]: self.mount_points.get(k, 0) for k in (1, 2, 3, 4, 5)})
 
-    def use_phuc_than_items(self):
+    def use_phuc_than_items(self, use_normal=True, use_dai=False):
         """Dung dinh ky (KHONG phai 1 lan luc login) cac item danh dau "phuc_than": true trong
         use_items.json - CHI khi party bat cong tac "Su dung Phuc Than" (xem run_party_digioi.py,
         goi ham nay moi X phut thay vi 1 lan). Tach rieng khoi use_login_items() vi nhom item nay
@@ -13251,6 +13367,31 @@ class GameClient:
             time.sleep(gap)
         return whitelist_count
 
+    def _leave_train_party_before_team_dungeon(self, wait: float = 5.0):
+        """Giai tan party train truoc khi tao lobby pho ban doi.
+
+        Lobby 0x2f la mot doi rieng. Neu leader van con party thuong 0x0d, server van cho mo
+        panel/tao phong nhung nuot im toan bo lenh moi 0x2f/08. Entity member van duoc giu trong
+        registry theo account nen sau khi party thuong tan ta van moi dung bon entity cu.
+        """
+        had_party = bool(self.party_members or self.party_leader or self._doi_truong_dang_ket())
+        if not had_party:
+            log.info("[%s] (LEADER) truoc PB doi: khong con party train -> tao phong", self._label)
+            return
+        log.info("[%s] (LEADER) truoc PB doi: giai tan party train, cho server xac nhan roi moi "
+                 "tao phong", self._label)
+        self.leave_party()
+        t0 = time.time()
+        while self.running and time.time() - t0 < max(1.0, float(wait)):
+            if not self.party_members and not self.party_leader and not self._doi_truong_dang_ket():
+                break
+            time.sleep(0.2)
+        # Cho mot nhip sau S:013-004 de server dong trang thai party truoc khi nhan 0x2f/01.
+        time.sleep(0.6)
+        log.info("[%s] (LEADER) truoc PB doi: party train da tan=%s sau %.1fs", self._label,
+                 not bool(self.party_members or self.party_leader or self._doi_truong_dang_ket()),
+                 time.time() - t0)
+
     def leave_party(self, leader_entity=None, server_bao_dang_o_party=False):
         """Roi/giai tan party hien tai (de co the VAO DI GIOI - khong vao duoc khi dang trong party).
         `C:013-004 <離開隊伍> +隊長玩家ID(8)` - truong nay la ID **DOI TRUONG**, KHONG phai cua
@@ -13598,6 +13739,7 @@ class GameClient:
         get_party_battle(self.party_idx).reset_session()
         self.flee_mode = False
         self.state.quest_mode = True
+        self._leave_train_party_before_team_dungeon()
         self.send(0x2f, b"\x01\x00"); time.sleep(0.6)
         self.send(0x2f, b"\x02\x00" + struct.pack("<H", int(dungeon_id)) + b"\x01"); time.sleep(1.0)
         reset_dungeon_ready(self.party_idx)
@@ -13695,6 +13837,8 @@ class GameClient:
         for i, actions in enumerate(battle_scripts):
             if not self.running:
                 return False
+            if i == 0 and self._td_daily_stop("lv50 truoc tran 1"):
+                return False
             if self._td_party_gone("lv50 tran %d" % (i + 1)):
                 return False
             self.flee_mode = False
@@ -13715,6 +13859,8 @@ class GameClient:
                 if not self.running or self.state.in_battle:
                     log.warning("[%s] (LEADER) lv50 tran %d: tran truoc chua ket that -> dung",
                                 self._label, i + 1)
+                    return False
+                if self._td_daily_stop("lv50 sau tran %d" % i):
                     return False
             for action in actions:
                 kind = action[0]
@@ -13889,6 +14035,8 @@ class GameClient:
         for i, actions in enumerate(battle_scripts):
             if not self.running:
                 return False
+            if i == 0 and self._td_daily_stop("lv80 truoc tran 1"):
+                return False
             if self._td_party_gone("lv80 tran %d" % (i + 1)):
                 return False
             self.flee_mode = False
@@ -13906,6 +14054,8 @@ class GameClient:
                 if not self.running or self.state.in_battle:
                     log.warning("[%s] (LEADER) lv80 tran %d: tran truoc chua ket that -> dung",
                                 self._label, i + 1)
+                    return False
+                if self._td_daily_stop("lv80 sau tran %d" % i):
                     return False
             for action in actions:
                 kind = action[0]
@@ -14069,6 +14219,8 @@ class GameClient:
         self.scene_resume(settle=0.5)
         self.set_party_strategist()
         for stage_no, actions in enumerate(team_dungeon_lv110.STAGES, 1):
+            if self._td_daily_stop("PB110 truoc tran %d" % stage_no):
+                return False
             log.info("[%s] (LEADER) PB110 tran %d: bat dau", self._label, stage_no)
             if not self._run_team_dungeon_lv110_stage(actions, stage_no):
                 return False
@@ -14131,6 +14283,7 @@ class GameClient:
         # nhu binh thuong (state.py update_0x33), vi so quai co the it hon o mot so tran/level ->
         # muon danh theo quest_mode CO DINH cho toi khi xong het dungeon (hoac fail/thoat giua chung).
         self.state.quest_mode = True
+        self._leave_train_party_before_team_dungeon()
         # 1. Tao pho ban to doi
         self.send(0x2f, b"\x01\x00"); time.sleep(0.6)
         self.send(0x2f, bytes.fromhex("0200010001")); time.sleep(1.0)
@@ -14199,6 +14352,8 @@ class GameClient:
             if not self.running:
                 self.state.quest_mode = False
                 return False
+            if i == 0 and self._td_daily_stop("lv20 truoc tran 1"):
+                return False
             seg = segments[i]
             if self._td_party_gone("lv20 tran %d" % (i + 1)):
                 self.state.quest_mode = False
@@ -14232,6 +14387,8 @@ class GameClient:
                                 "-> dung (tranh gui lenh de kick ket noi)", self._label, i + 1,
                                 240.0 + 120.0)
                     self.state.quest_mode = False
+                    return False
+                if self._td_daily_stop("lv20 sau tran %d" % i):
                     return False
                 for op, body in seg["pre"]:                    # pre (0x7c 0400) TRUOC thoai thang loi
                     self.send(op, body); time.sleep(0.4)
@@ -15272,6 +15429,20 @@ class GameClient:
             log.warning("[%s] (LEADER) DONG DOI ROT giua pho ban%s -> DUNG danh, bao FAIL de ca "
                         "party relogin danh lai", self._label, (" (%s)" % where) if where else "")
         return gone
+
+    def _td_daily_stop(self, where: str = "") -> bool:
+        """Dung Daily chi tai RANH GIOI tran: khong cat tran dang danh, khong dong socket."""
+        cb = getattr(self, "_td_stop_requested", None)
+        if cb is None or self.state.in_battle:
+            return False
+        try:
+            stop = bool(cb())
+        except Exception:
+            stop = False
+        if stop:
+            log.info("[%s] DUNG DAILY sau tran hien tai%s -> dung yen, giu online",
+                     self._label, (" (%s)" % where) if where else "")
+        return stop
 
     def _td_walk(self, points, budget: float = 90.0, tag: str = "") -> bool:
         """PHO BAN TO DOI: di toi diem CUOI cua chuoi waypoint bang TIM DUONG THONG MINH.

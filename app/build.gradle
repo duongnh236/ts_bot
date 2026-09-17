@@ -11,8 +11,8 @@ android {
         applicationId 'com.fen.tsbot'
         minSdk 26
         targetSdk 35
-        versionCode 67
-        versionName '0.67-reconnect-resume-train'
+        versionCode 95
+        versionName '0.95-save-train-selection'
 
         python {
             version '3.8'

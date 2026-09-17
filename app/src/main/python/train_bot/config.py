@@ -677,7 +677,8 @@ SP_THRESHOLD = 0.0          # = 0 -> KHONG uong thuoc SP (tat hoi SP) - MAC DINH
 ACCOUNT_HEAL = {
     # "acc1": {"hp_char": 0.7, "sp_char": 0.5, "hp_pet": 0.6, "sp_pet": 0.4},
 }
-ACCOUNT_PHUC_THAN = {}     # username -> bool, dieu khien live tu tab tung account
+ACCOUNT_PHUC_THAN = {}     # username -> bool, tu dong dung Phuc Than thuong
+ACCOUNT_DAI_PHUC_THAN = {} # username -> bool, tu dong dung Dai Phuc Than
 
 # Config RIENG tung acc (accounts.json field "settings" moi acc - TACH khoi "heal" vi heal chi
 # giu 4 nguong hoi mau; settings la cho gom cac config rieng acc, se them key moi sau nay).

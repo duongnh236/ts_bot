@@ -19,6 +19,40 @@ _account_slots = {}
 # level -> (tong EXP tich luy tai dau cap, EXP can tu dau cap de len cap ke)
 _CHAR_EXP_LEVELS = {155: (236222752, 6290520)}
 
+# EXP pet UI hien theo EXP trong cap, packet pet login 0x0f/sub0008.
+# Moc level -> tong EXP can de len cap ke, doi chieu truc tiep tu UI game.
+_PET_EXP_LEVELS = {
+    174: (141883942, 3197503),
+    184: (176326366, 3756631),
+}
+
+_TEAM_DUNGEON_NAMES = {20: "Thảo Phạt Thiên Sư", 50: "Ngày Tàn Hoạn Quan",
+                       80: "Đại Chiến Lữ Bố", 110: "Hỏa Thiêu Bộc Dương"}
+_DAILY_AREA_NAMES = {"boss quan doan": "Boss Quân Đoàn", "boss the gioi": "Boss Thế Giới",
+                     "pho ban don": "Khiêu Chiến Đậu Đậu"}
+
+def _pet_level_exp_values(client):
+    if client is None:
+        return None, None, None, None, None
+    state = getattr(client, "state", None)
+    pid = int(getattr(state, "active_pet_id", 0) or 0)
+    slot = int(getattr(client, "active_pet_slot", 0) or 0)
+    levels = getattr(client, "pet_levels", {}) or {}
+    values = getattr(client, "pet_exp_values", {}) or {}
+    level = int(levels.get(pid, 0) or 0)
+    current = values.get(pid, values.get(slot))
+    row = _PET_EXP_LEVELS.get(level)
+    base, required = row if row is not None else (None, None)
+    if current is None:
+        return pid or None, level or None, None, required, None
+    raw_total = max(0, int(current))
+    current = max(0, raw_total - int(base)) if base is not None else None
+    log.info("PET EXP probe pid=0x%x lv=%s raw_total=%s base=%s current=%s required=%s remaining=%s",
+             pid, level, raw_total, base, current, required,
+             max(0, required - current) if required is not None and current is not None else None)
+    return pid or None, level or None, current, required, (max(0, required - current) if required is not None and current is not None else None)
+
+
 
 def _level_exp_values(client):
     level = int(getattr(client, "char_level", 0) or 0)
@@ -66,7 +100,11 @@ def _restore_account_settings(username):
         config.ACCOUNT_HEAL[str(username)] = dict(heal)
     if battle:
         config.ACCOUNT_BATTLE[str(username)] = dict(battle)
+    if not isinstance(getattr(config, "ACCOUNT_SELECTED_PET", None), dict):
+        config.ACCOUNT_SELECTED_PET = {}
+    config.ACCOUNT_SELECTED_PET[str(username)] = int(saved.get("pet_id", 0) or 0)
     config.ACCOUNT_PHUC_THAN[str(username)] = bool(saved.get("use_phuc_than", False))
+    config.ACCOUNT_DAI_PHUC_THAN[str(username)] = bool(saved.get("use_dai_phuc_than", False))
     return saved
 
 
@@ -99,7 +137,7 @@ def skills_json(username):
 
 def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                                hp_percent=70, sp_percent=70, use_phuc_than=False,
-                               char_mob_min=4, pet_mob_min=4):
+                               char_mob_min=4, pet_mob_min=4, use_dai_phuc_than=False):
     """Apply pet, skill va nguong dung item ngay cho account dang online."""
     try:
         username = str(username or "").strip()
@@ -137,11 +175,17 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                                              "hp_pet": hp, "sp_pet": sp})
         from train_bot import config
         config.ACCOUNT_PHUC_THAN[username] = bool(use_phuc_than)
+        config.ACCOUNT_DAI_PHUC_THAN[username] = bool(use_dai_phuc_than)
+        if not isinstance(getattr(config, "ACCOUNT_SELECTED_PET", None), dict):
+            config.ACCOUNT_SELECTED_PET = {}
+        config.ACCOUNT_SELECTED_PET[username] = pet_id
+        client._ui_selected_pet_id = pet_id
         _save_account_setting(username, {
             "pet_id": pet_id, "char_skill": char_skill, "pet_skill": pet_skill,
             "char_mob_min": char_mob_min, "pet_mob_min": pet_mob_min,
             "heal": {"hp_char": hp, "sp_char": sp, "hp_pet": hp, "sp_pet": sp},
             "battle": battle, "use_phuc_than": bool(use_phuc_than),
+            "use_dai_phuc_than": bool(use_dai_phuc_than),
         })
 
         def switch_selected_pet():
@@ -154,10 +198,11 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
         if pet_id:
             threading.Thread(target=switch_selected_pet, name="pet-%s" % username, daemon=True).start()
         return json.dumps({"ok": True, "message":
-                           "Da ap dung: NV dung skill tu %d quai, pet tu %d quai; it hon danh thuong. Pet %s, skill NV %s, skill pet %s, HP %d%%, SP %d%%, Phuc Than %s" %
+                           "Da ap dung: NV dung skill tu %d quai, pet tu %d quai; it hon danh thuong. Pet %s, skill NV %s, skill pet %s, HP %d%%, SP %d%%, Phuc Than %s, Dai Phuc Than %s" %
                            (char_mob_min, pet_mob_min,
                             pet_id or "tu dong", char_skill or "tu dong", pet_skill or "tu dong",
-                            int(hp * 100), int(sp * 100), "BAT" if use_phuc_than else "TAT")}, ensure_ascii=False)
+                            int(hp * 100), int(sp * 100), "BAT" if use_phuc_than else "TAT",
+                            "BAT" if use_dai_phuc_than else "TAT")}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
 
@@ -232,10 +277,18 @@ def start_json(payload):
             entry = config.TRAIN_MAPS.setdefault(map_id, {"safe": [], "mobs": [], "name": str(map_id), "group": "Tùy chỉnh"})
             entry["mobs"] = [(farm_x, farm_y)]
             mob_index = 0
+        # Leader Android la account o SLOT 1 (index 0), khong phai "account dau tien con lai".
+        # Neu login rieng ACC5 trong mot phien moi, setup_party_runtime truoc day tu thang ACC5
+        # thanh leader vi no la phan tu dau payload -> UI ACC5 hien nham Ban do.
+        leader_configured = any(
+            str(a.get("u", "")).strip() and int(a.get("slot", -1)) == 0
+            for a in data.get("accounts", [])
+        )
         runner.setup_party_runtime(
             0, str(data.get("mode", "stand")), str(server["ip"]), int(server["id"]),
             "\x01".join(accounts), start_city_id=map_id,
             mob_index=mob_index, do_daily=False,
+            has_leader=leader_configured,
             auto_world_boss=False, auto_team_dungeon=False, do_van_tieu=False,
             fight_legion_boss=False,
             auto_sell_noi_dat=False, auto_bag_clean=False, auto_discard_junk=False,
@@ -268,6 +321,30 @@ def stop_all():
     except Exception as exc:
         _last_error = "%s: %s" % (type(exc).__name__, exc)
         return json.dumps({"ok": False, "message": _last_error}, ensure_ascii=False)
+
+
+def safe_logout_all_json():
+    """Logout ca team theo luong SAFE cua tung account; member truoc, leader sau."""
+    try:
+        runner = _get_runner()
+        rows = list(runner.party_accounts(0))
+        running = []
+        for username, _password, is_leader, _strategist in rows:
+            client = runner.account_clients.get(username)
+            if client is not None and getattr(client, "running", False):
+                running.append((username, client, bool(is_leader)))
+        if not running:
+            return json.dumps({"ok": True, "message": "Không có account online để logout"}, ensure_ascii=False)
+        # Member ve SAFE truoc. Leader logout sau cung de party khong bi mat dau keo som.
+        running.sort(key=lambda row: row[2])
+        for username, client, is_leader in running:
+            client._individual_safe_logout = True
+            client._wait_leader_on_stop = False
+            client._individual_safe_logout_is_leader = is_leader
+            runner.stop_account(username, reason="Android: LOGOUT ALL an toan")
+        return json.dumps({"ok": True, "message": "Đã gửi LOGOUT ALL: %d account sẽ về SAFE rồi thoát" % len(running)}, ensure_ascii=False)
+    except Exception as exc:
+        return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
 
 
 def stop_one_json(username):
@@ -354,11 +431,14 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
         live = _live_party(runner)
         if not configured:
             raise RuntimeError("Chua co account trong team")
-        if len(live) != len(configured):
-            raise RuntimeError("Can login du team truoc khi train (%d/%d online)" %
-                               (len(live), len(configured)))
-        if not any(bool(row[2]) for row in configured):
+        if not live:
+            raise RuntimeError("Chua co account online de bat dau farm")
+        live_users = {u for u, _c in live}
+        leader_user = next((row[0] for row in configured if row[2]), "")
+        if not leader_user:
             raise RuntimeError("Team chua co leader")
+        if leader_user not in live_users:
+            raise RuntimeError("Leader dang offline; hay login leader truoc khi bat dau farm")
         map_id, x, y = int(map_id or 0), int(x or 0), int(y or 0)
         if map_id <= 0 or not (x and y):
             leader_user = next((row[0] for row in configured if row[2]), configured[0][0])
@@ -380,6 +460,7 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
         st = runner._pstate(0)
         with st["lock"]:
             st["ui_train_target"] = (map_id, x, y)
+            st["manual_train_expected"] = len(live)
         runner.party_train_map(0, map_id, x, y)
         return json.dumps({"ok": True, "message":
                            "Da gui START TRAIN TEAM: %d account se ve thanh gan map %d, giu phan khu manual da chon, lap PT va leader keo toi X %d Y %d" %
@@ -469,6 +550,9 @@ def set_train_channel_policy_json(auto_mode=False, channel=0):
         with st["lock"]:
             st["train_channel_auto"] = False
             st["train_channel_manual"] = channel
+            st["kenh_ghim"] = channel
+            st["kenh_dich"] = channel
+            st["kenh_dich_luc"] = time.time()
         current = 0
         live = _live_party(runner)
         if live:
@@ -494,11 +578,14 @@ def run_daily_tasks_json(tasks_json):
             raise ValueError("Danh sach daily khong hop le")
         labels = {"legion_boss": "Boss quân đoàn", "world_boss": "Boss thế giới",
                   "solo_dungeon": "Phụ bản đơn", "team_dungeon": "Phụ bản tổ đội",
-                  "team_dungeon_20": "Phụ bản tổ đội cấp 20",
-                  "team_dungeon_50": "Phụ bản tổ đội cấp 50",
-                  "team_dungeon_80": "Phụ bản tổ đội cấp 80",
-                  "team_dungeon_110": "Phụ bản tổ đội cấp 110"}
-        chosen = [str(x) for x in tasks if str(x) in labels]
+                  "team_dungeon_20": "Thảo Phạt Thiên Sư • Cấp 20",
+                  "team_dungeon_50": "Ngày Tàn Hoạn Quan • Cấp 50",
+                  "team_dungeon_80": "Đại Chiến Lữ Bố • Cấp 80",
+                  "team_dungeon_110": "Hỏa Thiêu Bộc Dương • Cấp 110"}
+        raw = [str(x) for x in tasks if str(x) in labels]
+        # Thu tu Daily co dinh: PB doi truoc, sau do boss QD, PB don, cuoi cung boss TG.
+        chosen = ([x for x in raw if x == "team_dungeon" or x.startswith("team_dungeon_")] +
+                  [x for x in ("legion_boss", "solo_dungeon", "world_boss") if x in raw])
         if not chosen:
             raise ValueError("Chưa tick daily quest nào")
         runner = _get_runner()
@@ -521,17 +608,32 @@ def daily_status_json():
                     "daily_phase", "daily_user", "daily_message", "daily_started_at")}
         accounts = []
         for user, client in _live_party(runner):
+            try:
+                solo_remaining = client.solo_dungeon_remaining()
+            except Exception:
+                solo_remaining = None
+            team_remaining = {}
+            for level in (20, 50, 80, 110):
+                try:
+                    team_remaining[str(level)] = client.team_dungeon_remaining(level)
+                except Exception:
+                    team_remaining[str(level)] = None
             accounts.append({"user": user, "name": str(getattr(client, "char_name", "") or user),
+                             "legion_boss_current": getattr(client, "legion_boss_count", None),
+                             "legion_boss_max": getattr(client, "legion_boss_max", None),
+                             "legion_boss_next": getattr(client, "legion_boss_next", None),
                              "world_boss_current": getattr(client, "world_boss_count", None),
                              "world_boss_max": getattr(client, "world_boss_max", None),
+                             "solo_dungeon_remaining": solo_remaining,
+                             "team_dungeon_remaining": team_remaining,
                              "in_battle": bool(client.in_combat()),
                              "activity": str(runner.get_account_activity(user) or "")})
         labels = {"legion_boss": "Boss quân đoàn", "world_boss": "Boss thế giới",
                   "solo_dungeon": "Phụ bản đơn", "team_dungeon": "Phụ bản tổ đội",
-                  "team_dungeon_20": "Phụ bản tổ đội cấp 20",
-                  "team_dungeon_50": "Phụ bản tổ đội cấp 50",
-                  "team_dungeon_80": "Phụ bản tổ đội cấp 80",
-                  "team_dungeon_110": "Phụ bản tổ đội cấp 110"}
+                  "team_dungeon_20": "Thảo Phạt Thiên Sư • Cấp 20",
+                  "team_dungeon_50": "Ngày Tàn Hoạn Quan • Cấp 50",
+                  "team_dungeon_80": "Đại Chiến Lữ Bố • Cấp 80",
+                  "team_dungeon_110": "Hỏa Thiêu Bộc Dương • Cấp 110"}
         data["daily_task_name"] = labels.get(str(data.get("daily_task") or ""), "")
         data["daily_tasks_names"] = [labels.get(str(x), str(x)) for x in (data.get("daily_tasks") or [])]
         data.update({"ok": True, "accounts": accounts})
@@ -603,6 +705,7 @@ def status_json():
         from train_bot.client import party_int_for
         for username, thread in list(runner.account_threads.items()):
             client = runner.account_clients.get(username)
+            pet_id, pet_level, pet_exp_current, pet_exp_total, pet_exp_remaining = _pet_level_exp_values(client)
             state = getattr(client, "state", None)
             char = getattr(state, "char", None)
             pet = getattr(state, "pet", None)
@@ -625,6 +728,12 @@ def status_json():
                 "pet_hp_max": int(getattr(pet, "hp_max", 0) or 0),
                 "pet_sp": int(getattr(pet, "sp", 0) or 0),
                 "pet_sp_max": int(getattr(pet, "sp_max", 0) or 0),
+                "pet_id": pet_id,
+                "pet_level": pet_level,
+                "pet_name": str(getattr(client, "pet_name", "") or "Pet chưa xác định"),
+                "pet_exp_current": pet_exp_current,
+                "pet_exp_level_total": pet_exp_total,
+                "pet_exp_level_remaining": pet_exp_remaining,
                 "exp_current": getattr(client, "char_exp", None),
                 "exp_remaining": getattr(client, "exp_remaining", None),
                 "exp_level_total": getattr(client, "exp_level_total", None),
@@ -748,6 +857,7 @@ def accounts_dashboard_json():
             thread = runner.account_threads.get(username)
             client = runner.account_clients.get(username)
             exp_in_level, exp_level_total, exp_level_remaining = _level_exp_values(client)
+            pet_id, pet_level, pet_exp_current, pet_exp_total, pet_exp_remaining = _pet_level_exp_values(client)
             online = bool(thread and thread.is_alive() and client is not None and getattr(client, "running", False))
             state = getattr(client, "state", None)
             char = getattr(state, "char", None)
@@ -762,6 +872,20 @@ def accounts_dashboard_json():
                 area_name = str((config.TRAIN_MAPS.get(map_id) or {}).get("name") or
                                 (getattr(config, "SCENE_NAMES", {}) or {}).get(map_id) or
                                 config.map_display_name(map_id) or "Khu vực chưa có tên")
+            try:
+                _task_state = runner.get_account_task(username) or {}
+                _task_key = str(_task_state.get("task") or "").strip().lower()
+                _phase = str(_task_state.get("phase") or "")
+                if _phase == "boss_qd" or _task_key in _DAILY_AREA_NAMES:
+                    area_name = _DAILY_AREA_NAMES.get(_task_key, "Boss Quân Đoàn")
+                elif _phase == "team_dungeon":
+                    _daily_task = str(st.get("daily_task") or "")
+                    try:
+                        area_name = _TEAM_DUNGEON_NAMES.get(int(_daily_task.rsplit("_", 1)[-1]), area_name)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             city_name = "Chưa xác định"
             if client is not None:
                 city = config.TELEPORT_CITIES.get(map_id)
@@ -787,6 +911,7 @@ def accounts_dashboard_json():
                         cities.append({"id": int(city_id), "flag": int(city.get("flag", 0)),
                                        "name": str(city.get("name") or city_id)})
             saved_settings = _restore_account_settings(username)
+            exp_rate = client.exp_rate_snapshot() if client is not None else {}
             result.append({
                 "user": username,
                 "name": str(getattr(client, "char_name", "") or username),
@@ -817,6 +942,12 @@ def accounts_dashboard_json():
                 "pet_hp_max": int(getattr(pet, "hp_max", 0) or 0),
                 "pet_sp": int(getattr(pet, "sp", 0) or 0),
                 "pet_sp_max": int(getattr(pet, "sp_max", 0) or 0),
+                "pet_id": pet_id,
+                "pet_level": pet_level,
+                "pet_name": str(getattr(client, "pet_name", "") or "Pet chưa xác định"),
+                "pet_exp_current": pet_exp_current,
+                "pet_exp_level_total": pet_exp_total,
+                "pet_exp_level_remaining": pet_exp_remaining,
                 "xu": getattr(client, "premium_xu", None),
                 "currency_probe": getattr(client, "currency_values", {}),
                 # EXP hien tai doc truc tiep tu 0x05/sub0300 +22. Mốc/còn lại cần bảng level.
@@ -827,6 +958,7 @@ def accounts_dashboard_json():
                 "exp_in_level": exp_in_level,
                 "exp_level_total": exp_level_total,
                 "exp_level_remaining": exp_level_remaining,
+                "exp_rate": exp_rate,
                 "legion_boss_current": getattr(client, "legion_boss_count", None),
                 "legion_boss_max": getattr(client, "legion_boss_max", None),
                 "legion_boss_next": getattr(client, "legion_boss_next", None),
@@ -843,6 +975,8 @@ def accounts_dashboard_json():
                 "heal": dict(getattr(config, "ACCOUNT_HEAL", {}).get(username, {}) or {}),
                 "combat_settings": saved_settings,
                 "use_phuc_than": bool(getattr(config, "ACCOUNT_PHUC_THAN", {}).get(username, False)),
+                "use_dai_phuc_than": bool(getattr(config, "ACCOUNT_DAI_PHUC_THAN", {}).get(username, False)),
+                "phuc_than_remaining": getattr(client, "god_mission", None),
                 "cities_loaded": bool(client is not None and getattr(client, "_mark_flags_loaded", False)),
                 "cities": cities,
                 "bag": bag,
@@ -862,7 +996,7 @@ def accounts_dashboard_json():
         for i in range(5):
             if ordered[i] is None:
                 ordered[i] = {"slot": i, "user": "", "name": "", "online": False,
-                              "logging_in": False, "leader": i == 0, "party_count": 0,
+                              "logging_in": False, "leader": False, "party_count": 0,
                               "party_expected": len(configured)}
             else:
                 ordered[i]["slot"] = i
