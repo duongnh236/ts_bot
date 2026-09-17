@@ -1,0 +1,176 @@
+{
+  "_note": "Event teleport (mode 'event'): tele toi map event roi DUNG YEN cho moi tay. Moi nick tu teleport rieng (khong party/sync kenh). KEY = event key. select = payload 0x4d (hex, '0300'+id 2B LE). staging_map = map cho sau khi chon event. steps = di chuyen toi cong roi qua (giong train_routes): {'move':[x,y]} | {'gate':idx,'x','y'}. dest_map = map event dich. Them event moi = them 1 entry (capture: 0x4d chon event -> 0x0c info -> 0x06 move -> 0x14 08 gate -> 0x14 06 transit/cinematic).",
+  "events": {
+    "nhi_kieu": {
+      "label": "Nhị Kiều",
+      "select": "03000100",
+      "staging_map": 12921,
+      "dest_map": 12922,
+      "exit": {
+        "_note": "Ra khoi map event ve map thuong (out_map) roi moi teleport di mode khac duoc. Event map (12921/12922) KHONG teleport thang. Cong exit dung 0x14 04 (gate thuong).",
+        "out_map": 12003,
+        "steps": [
+          {
+            "move": [
+              410,
+              490
+            ]
+          },
+          {
+            "move": [
+              410,
+              630
+            ]
+          },
+          {
+            "move": [
+              450,
+              790
+            ]
+          },
+          {
+            "move": [
+              470,
+              930
+            ]
+          },
+          {
+            "move": [
+              510,
+              1030
+            ]
+          },
+          {
+            "move": [
+              590,
+              1130
+            ]
+          },
+          {
+            "gate": 1,
+            "x": 650,
+            "y": 1250
+          }
+        ]
+      },
+      "_note": "Thap nhieu tang 12922->12959 (12940 khong ton tai). Toa do cong + door index tung tang doc tu world_nav.json, KHONG hardcode (door thay doi 1/2/3/5 tuy tang). Cong vao 12921->12922 co cinematic LAN DAU -> _event_gate; cong trong thap la cong thuong -> _enter_gate.",
+      "party_battle": {
+        "kind": "floor_crawl",
+        "top_map": 12959,
+        "floor_base": 12923,
+        "_note_points": "Diem DANH QUAI moi tang (boc tu capture): TANG NAO CUNG PHAI DI TOI DIEM roi moi bam idx. Thu tu VI TRI co dinh; so idx thi doi tuy tang (vd 12930 dung 4,5,6 thay vi 3,4,5) -> duyet idx tang dan, diem thu k dung cho lan danh thu k. Diem CONG khong de o day - lay tu world_nav.json (da doi chieu capture: khop).",
+        "battle_points": {
+          "12922": [
+            [
+              987,
+              439
+            ],
+            [
+              370,
+              410
+            ]
+          ],
+          "12923": [
+            [
+              590,
+              490
+            ]
+          ],
+          "default": [
+            [
+              510,
+              1190
+            ],
+            [
+              290,
+              730
+            ],
+            [
+              510,
+              330
+            ]
+          ],
+          "12934": [
+            [
+              650,
+              430
+            ]
+          ]
+        },
+        "battle_idx": {
+          "12934": [
+            2
+          ]
+        },
+        "_note_battle_idx": "idx kich tran cua TANG CHOT - khac han 3..8 cua tang thuong. Boc tu captures/2k_tang11_20260906.pcap: len 12934 (cap ben (630,890)) -> scene_resume -> move toi (650,430) -> C2S 0x14 0800 02 -> 6 buoc thoai (0x14 0600) -> S2C 0x14 0900 -> 0x32 danh. Cong LEN 12935 chi hien SAU KHI THANG nen world_nav chua co - can capture them."
+      }
+    },
+    "npc_40": {
+      "label": "40 NPC",
+      "select": "03000400",
+      "staging_map": 0,
+      "dest_map": 10991,
+      "steps": [],
+      "party_battle": {
+        "kind": "npc_repeat",
+        "point": [
+          910,
+          290
+        ]
+      },
+      "_note": "Event tele THANG (0x4d 03000400) vao map roi dung yen - khong cong/di bo. Map 40NPC (10991) CHAN teleport; khi thoat bot tu suy duong theo ID map va toa do server.",
+      "exit": {
+        "out_map": 12003
+      }
+    },
+    "loan_dau": {
+      "label": "Loạn đấu",
+      "select": "03000300",
+      "staging_map": 0,
+      "dest_map": 10991,
+      "steps": [],
+      "party_battle": {
+        "kind": "chaos_vs",
+        "point": [
+          910,
+          290
+        ],
+        "npc_option": "01000300"
+      },
+      "_note": "Loan dau loi dai. THU 3 20:00-22:00 (map 10991, option NPC 03 = 亂鬥), THU 5 20:00-22:00 (map 10991, option NPC 04 = 團P 'loan dau doi' - VAN dang ky SOLO, khong lap party), THU 7 20:30-22:30 (map 54901 tren SERVER VO GIOI, option NPC 01). Xem `lich` va documents/LOAN_DAU.md.",
+      "exit": {
+        "out_map": 12003
+      },
+      "lich": [
+        {
+          "thu": 1,
+          "tu": "20:00",
+          "den": "22:00"
+        },
+        {
+          "thu": 3,
+          "tu": "20:00",
+          "den": "22:00",
+          "select": "03000200",
+          "party_battle": {
+            "npc_option": "01000400"
+          }
+        },
+        {
+          "thu": 5,
+          "tu": "20:30",
+          "den": "22:30",
+          "select": "03005a00",
+          "dest_map": 54901,
+          "party_battle": {
+            "point": [
+              1630,
+              430
+            ],
+            "npc_option": "01000100"
+          }
+        }
+      ]
+    }
+  }
+}

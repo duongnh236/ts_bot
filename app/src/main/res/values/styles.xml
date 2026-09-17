@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#D5A84E</item>
+        <item name="android:editTextStyle">@style/TSBotEditText</item>
+        <item name="android:navigationBarColor">#08111F</item>
+        <item name="android:statusBarColor">#08111F</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="TSBotEditText" parent="android:style/Widget.Material.EditText">
+        <item name="android:background">@drawable/input_background</item>
+        <item name="android:textColor">#F4F8FF</item>
+        <item name="android:textColorHint">#91A3BA</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:minHeight">62dp</item>
+        <item name="android:selectAllOnFocus">false</item>
+    </style>
+</resources>

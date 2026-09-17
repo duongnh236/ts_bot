@@ -1,0 +1,6195 @@
+{
+"_note": "AUTO-SINH tu tools/crack_donate_materials.py (Item_C.dat). Nguyen lieu hop thanh co the DONATE quan doan. tid_hex -> {name, kind, lv}. MAC DINH donate HET; user danh dau GIU trong GUI (material_modes[tid]='keep'). Donate qua 0x27 sub0f theo slot.",
+"items": {
+"0x80ff": {
+"name": "Bình Trà Dầu",
+"kind": 24,
+"lv": 1
+},
+"0x80fd": {
+"name": "Bình Trà Sành",
+"kind": 24,
+"lv": 1
+},
+"0x80f3": {
+"name": "Sành Dính",
+"kind": 24,
+"lv": 1
+},
+"0x80e9": {
+"name": "Sành Đỏ",
+"kind": 24,
+"lv": 1
+},
+"0x80fe": {
+"name": "Bình Trà Sành Đen",
+"kind": 24,
+"lv": 2
+},
+"0x8100": {
+"name": "Bình Trà Thái",
+"kind": 24,
+"lv": 2
+},
+"0x80ea": {
+"name": "Sành Cứng",
+"kind": 24,
+"lv": 2
+},
+"0x80f4": {
+"name": "Sành Tạp",
+"kind": 24,
+"lv": 2
+},
+"0x8102": {
+"name": "Hủ Dưa Chua",
+"kind": 24,
+"lv": 3
+},
+"0x8101": {
+"name": "Lô Sành",
+"kind": 24,
+"lv": 3
+},
+"0x80f5": {
+"name": "Sành Thô",
+"kind": 24,
+"lv": 3
+},
+"0x80eb": {
+"name": "Sành Đen",
+"kind": 24,
+"lv": 3
+},
+"0x80f6": {
+"name": "Sành Mịn",
+"kind": 24,
+"lv": 4
+},
+"0x80ec": {
+"name": "Sành Xanh",
+"kind": 24,
+"lv": 4
+},
+"0x80ed": {
+"name": "Sành Hoàng Sa",
+"kind": 24,
+"lv": 5
+},
+"0x80f7": {
+"name": "Sành Thái",
+"kind": 24,
+"lv": 5
+},
+"0x80ee": {
+"name": "Hắc Ín",
+"kind": 24,
+"lv": 6
+},
+"0x80f8": {
+"name": "Sành Lạc",
+"kind": 24,
+"lv": 6
+},
+"0x80ef": {
+"name": "Sành Nhuyễn",
+"kind": 24,
+"lv": 7
+},
+"0x80f9": {
+"name": "Sành Quảng",
+"kind": 24,
+"lv": 7
+},
+"0x80f0": {
+"name": "Sành Lô Giang",
+"kind": 24,
+"lv": 8
+},
+"0x80fa": {
+"name": "Sành Mềm",
+"kind": 24,
+"lv": 8
+},
+"0x80f1": {
+"name": "Sành Kinh Sở",
+"kind": 24,
+"lv": 9
+},
+"0x80fb": {
+"name": "Sành Lang Gia",
+"kind": 24,
+"lv": 9
+},
+"0x80fc": {
+"name": "Sành Hoàng Thất",
+"kind": 24,
+"lv": 10
+},
+"0x80f2": {
+"name": "Sành Thượng Hải",
+"kind": 24,
+"lv": 10
+},
+"0x8103": {
+"name": "Bình Sành Châu",
+"kind": 24,
+"lv": 11
+},
+"0x8104": {
+"name": "Bình Thể Hoàng",
+"kind": 24,
+"lv": 12
+},
+"0x8105": {
+"name": "Bình Sơn Nung",
+"kind": 24,
+"lv": 13
+},
+"0x8106": {
+"name": "Bình Vy Thể",
+"kind": 24,
+"lv": 14
+},
+"0x8107": {
+"name": "Bình Thượng Cống",
+"kind": 24,
+"lv": 15
+},
+"0x8108": {
+"name": "Bình Bà Dương",
+"kind": 24,
+"lv": 16
+},
+"0x8109": {
+"name": "Hủ Lư Giang",
+"kind": 24,
+"lv": 17
+},
+"0x810a": {
+"name": "Hủ Kiến An",
+"kind": 24,
+"lv": 18
+},
+"0x810b": {
+"name": "Bình Tiền Đường",
+"kind": 24,
+"lv": 19
+},
+"0x810c": {
+"name": "Bình Đan Dương",
+"kind": 24,
+"lv": 20
+},
+"0x810d": {
+"name": "Bình Thượng Hải",
+"kind": 24,
+"lv": 21
+},
+"0x810e": {
+"name": "Bình Chân Nguyên",
+"kind": 24,
+"lv": 22
+},
+"0x810f": {
+"name": "Bình Tề Lỗ",
+"kind": 24,
+"lv": 23
+},
+"0x8110": {
+"name": "Bình Tư Trung",
+"kind": 24,
+"lv": 24
+},
+"0x8111": {
+"name": "Bình Tinh Hội",
+"kind": 24,
+"lv": 25
+},
+"0x8112": {
+"name": "Bình Tôn Tước",
+"kind": 24,
+"lv": 26
+},
+"0x8113": {
+"name": "Hũ Sặc Sỡ",
+"kind": 24,
+"lv": 27
+},
+"0x8114": {
+"name": "Hũ Đầu Rồng",
+"kind": 24,
+"lv": 28
+},
+"0x84f9": {
+"name": "Cành Liễu",
+"kind": 25,
+"lv": 1
+},
+"0x84de": {
+"name": "Cành Mộc Miên",
+"kind": 25,
+"lv": 1
+},
+"0x84e1": {
+"name": "Gỗ Phù Du",
+"kind": 25,
+"lv": 1
+},
+"0x84d1": {
+"name": "Gỗ Đàn Hương",
+"kind": 25,
+"lv": 1
+},
+"0x84db": {
+"name": "Quá Lỗ Chi",
+"kind": 25,
+"lv": 1
+},
+"0x84e4": {
+"name": "Thùng Gỗ Nhỏ",
+"kind": 25,
+"lv": 1
+},
+"0x84df": {
+"name": "Gỗ Cửu Phẩm",
+"kind": 25,
+"lv": 2
+},
+"0x84d2": {
+"name": "Gỗ Hồng Sam",
+"kind": 25,
+"lv": 2
+},
+"0x84e2": {
+"name": "Gỗ Ngâm Nước",
+"kind": 25,
+"lv": 2
+},
+"0x84dc": {
+"name": "Gỗ Thô Lê",
+"kind": 25,
+"lv": 2
+},
+"0x84e5": {
+"name": "Rương Gỗ Cũ",
+"kind": 25,
+"lv": 2
+},
+"0x84dd": {
+"name": "Cành Ngô Đồng",
+"kind": 25,
+"lv": 3
+},
+"0x84e3": {
+"name": "Gỗ Cây Vải",
+"kind": 25,
+"lv": 3
+},
+"0x84e0": {
+"name": "Gỗ Kém",
+"kind": 25,
+"lv": 3
+},
+"0x84d3": {
+"name": "Gỗ Ngô Đồng",
+"kind": 25,
+"lv": 3
+},
+"0x84e6": {
+"name": "Rương Gỗ Thơm",
+"kind": 25,
+"lv": 3
+},
+"0x84d4": {
+"name": "Gỗ Hắc Tùng",
+"kind": 25,
+"lv": 4
+},
+"0x84d5": {
+"name": "Gỗ Nhất Đẳng",
+"kind": 25,
+"lv": 5
+},
+"0x84d6": {
+"name": "Gỗ Thượng Đẳng",
+"kind": 25,
+"lv": 6
+},
+"0x84d7": {
+"name": "Gỗ Tây Xuyên",
+"kind": 25,
+"lv": 7
+},
+"0x84d8": {
+"name": "Gỗ Sơn Việt",
+"kind": 25,
+"lv": 8
+},
+"0x84d9": {
+"name": "Gỗ Liêu Đông",
+"kind": 25,
+"lv": 9
+},
+"0x84da": {
+"name": "Gỗ Ngàn Năm",
+"kind": 25,
+"lv": 10
+},
+"0x84e7": {
+"name": "Cành Tùng Lớn",
+"kind": 25,
+"lv": 11
+},
+"0x84e8": {
+"name": "Gỗ Du",
+"kind": 25,
+"lv": 12
+},
+"0x84e9": {
+"name": "Gỗ Tê Phụng",
+"kind": 25,
+"lv": 13
+},
+"0x84ea": {
+"name": "Gỗ Bí Hương",
+"kind": 25,
+"lv": 14
+},
+"0x84eb": {
+"name": "Gỗ An Lạc",
+"kind": 25,
+"lv": 15
+},
+"0x84f1": {
+"name": "Gỗ Giả Thuốc",
+"kind": 25,
+"lv": 16
+},
+"0x84ec": {
+"name": "Gỗ Kiến An",
+"kind": 25,
+"lv": 16
+},
+"0x84ed": {
+"name": "Gỗ Vân Tròn",
+"kind": 25,
+"lv": 17
+},
+"0x84ee": {
+"name": "Gỗ Lê Ngàn Năm",
+"kind": 25,
+"lv": 18
+},
+"0x84ef": {
+"name": "Gỗ Di Châu",
+"kind": 25,
+"lv": 19
+},
+"0x84f0": {
+"name": "Gỗ Cổ Thần",
+"kind": 25,
+"lv": 20
+},
+"0x84f2": {
+"name": "Gỗ Cổ Đại",
+"kind": 25,
+"lv": 21
+},
+"0x84f3": {
+"name": "Gỗ Cây Cao",
+"kind": 25,
+"lv": 22
+},
+"0x84f4": {
+"name": "Gổ Linh Khí",
+"kind": 25,
+"lv": 23
+},
+"0x84f5": {
+"name": "Gổ Trường Lưu",
+"kind": 25,
+"lv": 24
+},
+"0x84f6": {
+"name": "Gỗ Cự Đông",
+"kind": 25,
+"lv": 25
+},
+"0x84f7": {
+"name": "Gỗ Vân Tùng",
+"kind": 25,
+"lv": 26
+},
+"0x84f8": {
+"name": "Gỗ Minh Châu",
+"kind": 25,
+"lv": 27
+},
+"0x84fa": {
+"name": "Gổ Đầu Rồng",
+"kind": 25,
+"lv": 28
+},
+"0x88c3": {
+"name": "Hắc Xà Lân",
+"kind": 26,
+"lv": 1
+},
+"0x88c6": {
+"name": "Vây Tiểu Xà",
+"kind": 26,
+"lv": 1
+},
+"0x88b9": {
+"name": "Vỏ Hào",
+"kind": 26,
+"lv": 1
+},
+"0x88ba": {
+"name": "Cự Ngư Lân",
+"kind": 26,
+"lv": 2
+},
+"0x88c4": {
+"name": "Vỏ Nghêu",
+"kind": 26,
+"lv": 2
+},
+"0x88c7": {
+"name": "Vỏ Sò Lớn",
+"kind": 26,
+"lv": 2
+},
+"0x88c5": {
+"name": "Quy Bối Giáp",
+"kind": 26,
+"lv": 3
+},
+"0x88c8": {
+"name": "Vỏ Cua Chân Dài",
+"kind": 26,
+"lv": 3
+},
+"0x88bb": {
+"name": "Vỏ Cua Lông",
+"kind": 26,
+"lv": 3
+},
+"0x88bc": {
+"name": "Vỏ Tôm Càng",
+"kind": 26,
+"lv": 4
+},
+"0x88c9": {
+"name": "Độc Xà Giáp",
+"kind": 26,
+"lv": 4
+},
+"0x88bd": {
+"name": "Mạo Đại Giáp",
+"kind": 26,
+"lv": 5
+},
+"0x88be": {
+"name": "Hoàng Ngư Giáp",
+"kind": 26,
+"lv": 6
+},
+"0x88bf": {
+"name": "Vỏ Cua",
+"kind": 26,
+"lv": 7
+},
+"0x88c0": {
+"name": "Vỏ Tôm Biển Sâu",
+"kind": 26,
+"lv": 8
+},
+"0x88c1": {
+"name": "Mạo Đại Giáp 1000 Năm",
+"kind": 26,
+"lv": 9
+},
+"0x88c2": {
+"name": "Giao Long Lân",
+"kind": 26,
+"lv": 10
+},
+"0x88ca": {
+"name": "Vỏ Sò Khổng Lồ",
+"kind": 26,
+"lv": 11
+},
+"0x88cb": {
+"name": "Ốc Minh Giác",
+"kind": 26,
+"lv": 12
+},
+"0x88cc": {
+"name": "Tử Mãng Lân",
+"kind": 26,
+"lv": 13
+},
+"0x88cd": {
+"name": "Tiên Xà Lân",
+"kind": 26,
+"lv": 14
+},
+"0x88ce": {
+"name": "Thải Mạo Giáp",
+"kind": 26,
+"lv": 15
+},
+"0x88cf": {
+"name": "Bạch Xà Lân",
+"kind": 26,
+"lv": 16
+},
+"0x88d0": {
+"name": "Trường Giang Lân",
+"kind": 26,
+"lv": 17
+},
+"0x88d1": {
+"name": "Mãnh Ngạc Lân",
+"kind": 26,
+"lv": 18
+},
+"0x88d2": {
+"name": "Cự Mãng Giáp",
+"kind": 26,
+"lv": 19
+},
+"0x88d3": {
+"name": "Đại Mạc Xà Lân",
+"kind": 26,
+"lv": 20
+},
+"0x88d4": {
+"name": "Thần Quy Giáp",
+"kind": 26,
+"lv": 21
+},
+"0x88d5": {
+"name": "Cực Bắc Ngư Lân",
+"kind": 26,
+"lv": 22
+},
+"0x88d6": {
+"name": "Ốc Khổng Lồ",
+"kind": 26,
+"lv": 23
+},
+"0x88d7": {
+"name": "Kỳ Lân Giáp",
+"kind": 26,
+"lv": 24
+},
+"0x88d8": {
+"name": "Chân Long Giáp",
+"kind": 26,
+"lv": 25
+},
+"0x88d9": {
+"name": "Cự Quy Giáp",
+"kind": 26,
+"lv": 26
+},
+"0x88da": {
+"name": "Dã Long Giáp",
+"kind": 26,
+"lv": 27
+},
+"0x88db": {
+"name": "Long Thủ Giáp",
+"kind": 26,
+"lv": 28
+},
+"0x8cae": {
+"name": "Xương Bò",
+"kind": 27,
+"lv": 1
+},
+"0x8cab": {
+"name": "Xương Gà",
+"kind": 27,
+"lv": 1
+},
+"0x8ca1": {
+"name": "Xương Heo",
+"kind": 27,
+"lv": 1
+},
+"0x8cac": {
+"name": "Xương Dê",
+"kind": 27,
+"lv": 2
+},
+"0x8ca2": {
+"name": "Xương Nai",
+"kind": 27,
+"lv": 2
+},
+"0x8caf": {
+"name": "Xương Nhạn",
+"kind": 27,
+"lv": 2
+},
+"0x8cad": {
+"name": "Xương Chó",
+"kind": 27,
+"lv": 3
+},
+"0x8ca3": {
+"name": "Xương Hạc",
+"kind": 27,
+"lv": 3
+},
+"0x8cb0": {
+"name": "Xương Hồ Li",
+"kind": 27,
+"lv": 3
+},
+"0x8ca4": {
+"name": "Xương Sói",
+"kind": 27,
+"lv": 4
+},
+"0x8ca5": {
+"name": "Xương Cọp",
+"kind": 27,
+"lv": 5
+},
+"0x8cb1": {
+"name": "Xương Heo Rừng",
+"kind": 27,
+"lv": 5
+},
+"0x8ca6": {
+"name": "Xương Gấu",
+"kind": 27,
+"lv": 6
+},
+"0x8ca7": {
+"name": "Xương Cá Sấu",
+"kind": 27,
+"lv": 7
+},
+"0x8ca8": {
+"name": "Xương Chim",
+"kind": 27,
+"lv": 8
+},
+"0x8ca9": {
+"name": "Xương Hổ Vương",
+"kind": 27,
+"lv": 9
+},
+"0x8caa": {
+"name": "Xương Rồng",
+"kind": 27,
+"lv": 10
+},
+"0x8cb2": {
+"name": "Xương Bạo Trư",
+"kind": 27,
+"lv": 11
+},
+"0x8cb3": {
+"name": "Xương Chân Nai",
+"kind": 27,
+"lv": 12
+},
+"0x8cb4": {
+"name": "Xương Lưng Sói",
+"kind": 27,
+"lv": 13
+},
+"0x8cb5": {
+"name": "Đầu Lâu",
+"kind": 27,
+"lv": 14
+},
+"0x8cb6": {
+"name": "Xương Báo Tuyết",
+"kind": 27,
+"lv": 15
+},
+"0x8cb7": {
+"name": "Xương Vai Bò Rừng",
+"kind": 27,
+"lv": 16
+},
+"0x8cb8": {
+"name": "Xương Đuôi Cá Sấu",
+"kind": 27,
+"lv": 17
+},
+"0x8cb9": {
+"name": "Xương Chân Hổ Vương",
+"kind": 27,
+"lv": 18
+},
+"0x8cba": {
+"name": "Xương Chân Gấu",
+"kind": 27,
+"lv": 19
+},
+"0x8cbb": {
+"name": "Xương Lưng Cá",
+"kind": 27,
+"lv": 20
+},
+"0x8cbc": {
+"name": "Xương Vai Sói",
+"kind": 27,
+"lv": 21
+},
+"0x8cbd": {
+"name": "Nanh Vua Heo Rừng",
+"kind": 27,
+"lv": 22
+},
+"0x8cbe": {
+"name": "Thạch Hổ Trảo",
+"kind": 27,
+"lv": 23
+},
+"0x8cbf": {
+"name": "Sừng Nai",
+"kind": 27,
+"lv": 24
+},
+"0x8cc0": {
+"name": "Sọ Gấu",
+"kind": 27,
+"lv": 25
+},
+"0x8cc1": {
+"name": "Sọ Voi",
+"kind": 27,
+"lv": 26
+},
+"0x8cc2": {
+"name": "Ngà Voi",
+"kind": 27,
+"lv": 27
+},
+"0x8cc3": {
+"name": "Xương Đầu Rồng",
+"kind": 27,
+"lv": 28
+},
+"0xac39": {
+"name": "Ngọc Sa Thô",
+"kind": 28,
+"lv": 1
+},
+"0x93ae": {
+"name": "Phác Ngọc",
+"kind": 28,
+"lv": 1
+},
+"0x93af": {
+"name": "Dã Thạch Ngọc",
+"kind": 28,
+"lv": 2
+},
+"0xac3a": {
+"name": "Dã Thạch Ngọc Sa",
+"kind": 28,
+"lv": 2
+},
+"0x93b0": {
+"name": "Ngọc Chất Kém",
+"kind": 28,
+"lv": 3
+},
+"0xac3b": {
+"name": "Ngọc Sa Kém",
+"kind": 28,
+"lv": 3
+},
+"0xac3c": {
+"name": "Ngọc Sa Thứ",
+"kind": 28,
+"lv": 4
+},
+"0x93b1": {
+"name": "Ngọc Thứ Cấp",
+"kind": 28,
+"lv": 4
+},
+"0xac3d": {
+"name": "Ngọc Sa Sơ",
+"kind": 28,
+"lv": 5
+},
+"0x93b2": {
+"name": "Ngọc Sơ Cấp",
+"kind": 28,
+"lv": 5
+},
+"0x93b3": {
+"name": "Chu Ngọc",
+"kind": 28,
+"lv": 6
+},
+"0xac3e": {
+"name": "Chu Ngọc Sa",
+"kind": 28,
+"lv": 6
+},
+"0x93b4": {
+"name": "Mỹ Ngọc",
+"kind": 28,
+"lv": 7
+},
+"0xac3f": {
+"name": "Mỹ Ngọc Sa",
+"kind": 28,
+"lv": 7
+},
+"0x93b5": {
+"name": "Hải Lam Ngọc",
+"kind": 28,
+"lv": 8
+},
+"0xac13": {
+"name": "Lam Ngọc Sa",
+"kind": 28,
+"lv": 8
+},
+"0x93b6": {
+"name": "Chân Kinh Ngọc",
+"kind": 28,
+"lv": 9
+},
+"0xac14": {
+"name": "Chân Ngọc Sa",
+"kind": 28,
+"lv": 9
+},
+"0x93b7": {
+"name": "Sơn Hải Ngọc",
+"kind": 28,
+"lv": 10
+},
+"0xac15": {
+"name": "Sơn Ngọc Sa",
+"kind": 28,
+"lv": 10
+},
+"0x93b8": {
+"name": "Chánh Huyền Ngọc",
+"kind": 28,
+"lv": 11
+},
+"0xac16": {
+"name": "Chính Ngọc Sa",
+"kind": 28,
+"lv": 11
+},
+"0xac17": {
+"name": "Lục Ngọc Sa",
+"kind": 28,
+"lv": 12
+},
+"0x93b9": {
+"name": "Thanh Lục Ngọc",
+"kind": 28,
+"lv": 12
+},
+"0xac18": {
+"name": "Tinh Ngọc Sa",
+"kind": 28,
+"lv": 13
+},
+"0x93ba": {
+"name": "Tinh Điêu Ngọc",
+"kind": 28,
+"lv": 13
+},
+"0xac19": {
+"name": "Chẩm Ngọc Sa",
+"kind": 28,
+"lv": 14
+},
+"0x93bb": {
+"name": "Chẩm Thạch Ngọc",
+"kind": 28,
+"lv": 14
+},
+"0xac1a": {
+"name": "Hồng Ngọc Sa",
+"kind": 28,
+"lv": 15
+},
+"0x93bc": {
+"name": "Hồng Vân Ngọc",
+"kind": 28,
+"lv": 15
+},
+"0xac1b": {
+"name": "Quế Ngọc Sa",
+"kind": 28,
+"lv": 16
+},
+"0x93bd": {
+"name": "Quế Sơn Ngọc",
+"kind": 28,
+"lv": 16
+},
+"0x93be": {
+"name": "Hữu Minh Ngọc",
+"kind": 28,
+"lv": 17
+},
+"0xac1c": {
+"name": "Hữu Ngọc Sa",
+"kind": 28,
+"lv": 17
+},
+"0x93bf": {
+"name": "Lam Trấn Ngọc",
+"kind": 28,
+"lv": 18
+},
+"0x9383": {
+"name": "Ngọc Sa Nam Trấn",
+"kind": 28,
+"lv": 18
+},
+"0x9384": {
+"name": "Ngọc Sa Quân Tử",
+"kind": 28,
+"lv": 19
+},
+"0x93c0": {
+"name": "Quân Tử Bối Ngọc",
+"kind": 28,
+"lv": 19
+},
+"0x93c1": {
+"name": "Hồng Nho Ngọc",
+"kind": 28,
+"lv": 20
+},
+"0x9385": {
+"name": "Ngọc Sa Hồng Nho",
+"kind": 28,
+"lv": 20
+},
+"0x93c2": {
+"name": "Nga My Mỹ Ngọc",
+"kind": 28,
+"lv": 21
+},
+"0x9386": {
+"name": "Nga My Ngọc Sa",
+"kind": 28,
+"lv": 21
+},
+"0x93cc": {
+"name": "Giang Nam Mỹ Ngọc",
+"kind": 28,
+"lv": 22
+},
+"0x93c3": {
+"name": "Lam Điền Mỹ Ngọc",
+"kind": 28,
+"lv": 22
+},
+"0x9387": {
+"name": "Lam Điền Ngọc Sa",
+"kind": 28,
+"lv": 22
+},
+"0x9388": {
+"name": "Hòa Điền Ngọc Sa",
+"kind": 28,
+"lv": 23
+},
+"0x93c4": {
+"name": "Hỏa Điền Mỹ Ngọc",
+"kind": 28,
+"lv": 23
+},
+"0x93c5": {
+"name": "Quang Hà Ngọc",
+"kind": 28,
+"lv": 24
+},
+"0x9389": {
+"name": "Quang Hà Ngọc Sa",
+"kind": 28,
+"lv": 24
+},
+"0x93c6": {
+"name": "Bảo Tinh Ngọc",
+"kind": 28,
+"lv": 25
+},
+"0x938a": {
+"name": "Bảo Tinh Ngọc Sa",
+"kind": 28,
+"lv": 25
+},
+"0x93c7": {
+"name": "Xuyên Kiệt Ngọc",
+"kind": 28,
+"lv": 26
+},
+"0x938b": {
+"name": "Xuyên Kiệt Ngọc Sa",
+"kind": 28,
+"lv": 26
+},
+"0x93c8": {
+"name": "Tuyệt Vực Ngọc",
+"kind": 28,
+"lv": 27
+},
+"0x938c": {
+"name": "Tuyệt Vực Ngọc Sa",
+"kind": 28,
+"lv": 27
+},
+"0x9390": {
+"name": "Dự Lưu Ngọc",
+"kind": 28,
+"lv": 28
+},
+"0x938d": {
+"name": "Nam Man Ngọc Sa",
+"kind": 28,
+"lv": 28
+},
+"0x93c9": {
+"name": "Ngụy Man Ngọc",
+"kind": 28,
+"lv": 28
+},
+"0x93cb": {
+"name": "Thông Thiên Ngọc",
+"kind": 28,
+"lv": 29
+},
+"0x93ca": {
+"name": "Định Biên Ngọc",
+"kind": 28,
+"lv": 29
+},
+"0x938e": {
+"name": "Định Biên Ngọc Sa",
+"kind": 28,
+"lv": 29
+},
+"0x93cd": {
+"name": "Long Thủ Ngọc",
+"kind": 28,
+"lv": 30
+},
+"0x938f": {
+"name": "Thông Thiên Ngọc Sa",
+"kind": 28,
+"lv": 30
+},
+"0x9391": {
+"name": "Long Thủ Ngọc Sa",
+"kind": 28,
+"lv": 31
+},
+"0x9471": {
+"name": "Đá Băng Nát",
+"kind": 29,
+"lv": 1
+},
+"0x9472": {
+"name": "Hoàng Hổ Phách",
+"kind": 29,
+"lv": 2
+},
+"0x9473": {
+"name": "Sao Băng Nát",
+"kind": 29,
+"lv": 3
+},
+"0x9474": {
+"name": "Vĩnh Đông Kết Tinh",
+"kind": 29,
+"lv": 4
+},
+"0x9475": {
+"name": "Chí Sĩ Huyết",
+"kind": 29,
+"lv": 5
+},
+"0x9476": {
+"name": "Xích Thố Lệ",
+"kind": 29,
+"lv": 6
+},
+"0x9477": {
+"name": "Hải Long Tiên",
+"kind": 29,
+"lv": 7
+},
+"0x9478": {
+"name": "Anh Hùng Đảm",
+"kind": 29,
+"lv": 8
+},
+"0x9479": {
+"name": "Tường Thú Tinh",
+"kind": 29,
+"lv": 9
+},
+"0x947a": {
+"name": "Khí Tiết Hồn",
+"kind": 29,
+"lv": 10
+},
+"0x9461": {
+"name": "Hàn Dạ Sương",
+"kind": 29,
+"lv": 11
+},
+"0x9462": {
+"name": "Quần Lang Tiên",
+"kind": 29,
+"lv": 12
+},
+"0x9463": {
+"name": "Địa Tâm Hỏa Thạch",
+"kind": 29,
+"lv": 13
+},
+"0x9464": {
+"name": "Hổ Phách Tử Quang",
+"kind": 29,
+"lv": 14
+},
+"0x9465": {
+"name": "Tiên Phi Thạch",
+"kind": 29,
+"lv": 15
+},
+"0x9466": {
+"name": "Tường Hạc Hồng",
+"kind": 29,
+"lv": 16
+},
+"0x9467": {
+"name": "Mãnh Hổ Tinh",
+"kind": 29,
+"lv": 17
+},
+"0x9468": {
+"name": "Thiên Mã Huyết",
+"kind": 29,
+"lv": 18
+},
+"0x9469": {
+"name": "Ngộ Đạo Tử",
+"kind": 29,
+"lv": 19
+},
+"0x946a": {
+"name": "Thiên Đế Lệ",
+"kind": 29,
+"lv": 20
+},
+"0x946b": {
+"name": "Chí Thiện Quang",
+"kind": 29,
+"lv": 21
+},
+"0x946c": {
+"name": "Thành Tu Chi Tinh",
+"kind": 29,
+"lv": 22
+},
+"0x946d": {
+"name": "Mảnh Ngân Hà",
+"kind": 29,
+"lv": 23
+},
+"0x946e": {
+"name": "Tiên Duyên Tinh",
+"kind": 29,
+"lv": 24
+},
+"0x946f": {
+"name": "Hổ Phách Tuyền",
+"kind": 29,
+"lv": 25
+},
+"0x9495": {
+"name": "Hạt Thiên Cương Tinh",
+"kind": 29,
+"lv": 26
+},
+"0x9496": {
+"name": "Đông Di Trân Châu",
+"kind": 29,
+"lv": 27
+},
+"0x9497": {
+"name": "Tinh Phách Đầu Rồng",
+"kind": 29,
+"lv": 28
+},
+"0x936d": {
+"name": "Da Hổ Hoang",
+"kind": 30,
+"lv": 1
+},
+"0x9870": {
+"name": "Lông Dê",
+"kind": 30,
+"lv": 1
+},
+"0x9859": {
+"name": "Miếng Da Nhỏ",
+"kind": 30,
+"lv": 1
+},
+"0x9864": {
+"name": "Da Dày Cứng",
+"kind": 30,
+"lv": 2
+},
+"0x985a": {
+"name": "Da Mèo Sọc",
+"kind": 30,
+"lv": 2
+},
+"0x9865": {
+"name": "Da Sói Nát",
+"kind": 30,
+"lv": 2
+},
+"0x9871": {
+"name": "Lông Nai",
+"kind": 30,
+"lv": 2
+},
+"0x936e": {
+"name": "Da Sơn Dương",
+"kind": 30,
+"lv": 3
+},
+"0x9866": {
+"name": "Da Thú Nát",
+"kind": 30,
+"lv": 3
+},
+"0x985b": {
+"name": "Móng Gà",
+"kind": 30,
+"lv": 3
+},
+"0x985d": {
+"name": "Móng Ó Nhỏ",
+"kind": 30,
+"lv": 3
+},
+"0x985e": {
+"name": "Da Cá Thảo",
+"kind": 30,
+"lv": 4
+},
+"0x9862": {
+"name": "Da Tuyết Điêu",
+"kind": 30,
+"lv": 4
+},
+"0x985c": {
+"name": "Da Ó Nhỏ",
+"kind": 30,
+"lv": 4
+},
+"0x9867": {
+"name": "Móng Gà Lửa",
+"kind": 30,
+"lv": 4
+},
+"0x9860": {
+"name": "Da Chim Biển",
+"kind": 30,
+"lv": 5
+},
+"0x985f": {
+"name": "Da Hạc Hoang",
+"kind": 30,
+"lv": 5
+},
+"0x9868": {
+"name": "Da Nai Hoang",
+"kind": 30,
+"lv": 5
+},
+"0x9863": {
+"name": "Móng Ó Già",
+"kind": 30,
+"lv": 5
+},
+"0x936f": {
+"name": "Da Báo Hoa",
+"kind": 30,
+"lv": 6
+},
+"0x986a": {
+"name": "Da Dày Lớn",
+"kind": 30,
+"lv": 6
+},
+"0x9869": {
+"name": "Da Gà Trĩ",
+"kind": 30,
+"lv": 6
+},
+"0x9861": {
+"name": "Móng Chim Biển",
+"kind": 30,
+"lv": 6
+},
+"0x986c": {
+"name": "Da Lông Thô",
+"kind": 30,
+"lv": 7
+},
+"0x986b": {
+"name": "Lông Ngựa Hoang",
+"kind": 30,
+"lv": 7
+},
+"0x986e": {
+"name": "Da Gấu Nhỏ",
+"kind": 30,
+"lv": 8
+},
+"0x986d": {
+"name": "Da Thú Hoang",
+"kind": 30,
+"lv": 8
+},
+"0x944f": {
+"name": "Da Cự Thú",
+"kind": 30,
+"lv": 9
+},
+"0x9371": {
+"name": "Da Lạc Đà",
+"kind": 30,
+"lv": 9
+},
+"0x986f": {
+"name": "Lông Cự Thú",
+"kind": 30,
+"lv": 9
+},
+"0x9372": {
+"name": "Lông Lạc Đà",
+"kind": 30,
+"lv": 9
+},
+"0x9370": {
+"name": "Da Bạch Hổ",
+"kind": 30,
+"lv": 10
+},
+"0x9450": {
+"name": "Da Sơn Dương",
+"kind": 30,
+"lv": 10
+},
+"0x9451": {
+"name": "Da Lông Lộn",
+"kind": 30,
+"lv": 11
+},
+"0x9452": {
+"name": "Da Vân Đốm",
+"kind": 30,
+"lv": 12
+},
+"0x9453": {
+"name": "Da Nhẹ Mềm",
+"kind": 30,
+"lv": 13
+},
+"0x9454": {
+"name": "Da Cá Lớn",
+"kind": 30,
+"lv": 14
+},
+"0x9374": {
+"name": "Da Heo Rừng",
+"kind": 30,
+"lv": 15
+},
+"0x9455": {
+"name": "Da Sừng Dê Núi",
+"kind": 30,
+"lv": 15
+},
+"0x9456": {
+"name": "Da Móng Rồng",
+"kind": 30,
+"lv": 16
+},
+"0x9373": {
+"name": "Lông Thỏ",
+"kind": 30,
+"lv": 16
+},
+"0x9457": {
+"name": "Da Hạc Tiên",
+"kind": 30,
+"lv": 17
+},
+"0x9458": {
+"name": "Da Báo Tuyết",
+"kind": 30,
+"lv": 18
+},
+"0x9459": {
+"name": "Da Cọp Liêu Đông",
+"kind": 30,
+"lv": 19
+},
+"0x936c": {
+"name": "Da Thỏ",
+"kind": 30,
+"lv": 19
+},
+"0x945a": {
+"name": "Da Hỏa Hạc",
+"kind": 30,
+"lv": 20
+},
+"0x945b": {
+"name": "Da Gấu Nâu",
+"kind": 30,
+"lv": 21
+},
+"0x945c": {
+"name": "Da Sọc",
+"kind": 30,
+"lv": 22
+},
+"0x945d": {
+"name": "Da Cá Hữu",
+"kind": 30,
+"lv": 23
+},
+"0x945e": {
+"name": "Da Chim Ưng",
+"kind": 30,
+"lv": 24
+},
+"0x945f": {
+"name": "Da Ngựa Hoang",
+"kind": 30,
+"lv": 25
+},
+"0x9460": {
+"name": "Móng Vuốt To",
+"kind": 30,
+"lv": 26
+},
+"0x9375": {
+"name": "Da Đầu Rồng",
+"kind": 30,
+"lv": 27
+},
+"0x935e": {
+"name": "Móng Khổng Tước",
+"kind": 30,
+"lv": 27
+},
+"0x935f": {
+"name": "Da Cá Lư",
+"kind": 30,
+"lv": 28
+},
+"0x9360": {
+"name": "Móng Phụng",
+"kind": 30,
+"lv": 29
+},
+"0x9361": {
+"name": "Móng Chim Ưng",
+"kind": 30,
+"lv": 30
+},
+"0x9362": {
+"name": "Da Cá Sấu",
+"kind": 30,
+"lv": 31
+},
+"0x9363": {
+"name": "Da Gấu Cứng",
+"kind": 30,
+"lv": 32
+},
+"0x9364": {
+"name": "Da Heo Rừng",
+"kind": 30,
+"lv": 33
+},
+"0x9365": {
+"name": "Móng Ưng To",
+"kind": 30,
+"lv": 34
+},
+"0x9366": {
+"name": "Da Cá Mập",
+"kind": 30,
+"lv": 35
+},
+"0x9367": {
+"name": "Da Cọp Vân",
+"kind": 30,
+"lv": 36
+},
+"0x9368": {
+"name": "Da Kên Kên",
+"kind": 30,
+"lv": 37
+},
+"0x9369": {
+"name": "Da Gấu Cứng To",
+"kind": 30,
+"lv": 38
+},
+"0x936a": {
+"name": "Da Vua Hổ",
+"kind": 30,
+"lv": 39
+},
+"0x936b": {
+"name": "Da Báo Vàng",
+"kind": 30,
+"lv": 40
+},
+"0x9c4c": {
+"name": "Khăn Quàng",
+"kind": 31,
+"lv": 1
+},
+"0x9c4b": {
+"name": "Khăn Trải Bàn",
+"kind": 31,
+"lv": 1
+},
+"0x9c4f": {
+"name": "Lụa Nhuộm Tay",
+"kind": 31,
+"lv": 1
+},
+"0x9c5c": {
+"name": "Túi Vải Bố",
+"kind": 31,
+"lv": 1
+},
+"0x9c5d": {
+"name": "Túi Vải Thô",
+"kind": 31,
+"lv": 1
+},
+"0x9c41": {
+"name": "Vải Bố Rách",
+"kind": 31,
+"lv": 1
+},
+"0x9c53": {
+"name": "Vải Dệt 7 Màu",
+"kind": 31,
+"lv": 1
+},
+"0x9c59": {
+"name": "Vải Nguyên Sắc",
+"kind": 31,
+"lv": 1
+},
+"0x9c58": {
+"name": "Vải Nát",
+"kind": 31,
+"lv": 1
+},
+"0x9c51": {
+"name": "Khăn Ngọc Nữ",
+"kind": 31,
+"lv": 2
+},
+"0x9c4d": {
+"name": "Lụa Dệt Tay",
+"kind": 31,
+"lv": 2
+},
+"0x9c50": {
+"name": "Lụa Tịch Dương",
+"kind": 31,
+"lv": 2
+},
+"0x9c55": {
+"name": "Vải 9 Như",
+"kind": 31,
+"lv": 2
+},
+"0x9c5a": {
+"name": "Vải Nhiều Màu",
+"kind": 31,
+"lv": 2
+},
+"0x9c5b": {
+"name": "Vải Nữ Nhi",
+"kind": 31,
+"lv": 2
+},
+"0x9c54": {
+"name": "Vải Tuấn Mã",
+"kind": 31,
+"lv": 2
+},
+"0x9c42": {
+"name": "Vải Vá",
+"kind": 31,
+"lv": 2
+},
+"0x9c52": {
+"name": "Khăn Công Chúa",
+"kind": 31,
+"lv": 3
+},
+"0x9c4e": {
+"name": "Lụa Lam Thiên",
+"kind": 31,
+"lv": 3
+},
+"0x9c57": {
+"name": "Vải Cũ Kỹ",
+"kind": 31,
+"lv": 3
+},
+"0x9c56": {
+"name": "Vải Hung Nô",
+"kind": 31,
+"lv": 3
+},
+"0x9c43": {
+"name": "Vải Thô",
+"kind": 31,
+"lv": 3
+},
+"0x9c44": {
+"name": "Vải Nhuộm",
+"kind": 31,
+"lv": 4
+},
+"0x9c45": {
+"name": "Vải Tơ Cẩm",
+"kind": 31,
+"lv": 5
+},
+"0x9c46": {
+"name": "Vải Dệt",
+"kind": 31,
+"lv": 6
+},
+"0x9c47": {
+"name": "Vải Giang Nam",
+"kind": 31,
+"lv": 7
+},
+"0x9c48": {
+"name": "Vải Tầm Hoang",
+"kind": 31,
+"lv": 8
+},
+"0x9c49": {
+"name": "Vải Cẩm Thục",
+"kind": 31,
+"lv": 9
+},
+"0x9c4a": {
+"name": "Vải Tây Vực",
+"kind": 31,
+"lv": 10
+},
+"0x9c5e": {
+"name": "Vải Ninh La",
+"kind": 31,
+"lv": 11
+},
+"0x9c5f": {
+"name": "Vải Màu Sặc Sỡ",
+"kind": 31,
+"lv": 12
+},
+"0x9c60": {
+"name": "Lụa Kinh Sở",
+"kind": 31,
+"lv": 13
+},
+"0x9c61": {
+"name": "Lụa Việt Nữ",
+"kind": 31,
+"lv": 14
+},
+"0x9c62": {
+"name": "Vải Chiêu Lộ",
+"kind": 31,
+"lv": 15
+},
+"0x9c63": {
+"name": "Lụa Hoan Thái",
+"kind": 31,
+"lv": 16
+},
+"0x9c64": {
+"name": "Lụa Châu Ngọc",
+"kind": 31,
+"lv": 17
+},
+"0x9c68": {
+"name": "Lụa Hằng Nga",
+"kind": 31,
+"lv": 17
+},
+"0x9c65": {
+"name": "Chức Nữ Miên Tú",
+"kind": 31,
+"lv": 18
+},
+"0x9c66": {
+"name": "Thiên Tầm Tinh Sa",
+"kind": 31,
+"lv": 19
+},
+"0x9c67": {
+"name": "Vải Ngũ Trảo Long",
+"kind": 31,
+"lv": 20
+},
+"0x9c69": {
+"name": "Vải Thôi Xán",
+"kind": 31,
+"lv": 21
+},
+"0x9c6a": {
+"name": "Lụa Trân Di",
+"kind": 31,
+"lv": 22
+},
+"0x9c6b": {
+"name": "Cẩm Tú Ba Thục",
+"kind": 31,
+"lv": 23
+},
+"0x9c6c": {
+"name": "Tiên Nữ Thái Sa",
+"kind": 31,
+"lv": 24
+},
+"0x9c6d": {
+"name": "Lụa Tứ Xuyên",
+"kind": 31,
+"lv": 25
+},
+"0x9c6e": {
+"name": "Tiên Tằm Bảo",
+"kind": 31,
+"lv": 26
+},
+"0x9c6f": {
+"name": "Lụa Nguyệt Thị",
+"kind": 31,
+"lv": 27
+},
+"0x9c70": {
+"name": "Gấm Đầu Rồng",
+"kind": 31,
+"lv": 28
+},
+"0xa038": {
+"name": "Cuộn Giấy Nát",
+"kind": 32,
+"lv": 1
+},
+"0xa03b": {
+"name": "Giấy Da Vàng",
+"kind": 32,
+"lv": 1
+},
+"0xa034": {
+"name": "Giấy Thương Nhân",
+"kind": 32,
+"lv": 1
+},
+"0xa029": {
+"name": "Giấy Tạp",
+"kind": 32,
+"lv": 1
+},
+"0xa033": {
+"name": "Giấy Vô Danh",
+"kind": 32,
+"lv": 1
+},
+"0xa03c": {
+"name": "Cuộn Giấy Tàn Trúc",
+"kind": 32,
+"lv": 2
+},
+"0xa039": {
+"name": "Cuộn Giấy Vô Danh",
+"kind": 32,
+"lv": 2
+},
+"0xa02a": {
+"name": "Giấy Cỏ Nát",
+"kind": 32,
+"lv": 2
+},
+"0xa035": {
+"name": "Giấy Hoàng Cân",
+"kind": 32,
+"lv": 2
+},
+"0xa036": {
+"name": "Thái Phi Tàn Cuốn",
+"kind": 32,
+"lv": 2
+},
+"0xa02b": {
+"name": "Giấy Da Thô",
+"kind": 32,
+"lv": 3
+},
+"0xa03a": {
+"name": "Giấy Rách",
+"kind": 32,
+"lv": 3
+},
+"0xa037": {
+"name": "Giấy Sâm Dược",
+"kind": 32,
+"lv": 3
+},
+"0xa03d": {
+"name": "Liệt Trúc Quyển",
+"kind": 32,
+"lv": 3
+},
+"0xa03e": {
+"name": "Giấy Bìa Cứng",
+"kind": 32,
+"lv": 4
+},
+"0xa02c": {
+"name": "Giấy Lông Thô",
+"kind": 32,
+"lv": 4
+},
+"0xa040": {
+"name": "Giấy Vàng",
+"kind": 32,
+"lv": 4
+},
+"0xa02d": {
+"name": "Giấy Bùa Vàng",
+"kind": 32,
+"lv": 5
+},
+"0xa041": {
+"name": "Sâm Dược Quyển",
+"kind": 32,
+"lv": 5
+},
+"0xa03f": {
+"name": "Trúc Quyển",
+"kind": 32,
+"lv": 5
+},
+"0xa02e": {
+"name": "Giấy Da Bò",
+"kind": 32,
+"lv": 6
+},
+"0xa02f": {
+"name": "Giấy Da Dê",
+"kind": 32,
+"lv": 7
+},
+"0xa030": {
+"name": "Giấy Thanh",
+"kind": 32,
+"lv": 8
+},
+"0xa031": {
+"name": "Giấy Tuyên",
+"kind": 32,
+"lv": 9
+},
+"0xa032": {
+"name": "Giấy Thái Luân",
+"kind": 32,
+"lv": 10
+},
+"0xa042": {
+"name": "Giấy Tuyên Nhỏ",
+"kind": 32,
+"lv": 11
+},
+"0xa043": {
+"name": "Giấy Trung Bình",
+"kind": 32,
+"lv": 12
+},
+"0xa044": {
+"name": "Giấy Giang Đông",
+"kind": 32,
+"lv": 13
+},
+"0xa045": {
+"name": "Giấy Thiên Trúc",
+"kind": 32,
+"lv": 14
+},
+"0xa046": {
+"name": "Giấy An Phong",
+"kind": 32,
+"lv": 15
+},
+"0xa047": {
+"name": "Giấy Nghi Xuân",
+"kind": 32,
+"lv": 16
+},
+"0xa048": {
+"name": "Giấy Uyễn Lăng",
+"kind": 32,
+"lv": 17
+},
+"0xa049": {
+"name": "Giấy Tân Hưng",
+"kind": 32,
+"lv": 18
+},
+"0xa04a": {
+"name": "Giấy Lâm Nghi",
+"kind": 32,
+"lv": 19
+},
+"0xa04b": {
+"name": "Giấy Cửu Môn",
+"kind": 32,
+"lv": 20
+},
+"0xa04c": {
+"name": "Giấy Quan",
+"kind": 32,
+"lv": 21
+},
+"0xa04d": {
+"name": "Giấy Thục",
+"kind": 32,
+"lv": 22
+},
+"0xa053": {
+"name": "Giấy Tuyên",
+"kind": 32,
+"lv": 22
+},
+"0xa04e": {
+"name": "Giấy Phù Thủy",
+"kind": 32,
+"lv": 23
+},
+"0xa04f": {
+"name": "Giấy Thanh Mặc",
+"kind": 32,
+"lv": 24
+},
+"0xa050": {
+"name": "Giấy Hán Hưng",
+"kind": 32,
+"lv": 25
+},
+"0xa051": {
+"name": "Giấy Đức Ngang",
+"kind": 32,
+"lv": 26
+},
+"0xa052": {
+"name": "Giấy Mỏng",
+"kind": 32,
+"lv": 27
+},
+"0xa054": {
+"name": "Giấy Đầu Rồng",
+"kind": 32,
+"lv": 28
+},
+"0xa426": {
+"name": "Giỏ Tre Nhẹ",
+"kind": 33,
+"lv": 1
+},
+"0xa425": {
+"name": "Giỏ Tre Đan",
+"kind": 33,
+"lv": 1
+},
+"0xa419": {
+"name": "Mạnh Tông Trúc Phiến",
+"kind": 33,
+"lv": 1
+},
+"0xa421": {
+"name": "Quan Lâm Trúc Phiến",
+"kind": 33,
+"lv": 1
+},
+"0xa424": {
+"name": "Trúc Phiên Sâu",
+"kind": 33,
+"lv": 1
+},
+"0xa41b": {
+"name": "Trúc Phiến Ngâm Nước",
+"kind": 33,
+"lv": 1
+},
+"0xa41e": {
+"name": "Trúc Phiến Thu Phân",
+"kind": 33,
+"lv": 1
+},
+"0xa411": {
+"name": "Tàn Trúc Phiến",
+"kind": 33,
+"lv": 1
+},
+"0xa41f": {
+"name": "Dã Trúc Phiến",
+"kind": 33,
+"lv": 2
+},
+"0xa422": {
+"name": "Hương Trúc Phiến",
+"kind": 33,
+"lv": 2
+},
+"0xa412": {
+"name": "Tiểu Trúc Phiến",
+"kind": 33,
+"lv": 2
+},
+"0xa41c": {
+"name": "Trúc Phiến Già",
+"kind": 33,
+"lv": 2
+},
+"0xa423": {
+"name": "Trúc 7 Lỗ",
+"kind": 33,
+"lv": 3
+},
+"0xa41d": {
+"name": "Trúc Phiến Quá Ngọ",
+"kind": 33,
+"lv": 3
+},
+"0xa420": {
+"name": "Tử Trúc Phiến",
+"kind": 33,
+"lv": 3
+},
+"0xa413": {
+"name": "Ố Trúc Phiến",
+"kind": 33,
+"lv": 3
+},
+"0xa414": {
+"name": "Lục Trúc Phiến",
+"kind": 33,
+"lv": 4
+},
+"0xa415": {
+"name": "Biên Trúc Phiến",
+"kind": 33,
+"lv": 5
+},
+"0xa416": {
+"name": "Lâu Xương Phiến",
+"kind": 33,
+"lv": 6
+},
+"0xa417": {
+"name": "Tân Nha Trúc Phiến",
+"kind": 33,
+"lv": 7
+},
+"0xa418": {
+"name": "Gia Công Trúc Phiến",
+"kind": 33,
+"lv": 8
+},
+"0xa427": {
+"name": "Khiêm Trúc Phiến",
+"kind": 33,
+"lv": 9
+},
+"0xa41a": {
+"name": "Tài Tử Trúc Phiến",
+"kind": 33,
+"lv": 10
+},
+"0xa428": {
+"name": "Nhã Trúc Phiến",
+"kind": 33,
+"lv": 11
+},
+"0xa429": {
+"name": "Uyển Trúc Phiến",
+"kind": 33,
+"lv": 12
+},
+"0xa42a": {
+"name": "Khúc Dương Trúc Phiến",
+"kind": 33,
+"lv": 13
+},
+"0xa42b": {
+"name": "Thương Trúc Phiến",
+"kind": 33,
+"lv": 14
+},
+"0xa42c": {
+"name": "Giang Dương Trúc Phiến",
+"kind": 33,
+"lv": 15
+},
+"0xa42d": {
+"name": "Bất Vĩ Trúc Phiến",
+"kind": 33,
+"lv": 16
+},
+"0xa42e": {
+"name": "Kinh Trúc Phiến",
+"kind": 33,
+"lv": 17
+},
+"0xa42f": {
+"name": "Nguyên Trúc Phiến",
+"kind": 33,
+"lv": 18
+},
+"0xa430": {
+"name": "Hữu Trúc Phiến",
+"kind": 33,
+"lv": 19
+},
+"0xa431": {
+"name": "Phu Di Trúc Phiến",
+"kind": 33,
+"lv": 20
+},
+"0xa432": {
+"name": "Thanh Trúc Phiến",
+"kind": 33,
+"lv": 21
+},
+"0xa433": {
+"name": "Tông Trúc Phiến",
+"kind": 33,
+"lv": 22
+},
+"0xa434": {
+"name": "Nguyên Trúc Phiến",
+"kind": 33,
+"lv": 23
+},
+"0xa435": {
+"name": "Tang Trúc Phiến",
+"kind": 33,
+"lv": 24
+},
+"0xa436": {
+"name": "Phong Trúc Phiến",
+"kind": 33,
+"lv": 25
+},
+"0xa437": {
+"name": "Long Trúc Phiến",
+"kind": 33,
+"lv": 26
+},
+"0xa438": {
+"name": "Thiết Trúc Phiến",
+"kind": 33,
+"lv": 27
+},
+"0xa860": {
+"name": "Bách Hợp",
+"kind": 34,
+"lv": 1
+},
+"0xa835": {
+"name": "Bông Vàng Nhỏ",
+"kind": 34,
+"lv": 1
+},
+"0xa808": {
+"name": "Cao Thảo",
+"kind": 34,
+"lv": 1
+},
+"0xa840": {
+"name": "Cánh Hoa Dại",
+"kind": 34,
+"lv": 1
+},
+"0xa841": {
+"name": "Cánh Hoa Sen",
+"kind": 34,
+"lv": 1
+},
+"0xa842": {
+"name": "Cánh Hoa Đào",
+"kind": 34,
+"lv": 1
+},
+"0xa817": {
+"name": "Cát Gân Thảo",
+"kind": 34,
+"lv": 1
+},
+"0xa820": {
+"name": "Cỏ Gân Ngọt",
+"kind": 34,
+"lv": 1
+},
+"0xa819": {
+"name": "Cỏ Lười",
+"kind": 34,
+"lv": 1
+},
+"0xa862": {
+"name": "Hoa Hồng",
+"kind": 34,
+"lv": 1
+},
+"0xa7f9": {
+"name": "Hoa Mẫu Đơn",
+"kind": 34,
+"lv": 1
+},
+"0xa861": {
+"name": "Hoa Tulip",
+"kind": 34,
+"lv": 1
+},
+"0xa83a": {
+"name": "Hồng Quân Tử",
+"kind": 34,
+"lv": 1
+},
+"0xa812": {
+"name": "Lá Du Thụ",
+"kind": 34,
+"lv": 1
+},
+"0xa809": {
+"name": "Lá Lệ Non",
+"kind": 34,
+"lv": 1
+},
+"0xa834": {
+"name": "Lạc Địa Hoa",
+"kind": 34,
+"lv": 1
+},
+"0xa827": {
+"name": "Lục Diệp Hoa",
+"kind": 34,
+"lv": 1
+},
+"0xa81f": {
+"name": "Mầm Giá",
+"kind": 34,
+"lv": 1
+},
+"0xa83b": {
+"name": "Nhất Điểm Hồng",
+"kind": 34,
+"lv": 1
+},
+"0xa844": {
+"name": "Thanh Đài Diệp",
+"kind": 34,
+"lv": 1
+},
+"0xa82d": {
+"name": "Thu Hồng Diệp",
+"kind": 34,
+"lv": 1
+},
+"0xa82e": {
+"name": "Thâm Cúc Diệp",
+"kind": 34,
+"lv": 1
+},
+"0xa818": {
+"name": "Thê Tước Thảo",
+"kind": 34,
+"lv": 1
+},
+"0xa85f": {
+"name": "Thủy Tiên",
+"kind": 34,
+"lv": 1
+},
+"0xa857": {
+"name": "Văn Tâm Lan",
+"kind": 34,
+"lv": 1
+},
+"0xa81e": {
+"name": "Đậu Nha Nhỏ",
+"kind": 34,
+"lv": 1
+},
+"0xa826": {
+"name": "Đế Diệp",
+"kind": 34,
+"lv": 1
+},
+"0xa822": {
+"name": "Bích Phương Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa80a": {
+"name": "Dâu Núi",
+"kind": 34,
+"lv": 2
+},
+"0xa845": {
+"name": "Dã Tân Sâm",
+"kind": 34,
+"lv": 2
+},
+"0xa836": {
+"name": "Hoàng Nhật",
+"kind": 34,
+"lv": 2
+},
+"0xa83d": {
+"name": "Hóa Tiên Hồng",
+"kind": 34,
+"lv": 2
+},
+"0xa821": {
+"name": "Hương Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa82f": {
+"name": "Khổ Qua Diệp",
+"kind": 34,
+"lv": 2
+},
+"0xa823": {
+"name": "Liên Miêu Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa829": {
+"name": "Lá Cát Sình",
+"kind": 34,
+"lv": 2
+},
+"0xa7fb": {
+"name": "Lá Hội Đỏ",
+"kind": 34,
+"lv": 2
+},
+"0xa830": {
+"name": "Lá Mâm Xôi",
+"kind": 34,
+"lv": 2
+},
+"0xa82a": {
+"name": "Lá Mạch",
+"kind": 34,
+"lv": 2
+},
+"0xa7fc": {
+"name": "Lô Vĩ",
+"kind": 34,
+"lv": 2
+},
+"0xa81b": {
+"name": "Miêu Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa81a": {
+"name": "Nhân Sâm Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa828": {
+"name": "Nhất Nhật Diệp",
+"kind": 34,
+"lv": 2
+},
+"0xa837": {
+"name": "Phiến Diệp Hoa",
+"kind": 34,
+"lv": 2
+},
+"0xa80b": {
+"name": "Thủy Miêu Thảo",
+"kind": 34,
+"lv": 2
+},
+"0xa825": {
+"name": "Cô Dùng Diệp",
+"kind": 34,
+"lv": 3
+},
+"0xa7fd": {
+"name": "Cửu Kỷ",
+"kind": 34,
+"lv": 3
+},
+"0xa82c": {
+"name": "Diệp Sinh Ngọt",
+"kind": 34,
+"lv": 3
+},
+"0xa83f": {
+"name": "Hoa Qua Di",
+"kind": 34,
+"lv": 3
+},
+"0xa82b": {
+"name": "Kim Tuyến Phiến",
+"kind": 34,
+"lv": 3
+},
+"0xa838": {
+"name": "Kỳ Ngẩu Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa839": {
+"name": "Ma Đế Hoa",
+"kind": 34,
+"lv": 3
+},
+"0xa83e": {
+"name": "Nguyên Giới Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa7fe": {
+"name": "Rễ Bạch Đàn",
+"kind": 34,
+"lv": 3
+},
+"0xa80d": {
+"name": "Rễ Cỏ Xanh",
+"kind": 34,
+"lv": 3
+},
+"0xa80c": {
+"name": "Thi Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa824": {
+"name": "Thường Sơn Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa81c": {
+"name": "Trắc Phong Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa831": {
+"name": "Tả Đao Diệp",
+"kind": 34,
+"lv": 3
+},
+"0xa832": {
+"name": "Vấn Lộ Diệp",
+"kind": 34,
+"lv": 3
+},
+"0xa81d": {
+"name": "Đông Di Thảo",
+"kind": 34,
+"lv": 3
+},
+"0xa80f": {
+"name": "Bạch Sơn Thảo",
+"kind": 34,
+"lv": 4
+},
+"0xa846": {
+"name": "Cỏ Chó Cắn",
+"kind": 34,
+"lv": 4
+},
+"0xa800": {
+"name": "Cỏ Đuôi Sói",
+"kind": 34,
+"lv": 4
+},
+"0xa80e": {
+"name": "Phú Hồng Hoa",
+"kind": 34,
+"lv": 4
+},
+"0xa7ff": {
+"name": "Thủy Cần",
+"kind": 34,
+"lv": 4
+},
+"0xa811": {
+"name": "Lá Hoa Tiêu",
+"kind": 34,
+"lv": 5
+},
+"0xa802": {
+"name": "Ngải Thảo",
+"kind": 34,
+"lv": 5
+},
+"0xa847": {
+"name": "Phù Thái Diệp",
+"kind": 34,
+"lv": 5
+},
+"0xa810": {
+"name": "Thụ Thảo",
+"kind": 34,
+"lv": 5
+},
+"0xa801": {
+"name": "Túy Liễu Chi",
+"kind": 34,
+"lv": 5
+},
+"0xa803": {
+"name": "Dã Quỳ Gân",
+"kind": 34,
+"lv": 6
+},
+"0xa833": {
+"name": "Tưởng Diệp",
+"kind": 34,
+"lv": 6
+},
+"0xa848": {
+"name": "Tạc Thụ Diệp",
+"kind": 34,
+"lv": 6
+},
+"0xa804": {
+"name": "Cánh Hoa Thơm",
+"kind": 34,
+"lv": 7
+},
+"0xa813": {
+"name": "Cỏ Vực",
+"kind": 34,
+"lv": 7
+},
+"0xa849": {
+"name": "Nguyên Thảo",
+"kind": 34,
+"lv": 7
+},
+"0xa805": {
+"name": "Khổ Trúc Diệp",
+"kind": 34,
+"lv": 8
+},
+"0xa84a": {
+"name": "Thanh Lai Thảo",
+"kind": 34,
+"lv": 8
+},
+"0xa814": {
+"name": "Trạch Lan Kính",
+"kind": 34,
+"lv": 8
+},
+"0xa806": {
+"name": "Cành Dương Liễu",
+"kind": 34,
+"lv": 9
+},
+"0xa815": {
+"name": "Cánh Hoa Lau",
+"kind": 34,
+"lv": 9
+},
+"0xa84b": {
+"name": "Man Vĩ Kính",
+"kind": 34,
+"lv": 9
+},
+"0xa816": {
+"name": "Thánh Diệp",
+"kind": 34,
+"lv": 10
+},
+"0xa84c": {
+"name": "Đông Khùy Thảo",
+"kind": 34,
+"lv": 10
+},
+"0xa807": {
+"name": "Đường Diệp",
+"kind": 34,
+"lv": 10
+},
+"0xa84d": {
+"name": "Tử Phân Thảo",
+"kind": 34,
+"lv": 11
+},
+"0xa84e": {
+"name": "Kim Vũ Diệp",
+"kind": 34,
+"lv": 12
+},
+"0xa84f": {
+"name": "Trường Đàn Diệp",
+"kind": 34,
+"lv": 13
+},
+"0xa850": {
+"name": "Đại Ngô Thảo",
+"kind": 34,
+"lv": 14
+},
+"0xa851": {
+"name": "Bạch Địch Thảo",
+"kind": 34,
+"lv": 15
+},
+"0xa852": {
+"name": "Cao Lâu Thảo",
+"kind": 34,
+"lv": 16
+},
+"0xa853": {
+"name": "Hồng Điều Thảo",
+"kind": 34,
+"lv": 17
+},
+"0xa854": {
+"name": "Mông Tang Diệp",
+"kind": 34,
+"lv": 18
+},
+"0xa855": {
+"name": "Khổ Di Thảo",
+"kind": 34,
+"lv": 19
+},
+"0xa856": {
+"name": "Rễ Cỏ Nhỏ",
+"kind": 34,
+"lv": 20
+},
+"0xa858": {
+"name": "Tân Kích Thảo",
+"kind": 34,
+"lv": 21
+},
+"0xa859": {
+"name": "Mao Khổ Sâm",
+"kind": 34,
+"lv": 22
+},
+"0xa85a": {
+"name": "Man Giới",
+"kind": 34,
+"lv": 23
+},
+"0xa85b": {
+"name": "Mã An Đằng",
+"kind": 34,
+"lv": 24
+},
+"0xa85c": {
+"name": "Cây Ngân Diệp",
+"kind": 34,
+"lv": 25
+},
+"0xa85d": {
+"name": "Khổ Căn Thảo",
+"kind": 34,
+"lv": 26
+},
+"0xa85e": {
+"name": "Rêu Đông Nguyên",
+"kind": 34,
+"lv": 27
+},
+"0xac1d": {
+"name": "Hạt Đá Nát",
+"kind": 35,
+"lv": 1
+},
+"0x9413": {
+"name": "Đá Nát",
+"kind": 35,
+"lv": 1
+},
+"0xac1e": {
+"name": "Hạt Đá Nhỏ",
+"kind": 35,
+"lv": 2
+},
+"0x9414": {
+"name": "Miếng Đá Nhỏ",
+"kind": 35,
+"lv": 2
+},
+"0xac1f": {
+"name": "Hạt Đá Bông",
+"kind": 35,
+"lv": 3
+},
+"0x9415": {
+"name": "Đá Hoa",
+"kind": 35,
+"lv": 3
+},
+"0xac20": {
+"name": "Hạt Đá Giác",
+"kind": 35,
+"lv": 4
+},
+"0x9416": {
+"name": "Đá Giác Miếng",
+"kind": 35,
+"lv": 4
+},
+"0xac21": {
+"name": "Hạt Đá Tròn",
+"kind": 35,
+"lv": 5
+},
+"0x9417": {
+"name": "Đá Tròn Miếng",
+"kind": 35,
+"lv": 5
+},
+"0xac22": {
+"name": "Đá Phản Quang",
+"kind": 35,
+"lv": 6
+},
+"0x9418": {
+"name": "Đá Phản Quang",
+"kind": 35,
+"lv": 6
+},
+"0xac23": {
+"name": "Hạt Đá Lục",
+"kind": 35,
+"lv": 7
+},
+"0x9419": {
+"name": "Đá Lục Miếng",
+"kind": 35,
+"lv": 7
+},
+"0xac24": {
+"name": "Đá Trứng Ngỗng",
+"kind": 35,
+"lv": 8
+},
+"0x941a": {
+"name": "Đá Trứng Ngỗng",
+"kind": 35,
+"lv": 8
+},
+"0xac25": {
+"name": "Hạt Đá Mài",
+"kind": 35,
+"lv": 9
+},
+"0x941b": {
+"name": "Đá Dao Mài",
+"kind": 35,
+"lv": 9
+},
+"0xac26": {
+"name": "Hạt Đá Kiên Cứng",
+"kind": 35,
+"lv": 10
+},
+"0x941c": {
+"name": "Đá Kiên Cứng",
+"kind": 35,
+"lv": 10
+},
+"0xac28": {
+"name": "Hạt Đá Thanh Song",
+"kind": 35,
+"lv": 11
+},
+"0x941d": {
+"name": "Đá Thanh Song",
+"kind": 35,
+"lv": 11
+},
+"0xac29": {
+"name": "Hạt Đá Hướng Thiên",
+"kind": 35,
+"lv": 12
+},
+"0x941e": {
+"name": "Đá Hướng Thiên",
+"kind": 35,
+"lv": 12
+},
+"0xac2a": {
+"name": "Hạt Đá Ếch Con",
+"kind": 35,
+"lv": 13
+},
+"0x941f": {
+"name": "Đá Ếch",
+"kind": 35,
+"lv": 13
+},
+"0xac2b": {
+"name": "Hạt Đá Mỹ Nhân",
+"kind": 35,
+"lv": 14
+},
+"0x9420": {
+"name": "Đá Mỹ Nhân",
+"kind": 35,
+"lv": 14
+},
+"0xac2c": {
+"name": "Hạt Đá Tuấn Mã",
+"kind": 35,
+"lv": 15
+},
+"0x9421": {
+"name": "Đá Tuấn Mã",
+"kind": 35,
+"lv": 15
+},
+"0x9440": {
+"name": "Đá Địa Tâm Hỏa Long",
+"kind": 35,
+"lv": 15
+},
+"0xac34": {
+"name": "Hạt Đá Luyện Phong",
+"kind": 35,
+"lv": 16
+},
+"0x9422": {
+"name": "Đá Luyện Phong",
+"kind": 35,
+"lv": 16
+},
+"0xac35": {
+"name": "Hạt Đá Uy Sơn",
+"kind": 35,
+"lv": 17
+},
+"0x9423": {
+"name": "Đá Huy Sơn",
+"kind": 35,
+"lv": 17
+},
+"0xac36": {
+"name": "Hạt Đá Bạch Đế",
+"kind": 35,
+"lv": 18
+},
+"0x9424": {
+"name": "Đá Bạch Đế",
+"kind": 35,
+"lv": 18
+},
+"0xac37": {
+"name": "Hạt Thạch Anh",
+"kind": 35,
+"lv": 19
+},
+"0x9425": {
+"name": "Đá Thạch Anh",
+"kind": 35,
+"lv": 19
+},
+"0x93ea": {
+"name": "Hạt Đá Vân Mẫu",
+"kind": 35,
+"lv": 20
+},
+"0x9426": {
+"name": "Đá Vân Mẫu",
+"kind": 35,
+"lv": 20
+},
+"0x93eb": {
+"name": "Hạt Đá Mao Nhãn",
+"kind": 35,
+"lv": 21
+},
+"0x9427": {
+"name": "Đá Mắt Mèo",
+"kind": 35,
+"lv": 21
+},
+"0x93ec": {
+"name": "Hạt Đá Cảm Lãm",
+"kind": 35,
+"lv": 22
+},
+"0x9428": {
+"name": "Đá Cảm Lãm",
+"kind": 35,
+"lv": 22
+},
+"0x93ed": {
+"name": "Hạt Đá Thanh Lạp",
+"kind": 35,
+"lv": 23
+},
+"0x9429": {
+"name": "Đá Thiên Thanh",
+"kind": 35,
+"lv": 23
+},
+"0x93ee": {
+"name": "Hạt Đá Hắc Lạp",
+"kind": 35,
+"lv": 24
+},
+"0x942a": {
+"name": "Đá Hắc Diệu",
+"kind": 35,
+"lv": 24
+},
+"0x93ef": {
+"name": "Hạt Đá Huyết Lạp",
+"kind": 35,
+"lv": 25
+},
+"0x942b": {
+"name": "Đá Kê Huyết",
+"kind": 35,
+"lv": 25
+},
+"0x93f0": {
+"name": "Hạt Đá Phong Lạp",
+"kind": 35,
+"lv": 26
+},
+"0x942c": {
+"name": "Đá Phong Đỉnh",
+"kind": 35,
+"lv": 26
+},
+"0x93f1": {
+"name": "Hạt Đá Dạ Quang",
+"kind": 35,
+"lv": 27
+},
+"0x942d": {
+"name": "Đá Dạ Quang",
+"kind": 35,
+"lv": 27
+},
+"0x93f2": {
+"name": "Hạt Đá Bạch Lân",
+"kind": 35,
+"lv": 28
+},
+"0x942e": {
+"name": "Đá Bạch Lân",
+"kind": 35,
+"lv": 28
+},
+"0x93f3": {
+"name": "Hạt Đá Cố Sơn",
+"kind": 35,
+"lv": 29
+},
+"0x942f": {
+"name": "Đá Cố San",
+"kind": 35,
+"lv": 29
+},
+"0x93f4": {
+"name": "Hạt Đá Trục Sơn",
+"kind": 35,
+"lv": 30
+},
+"0x9441": {
+"name": "Long Thủ Cự Thạch",
+"kind": 35,
+"lv": 30
+},
+"0x9430": {
+"name": "Đá Trục Sơn",
+"kind": 35,
+"lv": 30
+},
+"0x93f5": {
+"name": "Hạt Đá Mắt Phụng",
+"kind": 35,
+"lv": 31
+},
+"0x9404": {
+"name": "Hạt Đá Đầu Rồng",
+"kind": 35,
+"lv": 31
+},
+"0x9431": {
+"name": "Đá Mắt Phụng",
+"kind": 35,
+"lv": 31
+},
+"0x93f6": {
+"name": "Miếng Dung Nham",
+"kind": 35,
+"lv": 32
+},
+"0x9432": {
+"name": "Miếng Dung Nham",
+"kind": 35,
+"lv": 32
+},
+"0x93f7": {
+"name": "Hạt Đá Mân Côi",
+"kind": 35,
+"lv": 33
+},
+"0x9433": {
+"name": "Đá Hoa Hồng",
+"kind": 35,
+"lv": 33
+},
+"0x93f8": {
+"name": "Hạt Đá Tử Vẫn",
+"kind": 35,
+"lv": 34
+},
+"0x9434": {
+"name": "Đá Tử Tuyến",
+"kind": 35,
+"lv": 34
+},
+"0x93f9": {
+"name": "Hạt Đá Lạc Thiên",
+"kind": 35,
+"lv": 35
+},
+"0x9435": {
+"name": "Đá Lạc Thiên",
+"kind": 35,
+"lv": 35
+},
+"0x93fa": {
+"name": "Hạt Đá Bích Sơn",
+"kind": 35,
+"lv": 36
+},
+"0x9436": {
+"name": "Đá Bích Sơn",
+"kind": 35,
+"lv": 36
+},
+"0x93fb": {
+"name": "Hạt Đá Thanh Sơn",
+"kind": 35,
+"lv": 37
+},
+"0x9437": {
+"name": "Đá Thanh Sơn",
+"kind": 35,
+"lv": 37
+},
+"0x93fc": {
+"name": "Hạt Đá Đào Hồng",
+"kind": 35,
+"lv": 38
+},
+"0x9438": {
+"name": "Đá Đào Hồng",
+"kind": 35,
+"lv": 38
+},
+"0x93fd": {
+"name": "Hạt Đá Lam Huyết",
+"kind": 35,
+"lv": 39
+},
+"0x9439": {
+"name": "Đá Lam Huyết",
+"kind": 35,
+"lv": 39
+},
+"0x93fe": {
+"name": "Hạt Đá Thiên Đế",
+"kind": 35,
+"lv": 40
+},
+"0x943a": {
+"name": "Đá Thiên Đế",
+"kind": 35,
+"lv": 40
+},
+"0x93ff": {
+"name": "Hạt Đá Thái Sơn",
+"kind": 35,
+"lv": 41
+},
+"0x943b": {
+"name": "Đá Thái Sơn",
+"kind": 35,
+"lv": 41
+},
+"0x9400": {
+"name": "Hạt Đá Đại Lý",
+"kind": 35,
+"lv": 42
+},
+"0x943c": {
+"name": "Đá Đại Lý",
+"kind": 35,
+"lv": 42
+},
+"0x9401": {
+"name": "Hạt Đá Hoa Cương",
+"kind": 35,
+"lv": 43
+},
+"0x943d": {
+"name": "Đá Hoa Cương",
+"kind": 35,
+"lv": 43
+},
+"0x9402": {
+"name": "Hạt Đá Thiên Tứ",
+"kind": 35,
+"lv": 44
+},
+"0x943e": {
+"name": "Đá Thiên Tứ",
+"kind": 35,
+"lv": 44
+},
+"0x9403": {
+"name": "Hạt Đá Kim Cương",
+"kind": 35,
+"lv": 45
+},
+"0x943f": {
+"name": "Đá Kim Cương",
+"kind": 35,
+"lv": 45
+},
+"0xafd6": {
+"name": "Băng Lệ Giếng",
+"kind": 36,
+"lv": 1
+},
+"0xafc9": {
+"name": "Băng Thanh Thủy",
+"kind": 36,
+"lv": 1
+},
+"0xafd3": {
+"name": "Băng Thủy Thấu",
+"kind": 36,
+"lv": 1
+},
+"0xafe0": {
+"name": "Băng Tinh Cấp 1",
+"kind": 36,
+"lv": 1
+},
+"0xafdc": {
+"name": "Hùng Hoàng Băng",
+"kind": 36,
+"lv": 1
+},
+"0xafca": {
+"name": "Băng Giếng Sâu",
+"kind": 36,
+"lv": 2
+},
+"0xafd4": {
+"name": "Băng Phong Cố",
+"kind": 36,
+"lv": 2
+},
+"0xafe1": {
+"name": "Băng Tinh Cấp 2",
+"kind": 36,
+"lv": 2
+},
+"0xafd7": {
+"name": "Băng Xương Hà",
+"kind": 36,
+"lv": 2
+},
+"0xafcb": {
+"name": "Băng Cấp Đông",
+"kind": 36,
+"lv": 3
+},
+"0xafd8": {
+"name": "Băng Quảng Hồ",
+"kind": 36,
+"lv": 3
+},
+"0xafe2": {
+"name": "Băng Tinh Cấp 3",
+"kind": 36,
+"lv": 3
+},
+"0xafd5": {
+"name": "Băng Tốc Kết",
+"kind": 36,
+"lv": 3
+},
+"0xafe3": {
+"name": "Băng Tinh Cấp 4",
+"kind": 36,
+"lv": 4
+},
+"0xafcc": {
+"name": "Băng Vệ Hà",
+"kind": 36,
+"lv": 4
+},
+"0xafd9": {
+"name": "Nguyệt Quang Băng",
+"kind": 36,
+"lv": 4
+},
+"0xafdd": {
+"name": "Tích Tà Băng",
+"kind": 36,
+"lv": 4
+},
+"0xafcd": {
+"name": "Băng Bắc Hải",
+"kind": 36,
+"lv": 5
+},
+"0xafe4": {
+"name": "Băng Tinh Cấp 5",
+"kind": 36,
+"lv": 5
+},
+"0xafda": {
+"name": "Cựu Băng Tinh",
+"kind": 36,
+"lv": 5
+},
+"0xafce": {
+"name": "Băng Thiên Hồ",
+"kind": 36,
+"lv": 6
+},
+"0xafe5": {
+"name": "Băng Tinh Cấp 6",
+"kind": 36,
+"lv": 6
+},
+"0xafcf": {
+"name": "Băng Lô Long",
+"kind": 36,
+"lv": 7
+},
+"0xafe6": {
+"name": "Băng Tinh Cấp 7",
+"kind": 36,
+"lv": 7
+},
+"0xafdb": {
+"name": "Đoàn Viên Băng",
+"kind": 36,
+"lv": 7
+},
+"0xafe7": {
+"name": "Băng Tinh Cấp 8",
+"kind": 36,
+"lv": 8
+},
+"0xafd0": {
+"name": "Băng Đông Di",
+"kind": 36,
+"lv": 8
+},
+"0xafd1": {
+"name": "Băng Quấn Ma",
+"kind": 36,
+"lv": 9
+},
+"0xafe8": {
+"name": "Băng Tinh Cấp 9",
+"kind": 36,
+"lv": 9
+},
+"0xafd2": {
+"name": "Băng Thiên Niên",
+"kind": 36,
+"lv": 10
+},
+"0xafe9": {
+"name": "Băng Tinh Cấp 10",
+"kind": 36,
+"lv": 10
+},
+"0xafea": {
+"name": "Băng Tinh Cấp 11",
+"kind": 36,
+"lv": 11
+},
+"0xafde": {
+"name": "Thần Hy Băng",
+"kind": 36,
+"lv": 11
+},
+"0xafeb": {
+"name": "Băng Tinh Cấp 12",
+"kind": 36,
+"lv": 12
+},
+"0xafdf": {
+"name": "Ác Hàn Băng",
+"kind": 36,
+"lv": 12
+},
+"0x908d": {
+"name": "Kim Sa",
+"kind": 40,
+"lv": 1
+},
+"0xabe1": {
+"name": "Vàng Khối",
+"kind": 40,
+"lv": 1
+},
+"0xabe2": {
+"name": "Vàng Khối Tạp",
+"kind": 40,
+"lv": 2
+},
+"0x908e": {
+"name": "Vô Sanh Kim Sa",
+"kind": 40,
+"lv": 2
+},
+"0x908f": {
+"name": "Nam Hà Kim Sa",
+"kind": 40,
+"lv": 3
+},
+"0xabe3": {
+"name": "Vàng Khối Nát",
+"kind": 40,
+"lv": 3
+},
+"0x9090": {
+"name": "Khúc Hà Kim Sa",
+"kind": 40,
+"lv": 4
+},
+"0xabe4": {
+"name": "Vàng Khối Sáng",
+"kind": 40,
+"lv": 4
+},
+"0xabe5": {
+"name": "Vàng Khối Nhẹ",
+"kind": 40,
+"lv": 5
+},
+"0x9091": {
+"name": "Văn Hà Kim Sa",
+"kind": 40,
+"lv": 5
+},
+"0x9092": {
+"name": "Bạc Giang Kim Sa",
+"kind": 40,
+"lv": 6
+},
+"0xabe6": {
+"name": "Vàng Khối Hỗn Hợp",
+"kind": 40,
+"lv": 6
+},
+"0xabe7": {
+"name": "Vàng Khối Cốm",
+"kind": 40,
+"lv": 7
+},
+"0x9093": {
+"name": "Đạm Giang Kim Sa",
+"kind": 40,
+"lv": 7
+},
+"0x9094": {
+"name": "Liêm Giang Kim Sa",
+"kind": 40,
+"lv": 8
+},
+"0xabe8": {
+"name": "Vàng Khối Thuần",
+"kind": 40,
+"lv": 8
+},
+"0x9095": {
+"name": "Bản Giang Kim Sa",
+"kind": 40,
+"lv": 9
+},
+"0xabe9": {
+"name": "Vàng Khối Bản Giang",
+"kind": 40,
+"lv": 9
+},
+"0x9096": {
+"name": "Lỗ Hà Kim Sa",
+"kind": 40,
+"lv": 10
+},
+"0xabea": {
+"name": "Vàng Khối Lỗ Hà",
+"kind": 40,
+"lv": 10
+},
+"0x9097": {
+"name": "Thanh Hà Kim Sa",
+"kind": 40,
+"lv": 11
+},
+"0xac40": {
+"name": "Vàng Khối Văn",
+"kind": 40,
+"lv": 11
+},
+"0xac41": {
+"name": "Vàng Khối Nhuyễn",
+"kind": 40,
+"lv": 12
+},
+"0x9098": {
+"name": "Âm Hà Kim Sa",
+"kind": 40,
+"lv": 12
+},
+"0x9099": {
+"name": "Tử Hà Kim Sa",
+"kind": 40,
+"lv": 13
+},
+"0xac42": {
+"name": "Vàng Khối Hồng",
+"kind": 40,
+"lv": 13
+},
+"0xac43": {
+"name": "Vàng Khối Thuần",
+"kind": 40,
+"lv": 14
+},
+"0x909a": {
+"name": "Địa Giang Kim Sa",
+"kind": 40,
+"lv": 14
+},
+"0x909b": {
+"name": "Nhân Hà Kim Sa",
+"kind": 40,
+"lv": 15
+},
+"0xac44": {
+"name": "Vàng Khối Thối Luyện",
+"kind": 40,
+"lv": 15
+},
+"0xac45": {
+"name": "Vàng Khối Trọc Thủy",
+"kind": 40,
+"lv": 16
+},
+"0x909c": {
+"name": "Đục Thủy Kim Sa",
+"kind": 40,
+"lv": 16
+},
+"0x909d": {
+"name": "Long Giang Kim Sa",
+"kind": 40,
+"lv": 17
+},
+"0x90c9": {
+"name": "Vàng Miếng Long Giang",
+"kind": 40,
+"lv": 17
+},
+"0x909e": {
+"name": "Tô Hà Kim Sa",
+"kind": 40,
+"lv": 18
+},
+"0x90ca": {
+"name": "Vàng Miếng Tô Hà",
+"kind": 40,
+"lv": 18
+},
+"0x909f": {
+"name": "Khanh Giang Kim Sa",
+"kind": 40,
+"lv": 19
+},
+"0x90cb": {
+"name": "Vàng Miếng Khanh Giang",
+"kind": 40,
+"lv": 19
+},
+"0x90a0": {
+"name": "Hoài Hà Kim Sa",
+"kind": 40,
+"lv": 20
+},
+"0x90cc": {
+"name": "Vàng Miếng Hoài Hà",
+"kind": 40,
+"lv": 20
+},
+"0x90a1": {
+"name": "Hoàng Hà Kim Sa",
+"kind": 40,
+"lv": 21
+},
+"0x90cd": {
+"name": "Vàng Miếng Hoàng Hà",
+"kind": 40,
+"lv": 21
+},
+"0x90ce": {
+"name": "Lát Vàng Trường Giang",
+"kind": 40,
+"lv": 22
+},
+"0x90a2": {
+"name": "Trường Giang Kim Sa",
+"kind": 40,
+"lv": 22
+},
+"0x90a3": {
+"name": "Chân Long Kim Sa",
+"kind": 40,
+"lv": 23
+},
+"0x90cf": {
+"name": "Vàng Miếng Ròng Thật",
+"kind": 40,
+"lv": 23
+},
+"0x90a4": {
+"name": "Nữa Miếng Vàng Nát",
+"kind": 40,
+"lv": 24
+},
+"0x90d0": {
+"name": "Vàng Miếng Quang",
+"kind": 40,
+"lv": 24
+},
+"0x90a5": {
+"name": "Miếng Vàng Nát",
+"kind": 40,
+"lv": 25
+},
+"0x90d1": {
+"name": "Vàng Miếng Định",
+"kind": 40,
+"lv": 25
+},
+"0x90d2": {
+"name": "Vàng Miếng Thật",
+"kind": 40,
+"lv": 26
+},
+"0x90a6": {
+"name": "Vàng Ngón Út",
+"kind": 40,
+"lv": 26
+},
+"0x90a7": {
+"name": "Miếng Vàng Thật",
+"kind": 40,
+"lv": 27
+},
+"0x90d3": {
+"name": "Vàng Miếng Lũng Giang",
+"kind": 40,
+"lv": 27
+},
+"0x90a8": {
+"name": "Lũng Giang Kim Sa",
+"kind": 40,
+"lv": 28
+},
+"0x90d4": {
+"name": "Vàng Miếng Thạch Chủy",
+"kind": 40,
+"lv": 28
+},
+"0x90a9": {
+"name": "Thạch Chủy Kim Sa",
+"kind": 40,
+"lv": 29
+},
+"0x90d5": {
+"name": "Vàng Miếng Cát Lan",
+"kind": 40,
+"lv": 29
+},
+"0x90aa": {
+"name": "Cát Lan Thái Kim Sa",
+"kind": 40,
+"lv": 30
+},
+"0x90d6": {
+"name": "Vàng Miếng Ngu Hương",
+"kind": 40,
+"lv": 30
+},
+"0x90e0": {
+"name": "Vàng Miếng Đầu Rồng",
+"kind": 40,
+"lv": 30
+},
+"0x90b4": {
+"name": "Hạt Vàng Đầu Rồng",
+"kind": 40,
+"lv": 31
+},
+"0x90ab": {
+"name": "Ngu Hương Kim Sa",
+"kind": 40,
+"lv": 31
+},
+"0x90d7": {
+"name": "Vàng Miếng Hoàng Sơn",
+"kind": 40,
+"lv": 31
+},
+"0x90ac": {
+"name": "Hoàng Sơn Kim",
+"kind": 40,
+"lv": 32
+},
+"0x90d8": {
+"name": "Vàng Miếng Cao Thuần",
+"kind": 40,
+"lv": 32
+},
+"0x90ad": {
+"name": "Hạt Vàng Cao Thuần",
+"kind": 40,
+"lv": 33
+},
+"0x90d9": {
+"name": "Vàng Miếng Cường Kích",
+"kind": 40,
+"lv": 33
+},
+"0x90ae": {
+"name": "Hạt Vàng Thối Luyện",
+"kind": 40,
+"lv": 34
+},
+"0x90da": {
+"name": "Vàng Miếng Thối Luyện",
+"kind": 40,
+"lv": 34
+},
+"0x90af": {
+"name": "Hạt Vàng Hồng Lô",
+"kind": 40,
+"lv": 35
+},
+"0x90db": {
+"name": "Vàng Miếng Hồng Lô",
+"kind": 40,
+"lv": 35
+},
+"0x90b0": {
+"name": "Hạt Vàng Thái Thượng",
+"kind": 40,
+"lv": 36
+},
+"0x90dc": {
+"name": "Vàng Miếng Thái Thượng",
+"kind": 40,
+"lv": 36
+},
+"0x90b1": {
+"name": "Dự Lưu Kim Sa",
+"kind": 40,
+"lv": 37
+},
+"0x90dd": {
+"name": "Vàng Miếng Dự Lưu",
+"kind": 40,
+"lv": 37
+},
+"0x90b2": {
+"name": "Dự Lưu Kim Sa",
+"kind": 40,
+"lv": 38
+},
+"0x90de": {
+"name": "Vàng Miếng Dự Lưu",
+"kind": 40,
+"lv": 38
+},
+"0x90b3": {
+"name": "Dự Lưu Kim Sa",
+"kind": 40,
+"lv": 39
+},
+"0x90df": {
+"name": "Vàng Miếng Dự Lưu",
+"kind": 40,
+"lv": 39
+},
+"0xabeb": {
+"name": "Bạc Khối Nát",
+"kind": 41,
+"lv": 1
+},
+"0x908a": {
+"name": "Ngân Phấn Nát",
+"kind": 41,
+"lv": 1
+},
+"0xabec": {
+"name": "Bạc Khối Tạp",
+"kind": 41,
+"lv": 2
+},
+"0x90f5": {
+"name": "Ngân Phấn Kém",
+"kind": 41,
+"lv": 2
+},
+"0xabed": {
+"name": "Bạc Khối Trọc Địa",
+"kind": 41,
+"lv": 3
+},
+"0x90f6": {
+"name": "Ngân Phấn Trọc Địa",
+"kind": 41,
+"lv": 3
+},
+"0xabee": {
+"name": "Bạc Khối Thô Kém",
+"kind": 41,
+"lv": 4
+},
+"0x90f7": {
+"name": "Ngân Phấn Thô Kém",
+"kind": 41,
+"lv": 4
+},
+"0xabef": {
+"name": "Bác Khối Hà Tì",
+"kind": 41,
+"lv": 5
+},
+"0x90f8": {
+"name": "Ngân Phấn Hà Tì",
+"kind": 41,
+"lv": 5
+},
+"0xabf0": {
+"name": "Bạc Khối Vô Danh",
+"kind": 41,
+"lv": 6
+},
+"0x90f9": {
+"name": "Ngân Phấn Vô Danh",
+"kind": 41,
+"lv": 6
+},
+"0xabf1": {
+"name": "Bạc Khối Căn Địa",
+"kind": 41,
+"lv": 7
+},
+"0x90fa": {
+"name": "Ngân Phấn Gân Địa",
+"kind": 41,
+"lv": 7
+},
+"0xabf2": {
+"name": "Bạc Khối Lược Soa",
+"kind": 41,
+"lv": 8
+},
+"0x90fb": {
+"name": "Ngân Phấn Hơi Kém",
+"kind": 41,
+"lv": 8
+},
+"0xabf3": {
+"name": "Bạc Khối Nhất Bàn",
+"kind": 41,
+"lv": 9
+},
+"0x90fc": {
+"name": "Ngân Phấn Thường",
+"kind": 41,
+"lv": 9
+},
+"0xabf4": {
+"name": "Bạc Khối Thường",
+"kind": 41,
+"lv": 10
+},
+"0x90fd": {
+"name": "Ngân Phấn Thường Gặp",
+"kind": 41,
+"lv": 10
+},
+"0x90fe": {
+"name": "Ngân Phấn Trung",
+"kind": 41,
+"lv": 11
+},
+"0xac27": {
+"name": "Ngân Thạch Trung Đẳng",
+"kind": 41,
+"lv": 11
+},
+"0xac46": {
+"name": "Bạc Khối Thuần",
+"kind": 41,
+"lv": 12
+},
+"0x90ff": {
+"name": "Ngân Phấn Thuần",
+"kind": 41,
+"lv": 12
+},
+"0xac47": {
+"name": "Bạc Khối Căn Hỏa",
+"kind": 41,
+"lv": 13
+},
+"0x9100": {
+"name": "Ngân Phấn Căn Hỏa",
+"kind": 41,
+"lv": 13
+},
+"0xac48": {
+"name": "Bạc Khối Màu Trà",
+"kind": 41,
+"lv": 14
+},
+"0x9101": {
+"name": "Ngân Phấn Màu Trà",
+"kind": 41,
+"lv": 14
+},
+"0xac49": {
+"name": "Bạc Khối Thiểm Lượng",
+"kind": 41,
+"lv": 15
+},
+"0x9102": {
+"name": "Ngân Phấn Lấp Lánh",
+"kind": 41,
+"lv": 15
+},
+"0xac4a": {
+"name": "Bạc Khối Lan Văn",
+"kind": 41,
+"lv": 16
+},
+"0x9103": {
+"name": "Ngân Phấn Lan Vân",
+"kind": 41,
+"lv": 16
+},
+"0xac4b": {
+"name": "Bạc Khối Văn San",
+"kind": 41,
+"lv": 17
+},
+"0x9104": {
+"name": "Ngân Phấn Văn Sơn",
+"kind": 41,
+"lv": 17
+},
+"0x9105": {
+"name": "Ngân Phấn Trắng",
+"kind": 41,
+"lv": 18
+},
+"0x9130": {
+"name": "Ngân Thạch Trắng",
+"kind": 41,
+"lv": 18
+},
+"0x9106": {
+"name": "Ngân Phấn Cứng",
+"kind": 41,
+"lv": 19
+},
+"0x9131": {
+"name": "Ngân Thạch Cứng",
+"kind": 41,
+"lv": 19
+},
+"0x9107": {
+"name": "Ngân Phấn Phôi",
+"kind": 41,
+"lv": 20
+},
+"0x9132": {
+"name": "Ngân Thạch Phôi",
+"kind": 41,
+"lv": 20
+},
+"0x9108": {
+"name": "Ngân Phấn Tím",
+"kind": 41,
+"lv": 21
+},
+"0x9133": {
+"name": "Ngân Thạch Tím",
+"kind": 41,
+"lv": 21
+},
+"0x9109": {
+"name": "Ngân Phấn Hoa",
+"kind": 41,
+"lv": 22
+},
+"0x9134": {
+"name": "Ngân Thạch Hoa",
+"kind": 41,
+"lv": 22
+},
+"0x910a": {
+"name": "Ngân Phấn Đốm",
+"kind": 41,
+"lv": 23
+},
+"0x9135": {
+"name": "Ngân Thạch Đốm",
+"kind": 41,
+"lv": 23
+},
+"0x910b": {
+"name": "Hạt Địa Ngân Phấn",
+"kind": 41,
+"lv": 24
+},
+"0x9136": {
+"name": "Hạt Địa Ngân Thạch",
+"kind": 41,
+"lv": 24
+},
+"0x910c": {
+"name": "Tinh Địa Ngân Phấn",
+"kind": 41,
+"lv": 25
+},
+"0x9137": {
+"name": "Tinh Địa Ngân Thạch",
+"kind": 41,
+"lv": 25
+},
+"0x910d": {
+"name": "Ngân Phấn Tốt",
+"kind": 41,
+"lv": 26
+},
+"0x9138": {
+"name": "Ngân Thạch Tốt",
+"kind": 41,
+"lv": 26
+},
+"0x910e": {
+"name": "Ngân Phấn Uyển Sơn",
+"kind": 41,
+"lv": 27
+},
+"0x9139": {
+"name": "Ngân Thạch Uyển Sơn",
+"kind": 41,
+"lv": 27
+},
+"0x910f": {
+"name": "Ngân Phấn Nguyên Chất",
+"kind": 41,
+"lv": 28
+},
+"0x913a": {
+"name": "Ngân Thạch Nguyên Chất",
+"kind": 41,
+"lv": 28
+},
+"0x9110": {
+"name": "Ngân Phấn Hồng Nhãn",
+"kind": 41,
+"lv": 29
+},
+"0x913b": {
+"name": "Ngân Thạch Hồng Nhãn",
+"kind": 41,
+"lv": 29
+},
+"0x9111": {
+"name": "Ngân Phấn Lam Điền",
+"kind": 41,
+"lv": 30
+},
+"0x913c": {
+"name": "Ngân Thạch Lam Điền",
+"kind": 41,
+"lv": 30
+},
+"0x9146": {
+"name": "Ngân Thạch Đầu Rồng",
+"kind": 41,
+"lv": 30
+},
+"0x9112": {
+"name": "Ngân Phấn Lũng Sơn",
+"kind": 41,
+"lv": 31
+},
+"0x911b": {
+"name": "Ngân Phấn Đầu Rồng",
+"kind": 41,
+"lv": 31
+},
+"0x913d": {
+"name": "Ngân Thạch Lũng Sơn",
+"kind": 41,
+"lv": 31
+},
+"0x9113": {
+"name": "Ngân Phấn Tiêm Bích",
+"kind": 41,
+"lv": 32
+},
+"0x913e": {
+"name": "Ngân Thạch Tiêm Bích",
+"kind": 41,
+"lv": 32
+},
+"0x9114": {
+"name": "Ngân Phấn Lạc Hỏa",
+"kind": 41,
+"lv": 33
+},
+"0x913f": {
+"name": "Ngân Thạch Lạc Hỏa",
+"kind": 41,
+"lv": 33
+},
+"0x9115": {
+"name": "Ngân Phấn Thâm Quáng",
+"kind": 41,
+"lv": 34
+},
+"0x9140": {
+"name": "Ngân Thạch Thâm Quáng",
+"kind": 41,
+"lv": 34
+},
+"0x9116": {
+"name": "Ngân Phấn Cao Tinh",
+"kind": 41,
+"lv": 35
+},
+"0x9141": {
+"name": "Ngân Thạch Cao Tinh",
+"kind": 41,
+"lv": 35
+},
+"0x9117": {
+"name": "Ngân Phấn Siêu Cứng",
+"kind": 41,
+"lv": 36
+},
+"0x9142": {
+"name": "Ngân Thạch Siêu Cứng",
+"kind": 41,
+"lv": 36
+},
+"0x9143": {
+"name": "Dự Lưu Ngân Thạch",
+"kind": 41,
+"lv": 37
+},
+"0x9118": {
+"name": "Ngân Phấn Dự Lưu",
+"kind": 41,
+"lv": 37
+},
+"0x9144": {
+"name": "Dự Lưu Ngân Thạch",
+"kind": 41,
+"lv": 38
+},
+"0x9119": {
+"name": "Ngân Phấn Dự Lưu",
+"kind": 41,
+"lv": 38
+},
+"0x9145": {
+"name": "Dự Lưu Ngân Thạch",
+"kind": 41,
+"lv": 39
+},
+"0x911a": {
+"name": "Ngân Phấn Dự Lưu",
+"kind": 41,
+"lv": 39
+},
+"0x908b": {
+"name": "Bột Đồng Bên Đường",
+"kind": 42,
+"lv": 1
+},
+"0xabf5": {
+"name": "Đồng Khối Kém",
+"kind": 42,
+"lv": 1
+},
+"0x915b": {
+"name": "Bột Đồng Núi",
+"kind": 42,
+"lv": 2
+},
+"0xabf6": {
+"name": "Đồng Khối",
+"kind": 42,
+"lv": 2
+},
+"0x915c": {
+"name": "Bột Đồng Kém",
+"kind": 42,
+"lv": 3
+},
+"0xabf7": {
+"name": "Đồng Khối Thâm Sơn",
+"kind": 42,
+"lv": 3
+},
+"0x915d": {
+"name": "Bột Đồng Thường",
+"kind": 42,
+"lv": 4
+},
+"0xabf8": {
+"name": "Đồng Khối Lộ Trúc",
+"kind": 42,
+"lv": 4
+},
+"0x915e": {
+"name": "Bột Đồng Tạp",
+"kind": 42,
+"lv": 5
+},
+"0xabf9": {
+"name": "Đồng Khối Tạp",
+"kind": 42,
+"lv": 5
+},
+"0x915f": {
+"name": "Bột Đồng Mẫu",
+"kind": 42,
+"lv": 6
+},
+"0xabfa": {
+"name": "Đồng Khối Mẫu",
+"kind": 42,
+"lv": 6
+},
+"0x9160": {
+"name": "Bột Đồng Thô",
+"kind": 42,
+"lv": 7
+},
+"0xabfb": {
+"name": "Đồng Khối Sơ",
+"kind": 42,
+"lv": 7
+},
+"0x9161": {
+"name": "Bột Đồng Quang",
+"kind": 42,
+"lv": 8
+},
+"0xabfc": {
+"name": "Đồng Khối Quang",
+"kind": 42,
+"lv": 8
+},
+"0x9162": {
+"name": "Bột Đồng Thuần",
+"kind": 42,
+"lv": 9
+},
+"0xabfd": {
+"name": "Đồng Khối Thuần",
+"kind": 42,
+"lv": 9
+},
+"0x9163": {
+"name": "Bột Đồng Lục",
+"kind": 42,
+"lv": 10
+},
+"0xabfe": {
+"name": "Đồng Khối Lục",
+"kind": 42,
+"lv": 10
+},
+"0x9164": {
+"name": "Bột Đồng Đỏ",
+"kind": 42,
+"lv": 11
+},
+"0xac2d": {
+"name": "Hồng Đồng Thạch",
+"kind": 42,
+"lv": 11
+},
+"0x9165": {
+"name": "Bột Đồng Cổ",
+"kind": 42,
+"lv": 12
+},
+"0xac2e": {
+"name": "Cổ Đồng Thạch",
+"kind": 42,
+"lv": 12
+},
+"0x9166": {
+"name": "Bột Đồng Diêu",
+"kind": 42,
+"lv": 13
+},
+"0xac2f": {
+"name": "Diêu Đồng Thạch",
+"kind": 42,
+"lv": 13
+},
+"0x9167": {
+"name": "Bột Đồng Hạ",
+"kind": 42,
+"lv": 14
+},
+"0xac30": {
+"name": "Hạ Đồng Thạch",
+"kind": 42,
+"lv": 14
+},
+"0x9168": {
+"name": "Bột Đồng Du",
+"kind": 42,
+"lv": 15
+},
+"0xac31": {
+"name": "Du Đồng Thạch",
+"kind": 42,
+"lv": 15
+},
+"0x9169": {
+"name": "Bột Đồng Thương",
+"kind": 42,
+"lv": 16
+},
+"0xac32": {
+"name": "Thương Đồng Thạch",
+"kind": 42,
+"lv": 16
+},
+"0x916a": {
+"name": "Bột Đồng Thanh",
+"kind": 42,
+"lv": 17
+},
+"0xac4c": {
+"name": "Đồng Khối Thanh",
+"kind": 42,
+"lv": 17
+},
+"0x916b": {
+"name": "Bột Đồng Hoàng",
+"kind": 42,
+"lv": 18
+},
+"0xac4d": {
+"name": "Hoàng Đồng Thạch",
+"kind": 42,
+"lv": 18
+},
+"0x916c": {
+"name": "Bột Đồng Dã",
+"kind": 42,
+"lv": 19
+},
+"0xac4e": {
+"name": "Dã Đồng Thạch",
+"kind": 42,
+"lv": 19
+},
+"0x916d": {
+"name": "Bột Đồng Lạc",
+"kind": 42,
+"lv": 20
+},
+"0xac4f": {
+"name": "Lạc Đồng Thạch",
+"kind": 42,
+"lv": 20
+},
+"0x916e": {
+"name": "Bột Đồng Dương",
+"kind": 42,
+"lv": 21
+},
+"0xac50": {
+"name": "Dương Đồng Thạch",
+"kind": 42,
+"lv": 21
+},
+"0x916f": {
+"name": "Bột Đồng Hoàng Sơn",
+"kind": 42,
+"lv": 22
+},
+"0xac51": {
+"name": "Hoàng Sơn Đồng Thạch",
+"kind": 42,
+"lv": 22
+},
+"0x9170": {
+"name": "Bột Đồng Phong",
+"kind": 42,
+"lv": 23
+},
+"0xac5e": {
+"name": "Phong Đồng Thạch",
+"kind": 42,
+"lv": 23
+},
+"0x9171": {
+"name": "Bột Đồng Huy",
+"kind": 42,
+"lv": 24
+},
+"0xac5f": {
+"name": "Huy Đồng Thạch",
+"kind": 42,
+"lv": 24
+},
+"0x9172": {
+"name": "Bột Đồng Văn",
+"kind": 42,
+"lv": 25
+},
+"0xac60": {
+"name": "Văn Đồng Thạch",
+"kind": 42,
+"lv": 25
+},
+"0x9173": {
+"name": "Bột Đồng Triển",
+"kind": 42,
+"lv": 26
+},
+"0x9196": {
+"name": "Đồng Thạch Triển",
+"kind": 42,
+"lv": 26
+},
+"0x9174": {
+"name": "Bột Đồng Vi",
+"kind": 42,
+"lv": 27
+},
+"0x9197": {
+"name": "Đồng Thạch Vi",
+"kind": 42,
+"lv": 27
+},
+"0x9175": {
+"name": "Bột Đồng Chanh",
+"kind": 42,
+"lv": 28
+},
+"0x9198": {
+"name": "Đồng Thạch Chanh",
+"kind": 42,
+"lv": 28
+},
+"0x9176": {
+"name": "Bột Đồng Trọng",
+"kind": 42,
+"lv": 29
+},
+"0x9199": {
+"name": "Đồng Thạch Trọng",
+"kind": 42,
+"lv": 29
+},
+"0x9177": {
+"name": "Bột Đồng Lễ",
+"kind": 42,
+"lv": 30
+},
+"0x919a": {
+"name": "Đồng Thạch Lễ",
+"kind": 42,
+"lv": 30
+},
+"0x91a4": {
+"name": "Đồng Thạch Đầu Rồng",
+"kind": 42,
+"lv": 30
+},
+"0x9178": {
+"name": "Bột Đồng Thương Chu",
+"kind": 42,
+"lv": 31
+},
+"0x9181": {
+"name": "Bột Đồng Đầu Rồng",
+"kind": 42,
+"lv": 31
+},
+"0x919b": {
+"name": "Đồng Thạch Thương Chu",
+"kind": 42,
+"lv": 31
+},
+"0x9179": {
+"name": "Bột Đồng Tinh Luyện",
+"kind": 42,
+"lv": 32
+},
+"0x919c": {
+"name": "Đồng Thạch Tinh Luyện",
+"kind": 42,
+"lv": 32
+},
+"0x917a": {
+"name": "Bột Đồng Man Hoang",
+"kind": 42,
+"lv": 33
+},
+"0x919d": {
+"name": "Đồng Thạch Man Hoang",
+"kind": 42,
+"lv": 33
+},
+"0x917b": {
+"name": "Bột Đồng Liệt Hỏa",
+"kind": 42,
+"lv": 34
+},
+"0x919e": {
+"name": "Đồng Thạch Liệt Hỏa",
+"kind": 42,
+"lv": 34
+},
+"0x917c": {
+"name": "Bột Đồng Phong Động",
+"kind": 42,
+"lv": 35
+},
+"0x919f": {
+"name": "Đồng Thạch Phong Động",
+"kind": 42,
+"lv": 35
+},
+"0x917d": {
+"name": "Bột Đồng Xán Quang",
+"kind": 42,
+"lv": 36
+},
+"0x91a0": {
+"name": "Đồng Thạch Xán Quang",
+"kind": 42,
+"lv": 36
+},
+"0x917e": {
+"name": "Bột Đồng Dự Lưu",
+"kind": 42,
+"lv": 37
+},
+"0x91a1": {
+"name": "Đồng Thạch Dự Lưu",
+"kind": 42,
+"lv": 37
+},
+"0x917f": {
+"name": "Bột Đồng Dự Lưu",
+"kind": 42,
+"lv": 38
+},
+"0x91a2": {
+"name": "Đồng Thạch Dự Lưu",
+"kind": 42,
+"lv": 38
+},
+"0x9180": {
+"name": "Bột Đồng Dự Lưu",
+"kind": 42,
+"lv": 39
+},
+"0x91a3": {
+"name": "Đồng Thạch Dự Lưu",
+"kind": 42,
+"lv": 39
+},
+"0xabff": {
+"name": "Thiết Khối Kém",
+"kind": 43,
+"lv": 1
+},
+"0x908c": {
+"name": "Tú Thiết Phấn",
+"kind": 43,
+"lv": 1
+},
+"0xac00": {
+"name": "Thiết Khối Tạp",
+"kind": 43,
+"lv": 2
+},
+"0x91b9": {
+"name": "Tạp Thiết Viên",
+"kind": 43,
+"lv": 2
+},
+"0xac01": {
+"name": "Thiết Khối Nát",
+"kind": 43,
+"lv": 3
+},
+"0x91ba": {
+"name": "Toái Thiết Viên",
+"kind": 43,
+"lv": 3
+},
+"0xac02": {
+"name": "Thiết Khối Thô",
+"kind": 43,
+"lv": 4
+},
+"0x91bb": {
+"name": "Thô Thiết Viên",
+"kind": 43,
+"lv": 4
+},
+"0xac03": {
+"name": "Thiết Khối Nhỏ",
+"kind": 43,
+"lv": 5
+},
+"0x91bc": {
+"name": "Tiểu Thiết Viên",
+"kind": 43,
+"lv": 5
+},
+"0xac04": {
+"name": "Thiết Khối Tế",
+"kind": 43,
+"lv": 6
+},
+"0x91bd": {
+"name": "Tế Thiết Viên",
+"kind": 43,
+"lv": 6
+},
+"0xac05": {
+"name": "Thiết Khối Từ",
+"kind": 43,
+"lv": 7
+},
+"0x91be": {
+"name": "Từ Thiết Viên",
+"kind": 43,
+"lv": 7
+},
+"0x91bf": {
+"name": "Bạch Thiết Viên",
+"kind": 43,
+"lv": 8
+},
+"0xac06": {
+"name": "Thiết Khối Trắng",
+"kind": 43,
+"lv": 8
+},
+"0x91c0": {
+"name": "Nhuyễn Thiết Viên",
+"kind": 43,
+"lv": 9
+},
+"0xac07": {
+"name": "Thiết Khối Nhuyễn",
+"kind": 43,
+"lv": 9
+},
+"0x91c1": {
+"name": "Hoàng Thiết Viên",
+"kind": 43,
+"lv": 10
+},
+"0xac08": {
+"name": "Thiết Khối Vua",
+"kind": 43,
+"lv": 10
+},
+"0xac33": {
+"name": "Xích Thiết Khối",
+"kind": 43,
+"lv": 11
+},
+"0x91c2": {
+"name": "Xích Thiết Viên",
+"kind": 43,
+"lv": 11
+},
+"0xac52": {
+"name": "Hạt Thiết Khối",
+"kind": 43,
+"lv": 12
+},
+"0x91c3": {
+"name": "Hạt Thiết Viên",
+"kind": 43,
+"lv": 12
+},
+"0xac53": {
+"name": "Hôi Thiết Khối",
+"kind": 43,
+"lv": 13
+},
+"0x91c4": {
+"name": "Hôi Thiết Viên",
+"kind": 43,
+"lv": 13
+},
+"0xac54": {
+"name": "Phấn Thiết Khối",
+"kind": 43,
+"lv": 14
+},
+"0x91c5": {
+"name": "Phấn Thiết Viên",
+"kind": 43,
+"lv": 14
+},
+"0xac55": {
+"name": "Tông Thiết Khối",
+"kind": 43,
+"lv": 15
+},
+"0x91c6": {
+"name": "Tông Thiết Viên",
+"kind": 43,
+"lv": 15
+},
+"0xac56": {
+"name": "Tử Thiết Khối",
+"kind": 43,
+"lv": 16
+},
+"0x91c7": {
+"name": "Tử Thiết Viên",
+"kind": 43,
+"lv": 16
+},
+"0xac57": {
+"name": "Lục Thiết Khối",
+"kind": 43,
+"lv": 17
+},
+"0x91c8": {
+"name": "Lục Thiết Viên",
+"kind": 43,
+"lv": 17
+},
+"0x91f4": {
+"name": "Mặc Thiết Khối",
+"kind": 43,
+"lv": 18
+},
+"0x91c9": {
+"name": "Mặc Thiết Viên",
+"kind": 43,
+"lv": 18
+},
+"0x91f5": {
+"name": "Chanh Thiết Khối",
+"kind": 43,
+"lv": 19
+},
+"0x91ca": {
+"name": "Chanh Thiết Viên",
+"kind": 43,
+"lv": 19
+},
+"0x91f6": {
+"name": "Lam Thiết Khối",
+"kind": 43,
+"lv": 20
+},
+"0x91cb": {
+"name": "Lam Thiết Viên",
+"kind": 43,
+"lv": 20
+},
+"0x91f7": {
+"name": "Hỏa Thiết Khối",
+"kind": 43,
+"lv": 21
+},
+"0x91cc": {
+"name": "Hỏa Thiết Viên",
+"kind": 43,
+"lv": 21
+},
+"0x91f8": {
+"name": "Mỹ Thiết Khối",
+"kind": 43,
+"lv": 22
+},
+"0x91cd": {
+"name": "Mỹ Thiết Viên",
+"kind": 43,
+"lv": 22
+},
+"0x91f9": {
+"name": "Hắc Thiết Khối",
+"kind": 43,
+"lv": 23
+},
+"0x91ce": {
+"name": "Hắc Thiết Viên",
+"kind": 43,
+"lv": 23
+},
+"0x91fa": {
+"name": "Hồng Thiết Khối",
+"kind": 43,
+"lv": 24
+},
+"0x91cf": {
+"name": "Hồng Thiết Viên",
+"kind": 43,
+"lv": 24
+},
+"0x91fb": {
+"name": "Thanh Thiết Khối",
+"kind": 43,
+"lv": 25
+},
+"0x91d0": {
+"name": "Thanh Thiết Viên",
+"kind": 43,
+"lv": 25
+},
+"0x91fc": {
+"name": "Tinh Thiết Khối",
+"kind": 43,
+"lv": 26
+},
+"0x91d1": {
+"name": "Tinh Thiết Viên",
+"kind": 43,
+"lv": 26
+},
+"0x91fd": {
+"name": "Lạc Thiết Khối",
+"kind": 43,
+"lv": 27
+},
+"0x91d2": {
+"name": "Lạc Thiết Viên",
+"kind": 43,
+"lv": 27
+},
+"0x91fe": {
+"name": "Thải Thiết Khối",
+"kind": 43,
+"lv": 28
+},
+"0x91d3": {
+"name": "Thải Thiết Viên",
+"kind": 43,
+"lv": 28
+},
+"0x91ff": {
+"name": "Huyết Thiết Khối",
+"kind": 43,
+"lv": 29
+},
+"0x91d4": {
+"name": "Huyết Thiết Viên",
+"kind": 43,
+"lv": 29
+},
+"0x9200": {
+"name": "Huyền Thiết Khối",
+"kind": 43,
+"lv": 30
+},
+"0x91d5": {
+"name": "Huyền Thiết Viên",
+"kind": 43,
+"lv": 30
+},
+"0x920a": {
+"name": "Đầu Rồng Thiết Khối",
+"kind": 43,
+"lv": 30
+},
+"0x9201": {
+"name": "Âm Dương Thiết Khối",
+"kind": 43,
+"lv": 31
+},
+"0x91d6": {
+"name": "Âm Dương Thiết Viên",
+"kind": 43,
+"lv": 31
+},
+"0x91df": {
+"name": "Đầu Rồng Thiết Viên",
+"kind": 43,
+"lv": 31
+},
+"0x9202": {
+"name": "Đoán Tạo Thiết Khối",
+"kind": 43,
+"lv": 32
+},
+"0x91d7": {
+"name": "Đoán Tạo Thiết Viên",
+"kind": 43,
+"lv": 32
+},
+"0x9203": {
+"name": "Ngưng Huyết Thiết Khối",
+"kind": 43,
+"lv": 33
+},
+"0x91d8": {
+"name": "Ngưng Huyết Thiết Viên",
+"kind": 43,
+"lv": 33
+},
+"0x9204": {
+"name": "Thanh Hỏa Thiết Khối",
+"kind": 43,
+"lv": 34
+},
+"0x91d9": {
+"name": "Thanh Hỏa Thiết Viên",
+"kind": 43,
+"lv": 34
+},
+"0x9205": {
+"name": "Trục Diễm Thiết Khối",
+"kind": 43,
+"lv": 35
+},
+"0x91da": {
+"name": "Trục Diễm Thiết Viên",
+"kind": 43,
+"lv": 35
+},
+"0x9206": {
+"name": "Vô Song Thiết Khối",
+"kind": 43,
+"lv": 36
+},
+"0x91db": {
+"name": "Vô Song Thiết Viên",
+"kind": 43,
+"lv": 36
+},
+"0x9207": {
+"name": "Dự Lưu Thiết Khối",
+"kind": 43,
+"lv": 37
+},
+"0x91dc": {
+"name": "Dự Lưu Thiết Viên",
+"kind": 43,
+"lv": 37
+},
+"0x9208": {
+"name": "Dự Lưu Thiết Khối",
+"kind": 43,
+"lv": 38
+},
+"0x91dd": {
+"name": "Dự Lưu Thiết Viên",
+"kind": 43,
+"lv": 38
+},
+"0x9209": {
+"name": "Dự Lưu Thiết Khối",
+"kind": 43,
+"lv": 39
+},
+"0x91de": {
+"name": "Dự Lưu Thiết Viên",
+"kind": 43,
+"lv": 39
+},
+"0x9089": {
+"name": "Tiểu Thiết Sa",
+"kind": 44,
+"lv": 1
+},
+"0xac09": {
+"name": "Đá Thiếc Nhỏ",
+"kind": 44,
+"lv": 1
+},
+"0x921f": {
+"name": "Vô Danh Thiếc Sa",
+"kind": 44,
+"lv": 2
+},
+"0xac0a": {
+"name": "Đá Thiếc Vô Danh",
+"kind": 44,
+"lv": 2
+},
+"0x9220": {
+"name": "Tích Thiếc Sa",
+"kind": 44,
+"lv": 3
+},
+"0xac0b": {
+"name": "Đá Thiếc Lớn",
+"kind": 44,
+"lv": 3
+},
+"0x9221": {
+"name": "Thô Thiếc Sa",
+"kind": 44,
+"lv": 4
+},
+"0xac0c": {
+"name": "Đá Thiếc Thô",
+"kind": 44,
+"lv": 4
+},
+"0x9222": {
+"name": "Tế Thiếc Sa",
+"kind": 44,
+"lv": 5
+},
+"0xac0d": {
+"name": "Đá Thiếc Tế",
+"kind": 44,
+"lv": 5
+},
+"0x9223": {
+"name": "Tử Thiếc Sa",
+"kind": 44,
+"lv": 6
+},
+"0xac0e": {
+"name": "Đá Thiếc Tử",
+"kind": 44,
+"lv": 6
+},
+"0x9224": {
+"name": "Khinh Thiếc Sa",
+"kind": 44,
+"lv": 7
+},
+"0xac0f": {
+"name": "Đá Thiếc Khinh",
+"kind": 44,
+"lv": 7
+},
+"0x9225": {
+"name": "Nhuyễn Thiếc Sa",
+"kind": 44,
+"lv": 8
+},
+"0xac10": {
+"name": "Đá Thiếc Nhuyễn",
+"kind": 44,
+"lv": 8
+},
+"0x9226": {
+"name": "Điểm Thiếc Sa",
+"kind": 44,
+"lv": 9
+},
+"0xac11": {
+"name": "Đá Thiếc Điểm",
+"kind": 44,
+"lv": 9
+},
+"0x9227": {
+"name": "Thủy Thiếc Sa",
+"kind": 44,
+"lv": 10
+},
+"0xac12": {
+"name": "Đá Thiếc Thủy",
+"kind": 44,
+"lv": 10
+},
+"0x9228": {
+"name": "Địa Thiếc Sa",
+"kind": 44,
+"lv": 11
+},
+"0xac38": {
+"name": "ĐịaThiếtThạch",
+"kind": 44,
+"lv": 11
+},
+"0x9229": {
+"name": "Hôi Thiếc Sa",
+"kind": 44,
+"lv": 12
+},
+"0xac58": {
+"name": "Hôi Tích Thạch",
+"kind": 44,
+"lv": 12
+},
+"0x922a": {
+"name": "Lam Thiếc Sa",
+"kind": 44,
+"lv": 13
+},
+"0xac59": {
+"name": "Lam Tích Thạch",
+"kind": 44,
+"lv": 13
+},
+"0x922b": {
+"name": "Lão Thiếc Sa",
+"kind": 44,
+"lv": 14
+},
+"0xac5a": {
+"name": "Lão Tích Thạch",
+"kind": 44,
+"lv": 14
+},
+"0x922c": {
+"name": "Toàn Thiếc Sa",
+"kind": 44,
+"lv": 15
+},
+"0xac5b": {
+"name": "Toàn Tích Thạch",
+"kind": 44,
+"lv": 15
+},
+"0x922d": {
+"name": "Thuần Thiếc Sa",
+"kind": 44,
+"lv": 16
+},
+"0xac5c": {
+"name": "Thuần Tích Thạch",
+"kind": 44,
+"lv": 16
+},
+"0x922e": {
+"name": "Quang Thiếc Sa",
+"kind": 44,
+"lv": 17
+},
+"0xac5d": {
+"name": "Quang Tích Thạch",
+"kind": 44,
+"lv": 17
+},
+"0x922f": {
+"name": "Hàn Thiếc Sa",
+"kind": 44,
+"lv": 18
+},
+"0x925a": {
+"name": "Hàn Thiếc Thạch",
+"kind": 44,
+"lv": 18
+},
+"0x9230": {
+"name": "Thanh Thiếc Sa",
+"kind": 44,
+"lv": 19
+},
+"0x925b": {
+"name": "Thanh Thiếc Thạch",
+"kind": 44,
+"lv": 19
+},
+"0x9231": {
+"name": "Thán Thiếc Sa",
+"kind": 44,
+"lv": 20
+},
+"0x925c": {
+"name": "Thán Thiếc Thạch",
+"kind": 44,
+"lv": 20
+},
+"0x9232": {
+"name": "Bạch Thiếc Sa",
+"kind": 44,
+"lv": 21
+},
+"0x925d": {
+"name": "Bạch Thiếc Thạch",
+"kind": 44,
+"lv": 21
+},
+"0x9233": {
+"name": "Phong Thiếc Sa",
+"kind": 44,
+"lv": 22
+},
+"0x925e": {
+"name": "Phong Thiếc Thạch",
+"kind": 44,
+"lv": 22
+},
+"0x9234": {
+"name": "Tiêm Thiếc Sa",
+"kind": 44,
+"lv": 23
+},
+"0x925f": {
+"name": "Tiêm Thiếc Thạch",
+"kind": 44,
+"lv": 23
+},
+"0x9235": {
+"name": "Tinh Tinh Thiếc Sa",
+"kind": 44,
+"lv": 24
+},
+"0x9260": {
+"name": "Tinh Tinh Thiếc Thạch",
+"kind": 44,
+"lv": 24
+},
+"0x9236": {
+"name": "Phương Hình Thiếc Sa",
+"kind": 44,
+"lv": 25
+},
+"0x9261": {
+"name": "Phương Thiếc Thạch",
+"kind": 44,
+"lv": 25
+},
+"0x9237": {
+"name": "Xỉ Thiếc Sa",
+"kind": 44,
+"lv": 26
+},
+"0x9262": {
+"name": "Xỉ Thiếc Thạch",
+"kind": 44,
+"lv": 26
+},
+"0x9238": {
+"name": "Viên Thiếc Sa",
+"kind": 44,
+"lv": 27
+},
+"0x9263": {
+"name": "Viên Thiếc Thạch",
+"kind": 44,
+"lv": 27
+},
+"0x9239": {
+"name": "Lục Thiếc Sa",
+"kind": 44,
+"lv": 28
+},
+"0x9264": {
+"name": "Lục Thiếc Thạch",
+"kind": 44,
+"lv": 28
+},
+"0x923a": {
+"name": "Trọng Thiếc Sa",
+"kind": 44,
+"lv": 29
+},
+"0x9265": {
+"name": "Trọng Thiếc Thạch",
+"kind": 44,
+"lv": 29
+},
+"0x923b": {
+"name": "Hắc Thiếc Sa",
+"kind": 44,
+"lv": 30
+},
+"0x9266": {
+"name": "Hắc Thiếc Thạch",
+"kind": 44,
+"lv": 30
+},
+"0x9270": {
+"name": "Đầu Rồng Thiếc Thạch",
+"kind": 44,
+"lv": 30
+},
+"0x923c": {
+"name": "Ngạnh Thiếc Sa",
+"kind": 44,
+"lv": 31
+},
+"0x9267": {
+"name": "Ngạnh Thiếc Thạch",
+"kind": 44,
+"lv": 31
+},
+"0x9245": {
+"name": "Đầu Rồng Thiếc Sa",
+"kind": 44,
+"lv": 31
+},
+"0x923d": {
+"name": "Cường Hóa Thiếc Sa",
+"kind": 44,
+"lv": 32
+},
+"0x9268": {
+"name": "Cường Hóa Thiếc Thạch",
+"kind": 44,
+"lv": 32
+},
+"0x9269": {
+"name": "Quang Lượng Thiếc",
+"kind": 44,
+"lv": 33
+},
+"0x923e": {
+"name": "Quang Lượng Thiếc Sa",
+"kind": 44,
+"lv": 33
+},
+"0x923f": {
+"name": "Hợi Thiếc Sa",
+"kind": 44,
+"lv": 34
+},
+"0x926a": {
+"name": "Hợi Thiếc Thạch",
+"kind": 44,
+"lv": 34
+},
+"0x9240": {
+"name": "Hi Hữu Thiếc Sa",
+"kind": 44,
+"lv": 35
+},
+"0x926b": {
+"name": "Hi Hữu Thiếc Thạch",
+"kind": 44,
+"lv": 35
+},
+"0x9241": {
+"name": "Địa Tâm Thiếc Sa",
+"kind": 44,
+"lv": 36
+},
+"0x926c": {
+"name": "Địa Tâm Thiếc Thạch",
+"kind": 44,
+"lv": 36
+},
+"0x9242": {
+"name": "Dự Lưu Thiếc Sa",
+"kind": 44,
+"lv": 37
+},
+"0x926d": {
+"name": "Dự Lưu Thiếc Thạch",
+"kind": 44,
+"lv": 37
+},
+"0x9243": {
+"name": "Dự Lưu Thiếc Sa",
+"kind": 44,
+"lv": 38
+},
+"0x926e": {
+"name": "Dự Lưu Thiếc Thạch",
+"kind": 44,
+"lv": 38
+},
+"0x9244": {
+"name": "Dự Lưu Thiếc Sa",
+"kind": 44,
+"lv": 39
+},
+"0x926f": {
+"name": "Dự Lưu Thiếc Thạch",
+"kind": 44,
+"lv": 39
+},
+"0x92b3": {
+"name": "Khối Liệt Chất",
+"kind": 45,
+"lv": 1
+},
+"0x9484": {
+"name": "Phấn Vụn Tử Tinh",
+"kind": 45,
+"lv": 1
+},
+"0x947b": {
+"name": "Hạt Cát Tử Tinh",
+"kind": 45,
+"lv": 2
+},
+"0x92b4": {
+"name": "Khối Phá Liệt",
+"kind": 45,
+"lv": 2
+},
+"0x947c": {
+"name": "Hạt Viên Tử Tinh",
+"kind": 45,
+"lv": 3
+},
+"0x92b5": {
+"name": "Khối Quy Liệt",
+"kind": 45,
+"lv": 3
+},
+"0x947d": {
+"name": "Hạt Tử Tinh Kém",
+"kind": 45,
+"lv": 4
+},
+"0x92b6": {
+"name": "Khối Ma Tổn",
+"kind": 45,
+"lv": 4
+},
+"0x947e": {
+"name": "Hạt Tử Tinh",
+"kind": 45,
+"lv": 5
+},
+"0x92b7": {
+"name": "Khối Hà Tì",
+"kind": 45,
+"lv": 5
+},
+"0x947f": {
+"name": "Hạt Trang Sức Tử Tinh",
+"kind": 45,
+"lv": 6
+},
+"0x92b8": {
+"name": "Khổi Tử Tinh",
+"kind": 45,
+"lv": 6
+},
+"0x9480": {
+"name": "Hạt Sơn Động Tử Tinh",
+"kind": 45,
+"lv": 7
+},
+"0x92b9": {
+"name": "Khối San Đỗng",
+"kind": 45,
+"lv": 7
+},
+"0x9481": {
+"name": "Hạt Thâm Thủy Tử Tinh",
+"kind": 45,
+"lv": 8
+},
+"0x92ba": {
+"name": "Khối Thâm Thủy",
+"kind": 45,
+"lv": 8
+},
+"0x9482": {
+"name": "Hạt Nhai Bích Tử Tinh",
+"kind": 45,
+"lv": 9
+},
+"0x92bb": {
+"name": "Khối Nhai Bích",
+"kind": 45,
+"lv": 9
+},
+"0x9483": {
+"name": "Hạt Lấp Lánh Tử Tinh",
+"kind": 45,
+"lv": 10
+},
+"0x92bc": {
+"name": "Khối Thiểm Lượng",
+"kind": 45,
+"lv": 10
+},
+"0x9485": {
+"name": "Hạt Ưu Tử Tinh",
+"kind": 45,
+"lv": 11
+},
+"0x92bd": {
+"name": "Khối Ưu Chất",
+"kind": 45,
+"lv": 11
+},
+"0x9486": {
+"name": "Hạt Vân Động Tử Tinh",
+"kind": 45,
+"lv": 12
+},
+"0x92be": {
+"name": "Khối Vân Đỗng",
+"kind": 45,
+"lv": 12
+},
+"0x9487": {
+"name": "Hạt Đình Tử Tinh",
+"kind": 45,
+"lv": 13
+},
+"0x92bf": {
+"name": "Khối Tử Đinh",
+"kind": 45,
+"lv": 13
+},
+"0x9488": {
+"name": "Hạt Định Lam Tinh",
+"kind": 45,
+"lv": 14
+},
+"0x92c0": {
+"name": "Khối Trân Lam",
+"kind": 45,
+"lv": 14
+},
+"0x9285": {
+"name": "Hạt Đạm Tử",
+"kind": 45,
+"lv": 15
+},
+"0x92c1": {
+"name": "Khối Đạm Tử",
+"kind": 45,
+"lv": 15
+},
+"0x9286": {
+"name": "Hạt Thần Bí",
+"kind": 45,
+"lv": 16
+},
+"0x92c2": {
+"name": "Khối Thần Bí",
+"kind": 45,
+"lv": 16
+},
+"0x9287": {
+"name": "Hạt Dạng",
+"kind": 45,
+"lv": 17
+},
+"0x92c3": {
+"name": "Khối Dạng",
+"kind": 45,
+"lv": 17
+},
+"0x9288": {
+"name": "Hạt Nghinh Thủy",
+"kind": 45,
+"lv": 18
+},
+"0x92c4": {
+"name": "Khối Nghinh Thủy",
+"kind": 45,
+"lv": 18
+},
+"0x9289": {
+"name": "Hạt Phấn Tử",
+"kind": 45,
+"lv": 19
+},
+"0x92c5": {
+"name": "Khối Phấn Tử",
+"kind": 45,
+"lv": 19
+},
+"0x928a": {
+"name": "Hạt Tử Vân",
+"kind": 45,
+"lv": 20
+},
+"0x92c6": {
+"name": "Khối Tử Vân",
+"kind": 45,
+"lv": 20
+},
+"0x928b": {
+"name": "Hạt Tật Diện",
+"kind": 45,
+"lv": 21
+},
+"0x92c7": {
+"name": "Khối Tật Diện",
+"kind": 45,
+"lv": 21
+},
+"0x928c": {
+"name": "Hạt Thủy Tích",
+"kind": 45,
+"lv": 22
+},
+"0x92c8": {
+"name": "Khối Thủy Tích",
+"kind": 45,
+"lv": 22
+},
+"0x928d": {
+"name": "Hạt Đạm Lam",
+"kind": 45,
+"lv": 23
+},
+"0x92c9": {
+"name": "Khối Đạm Lam",
+"kind": 45,
+"lv": 23
+},
+"0x928e": {
+"name": "Hạt Huyền Quang",
+"kind": 45,
+"lv": 24
+},
+"0x92ca": {
+"name": "Khối Huyền Quang",
+"kind": 45,
+"lv": 24
+},
+"0x928f": {
+"name": "Hạt Bạch Lộ",
+"kind": 45,
+"lv": 25
+},
+"0x92cb": {
+"name": "Khối Bạch Lộ",
+"kind": 45,
+"lv": 25
+},
+"0x9290": {
+"name": "Hạt Tinh Quang",
+"kind": 45,
+"lv": 26
+},
+"0x92cc": {
+"name": "Khối Tinh Quang",
+"kind": 45,
+"lv": 26
+},
+"0x9291": {
+"name": "Hạt Triêu Vụ",
+"kind": 45,
+"lv": 27
+},
+"0x92cd": {
+"name": "Khối Triêu Vụ",
+"kind": 45,
+"lv": 27
+},
+"0x9292": {
+"name": "Hạt Lam Quang",
+"kind": 45,
+"lv": 28
+},
+"0x92ce": {
+"name": "Khối Lam Quang",
+"kind": 45,
+"lv": 28
+},
+"0x9293": {
+"name": "Hạt Băng Tâm",
+"kind": 45,
+"lv": 29
+},
+"0x92cf": {
+"name": "Khối Băng Tâm",
+"kind": 45,
+"lv": 29
+},
+"0x9294": {
+"name": "Hạt Đống Vân",
+"kind": 45,
+"lv": 30
+},
+"0x92da": {
+"name": "Khối Tử Đầu Rồng",
+"kind": 45,
+"lv": 30
+},
+"0x92d0": {
+"name": "Khối Đống Vân",
+"kind": 45,
+"lv": 30
+},
+"0x9295": {
+"name": "Hạt Kết Đế",
+"kind": 45,
+"lv": 31
+},
+"0x929e": {
+"name": "Hạt Tử Đầu Rồng",
+"kind": 45,
+"lv": 31
+},
+"0x92d1": {
+"name": "Khối Kết Đế",
+"kind": 45,
+"lv": 31
+},
+"0x9296": {
+"name": "Hạt Thường Hàn",
+"kind": 45,
+"lv": 32
+},
+"0x92d2": {
+"name": "Khối Thường Hàn",
+"kind": 45,
+"lv": 32
+},
+"0x9297": {
+"name": "Hạt Tử Phách",
+"kind": 45,
+"lv": 33
+},
+"0x92d3": {
+"name": "Khối Tử Phách",
+"kind": 45,
+"lv": 33
+},
+"0x9298": {
+"name": "Hạt Vân Mộng",
+"kind": 45,
+"lv": 34
+},
+"0x92d4": {
+"name": "Khối Vân Mộng",
+"kind": 45,
+"lv": 34
+},
+"0x9299": {
+"name": "Hạt Trường Hà",
+"kind": 45,
+"lv": 35
+},
+"0x92d5": {
+"name": "Khối Trường Hà",
+"kind": 45,
+"lv": 35
+},
+"0x929a": {
+"name": "Hạt Thủy Đức",
+"kind": 45,
+"lv": 36
+},
+"0x92d6": {
+"name": "Khối Thủy Đức",
+"kind": 45,
+"lv": 36
+},
+"0x929b": {
+"name": "Hạt Dự Lưu",
+"kind": 45,
+"lv": 37
+},
+"0x92d7": {
+"name": "Khối Dự Lưu",
+"kind": 45,
+"lv": 37
+},
+"0x929c": {
+"name": "Hạt Dự Lưu",
+"kind": 45,
+"lv": 38
+},
+"0x92d8": {
+"name": "Khối Dự Lưu",
+"kind": 45,
+"lv": 38
+},
+"0x929d": {
+"name": "Hạt Dự Lưu",
+"kind": 45,
+"lv": 39
+},
+"0x92d9": {
+"name": "Khối Dự Lưu",
+"kind": 45,
+"lv": 39
+},
+"0x9489": {
+"name": "Hạt Liệt Hồng Tinh",
+"kind": 46,
+"lv": 1
+},
+"0x9322": {
+"name": "Liệt Hồng Thủy Tinh",
+"kind": 46,
+"lv": 1
+},
+"0x948a": {
+"name": "Hạt Thô Hồng Tinh",
+"kind": 46,
+"lv": 2
+},
+"0x9323": {
+"name": "Thô Hồng Thủy Tinh",
+"kind": 46,
+"lv": 2
+},
+"0x9324": {
+"name": "Hà Ti Hồng Thủy Tinh",
+"kind": 46,
+"lv": 3
+},
+"0x948b": {
+"name": "Hạt Hà Tì Hồng Tinh",
+"kind": 46,
+"lv": 3
+},
+"0x948c": {
+"name": "Hạt Ma Tổn Hồng Tinh",
+"kind": 46,
+"lv": 4
+},
+"0x9325": {
+"name": "Ma Tổn Hồng Thủy Tinh",
+"kind": 46,
+"lv": 4
+},
+"0x948d": {
+"name": "Hạt Hồng Tinh",
+"kind": 46,
+"lv": 5
+},
+"0x9326": {
+"name": "Hồng Thủy Tinh",
+"kind": 46,
+"lv": 5
+},
+"0x948e": {
+"name": "Hạt Phấn Hồng Tinh",
+"kind": 46,
+"lv": 6
+},
+"0x9327": {
+"name": "Phấn Hồng Thủy Tinh",
+"kind": 46,
+"lv": 6
+},
+"0x948f": {
+"name": "Hạt Đại Hồng Tinh",
+"kind": 46,
+"lv": 7
+},
+"0x9328": {
+"name": "Khối Đại Hồng Tinh",
+"kind": 46,
+"lv": 7
+},
+"0x9490": {
+"name": "Hạt Quyên Hồng Tinh",
+"kind": 46,
+"lv": 8
+},
+"0x9329": {
+"name": "Quyên Hồng Thủy Tinh",
+"kind": 46,
+"lv": 8
+},
+"0x9491": {
+"name": "Hạt Định Hồng Tinh",
+"kind": 46,
+"lv": 9
+},
+"0x932a": {
+"name": "Định Hồng Thủy Tinh",
+"kind": 46,
+"lv": 9
+},
+"0x9492": {
+"name": "Hạt Liệt Hỏa Tinh",
+"kind": 46,
+"lv": 10
+},
+"0x932b": {
+"name": "Liệt Hỏa Thủy Tinh",
+"kind": 46,
+"lv": 10
+},
+"0x9493": {
+"name": "Hạt Hồng Nhãn Tinh",
+"kind": 46,
+"lv": 11
+},
+"0x932c": {
+"name": "Hồng Nhãn Thủy Tinh",
+"kind": 46,
+"lv": 11
+},
+"0x9494": {
+"name": "Hạt Đỗ Hỏa Tinh",
+"kind": 46,
+"lv": 12
+},
+"0x932d": {
+"name": "Đỗ Hỏa Thủy Tinh",
+"kind": 46,
+"lv": 12
+},
+"0x92ef": {
+"name": "Hạt Hỏa Ti Tinh",
+"kind": 46,
+"lv": 13
+},
+"0x932e": {
+"name": "Hỏa Ti Thủy Tinh",
+"kind": 46,
+"lv": 13
+},
+"0x932f": {
+"name": "Dung Nham Thủy Tinh",
+"kind": 46,
+"lv": 14
+},
+"0x92f0": {
+"name": "Hạt Dung Nham Tinh",
+"kind": 46,
+"lv": 14
+},
+"0x92f1": {
+"name": "Hạt Hỏa Sơn Tinh",
+"kind": 46,
+"lv": 15
+},
+"0x9330": {
+"name": "Hỏa Sơn Thủy Tinh",
+"kind": 46,
+"lv": 15
+},
+"0x92f2": {
+"name": "Hạt Hân Hải Tinh",
+"kind": 46,
+"lv": 16
+},
+"0x9331": {
+"name": "Triết Hải Thủy Tinh",
+"kind": 46,
+"lv": 16
+},
+"0x92f3": {
+"name": "Hạt Hồng Giác Tinh",
+"kind": 46,
+"lv": 17
+},
+"0x9332": {
+"name": "Hồng Giác Thủy Tinh",
+"kind": 46,
+"lv": 17
+},
+"0x92f4": {
+"name": "Hạt Xích Tinh Tinh",
+"kind": 46,
+"lv": 18
+},
+"0x9333": {
+"name": "Xích Tinh Thủy Tinh",
+"kind": 46,
+"lv": 18
+},
+"0x92f5": {
+"name": "Hạt Quyết Tinh Tinh",
+"kind": 46,
+"lv": 19
+},
+"0x9334": {
+"name": "Quyết Tinh Thủy Tinh",
+"kind": 46,
+"lv": 19
+},
+"0x92f6": {
+"name": "Hạt Xích Hồng Tinh",
+"kind": 46,
+"lv": 20
+},
+"0x9335": {
+"name": "Xích Hồng Thủy Tinh",
+"kind": 46,
+"lv": 20
+},
+"0x92f7": {
+"name": "Hạt Khóa Nhật Tinh",
+"kind": 46,
+"lv": 21
+},
+"0x9336": {
+"name": "Khóa Nhật Thủy Tinh",
+"kind": 46,
+"lv": 21
+},
+"0x9337": {
+"name": "Diêm Thủy Tinh",
+"kind": 46,
+"lv": 22
+},
+"0x92f8": {
+"name": "Hạt Diệm Tinh",
+"kind": 46,
+"lv": 22
+},
+"0x9338": {
+"name": "Chích Thủy Tinh",
+"kind": 46,
+"lv": 23
+},
+"0x92f9": {
+"name": "Hạt Chích Tinh",
+"kind": 46,
+"lv": 23
+},
+"0x92fa": {
+"name": "Hạt Viêm Tinh",
+"kind": 46,
+"lv": 24
+},
+"0x9339": {
+"name": "Viêm Thủy Tinh",
+"kind": 46,
+"lv": 24
+},
+"0x933a": {
+"name": "Hách Thủy Tinh",
+"kind": 46,
+"lv": 25
+},
+"0x92fb": {
+"name": "Hạt Hách Tinh",
+"kind": 46,
+"lv": 25
+},
+"0x92fc": {
+"name": "Hạt Hỏa Đức Tinh",
+"kind": 46,
+"lv": 26
+},
+"0x933b": {
+"name": "Hỏa Đức Thủy Tinh",
+"kind": 46,
+"lv": 26
+},
+"0x933c": {
+"name": "Thực Hỏa Thủy Tinh",
+"kind": 46,
+"lv": 27
+},
+"0x92fd": {
+"name": "Thực Hỏa Tinh",
+"kind": 46,
+"lv": 27
+},
+"0x92fe": {
+"name": "Hạt Thiên Kiều Tinh",
+"kind": 46,
+"lv": 28
+},
+"0x933d": {
+"name": "Thiên Kiều Thủy Tinh",
+"kind": 46,
+"lv": 28
+},
+"0x92ff": {
+"name": "Hạt Trường Hồng Tinh",
+"kind": 46,
+"lv": 29
+},
+"0x933e": {
+"name": "Trường Hồng Thủy Tinh",
+"kind": 46,
+"lv": 29
+},
+"0x933f": {
+"name": "Huyết Dương Thủy Tinh",
+"kind": 46,
+"lv": 30
+},
+"0x9300": {
+"name": "Hạt Huyết Dương Tinh",
+"kind": 46,
+"lv": 30
+},
+"0x9349": {
+"name": "T.Tinh Hồng Đầu Rồng",
+"kind": 46,
+"lv": 30
+},
+"0x9301": {
+"name": "Hạt Xích Diễm Tinh",
+"kind": 46,
+"lv": 31
+},
+"0x930a": {
+"name": "Hạt Đầu Rồng Hồng Tinh",
+"kind": 46,
+"lv": 31
+},
+"0x9340": {
+"name": "Xích Diễm Thủy Tinh",
+"kind": 46,
+"lv": 31
+},
+"0x9341": {
+"name": "Bôn Huyết Thủy Tinh",
+"kind": 46,
+"lv": 32
+},
+"0x9302": {
+"name": "Hạt Bôn Huyết Tinh",
+"kind": 46,
+"lv": 32
+},
+"0x9303": {
+"name": "Hạt Hỏa Thành Tinh",
+"kind": 46,
+"lv": 33
+},
+"0x9342": {
+"name": "Hỏa Thành Thủy Tinh",
+"kind": 46,
+"lv": 33
+},
+"0x9304": {
+"name": "Hạt Hỏa Long Tinh",
+"kind": 46,
+"lv": 34
+},
+"0x9343": {
+"name": "Hỏa Long Thủy Tinh",
+"kind": 46,
+"lv": 34
+},
+"0x9344": {
+"name": "Húc Nhật Thủy Tinh",
+"kind": 46,
+"lv": 35
+},
+"0x9305": {
+"name": "Hạt Húc Nhật Tinh",
+"kind": 46,
+"lv": 35
+},
+"0x9345": {
+"name": "Chúc Dung Thủy Tinh",
+"kind": 46,
+"lv": 36
+},
+"0x9306": {
+"name": "Hạt Chúc Dung Tinh",
+"kind": 46,
+"lv": 36
+},
+"0x9346": {
+"name": "Dự Lưu Hồng Thủy Tinh",
+"kind": 46,
+"lv": 37
+},
+"0x9307": {
+"name": "Hạt Dự Lưu Hồng Tinh",
+"kind": 46,
+"lv": 37
+},
+"0x9347": {
+"name": "Dự Lưu Hồng Thủy Tinh",
+"kind": 46,
+"lv": 38
+},
+"0x9308": {
+"name": "Hạt Dự Lưu Hồng Tinh",
+"kind": 46,
+"lv": 38
+},
+"0x9348": {
+"name": "Dự Lưu Hồng Thủy Tinh",
+"kind": 46,
+"lv": 39
+},
+"0x9309": {
+"name": "Hạt Dự Lưu Hồng Tinh",
+"kind": 46,
+"lv": 39
+}
+}
+}

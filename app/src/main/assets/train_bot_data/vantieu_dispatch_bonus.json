@@ -1,0 +1,302 @@
+{
+  "_note": "Sinh tu gamedata/Data/DispatchBonus_C.dat. 0x56/0400 = [kind][effect1][effect2]; tra effect id de ra he/doanh van tieu.",
+  "effects": {
+    "1": {
+      "doanh": "Huynh"
+    },
+    "2": {
+      "doanh": "Nguy"
+    },
+    "3": {
+      "doanh": "Thuc"
+    },
+    "4": {
+      "doanh": "Ngo"
+    },
+    "5": {
+      "doanh": "Du"
+    },
+    "6": {
+      "he": "Dia"
+    },
+    "7": {
+      "he": "Thuy"
+    },
+    "8": {
+      "he": "Hoa"
+    },
+    "9": {
+      "he": "Phong"
+    },
+    "10": {
+      "doanh": "Nguy"
+    },
+    "11": {
+      "doanh": "Thuc"
+    },
+    "12": {
+      "doanh": "Ngo"
+    },
+    "13": {
+      "doanh": "Du"
+    },
+    "14": {
+      "he": "Dia"
+    },
+    "15": {
+      "he": "Thuy"
+    },
+    "16": {
+      "he": "Phong"
+    },
+    "17": {
+      "doanh": "Huynh"
+    },
+    "18": {
+      "doanh": "Thuc"
+    },
+    "19": {
+      "doanh": "Ngo"
+    },
+    "20": {
+      "doanh": "Du"
+    },
+    "21": {
+      "he": "Dia"
+    },
+    "22": {
+      "he": "Thuy"
+    },
+    "23": {
+      "he": "Hoa"
+    },
+    "24": {
+      "doanh": "Huynh"
+    },
+    "25": {
+      "doanh": "Nguy"
+    },
+    "26": {
+      "doanh": "Ngo"
+    },
+    "27": {
+      "doanh": "Du"
+    },
+    "28": {
+      "he": "Thuy"
+    },
+    "29": {
+      "he": "Hoa"
+    },
+    "30": {
+      "he": "Phong"
+    },
+    "31": {
+      "doanh": "Huynh"
+    },
+    "32": {
+      "doanh": "Nguy"
+    },
+    "33": {
+      "doanh": "Thuc"
+    },
+    "34": {
+      "doanh": "Du"
+    },
+    "35": {
+      "he": "Dia"
+    },
+    "36": {
+      "he": "Hoa"
+    },
+    "37": {
+      "he": "Phong"
+    },
+    "38": {
+      "doanh": "Huynh"
+    },
+    "39": {
+      "doanh": "Nguy"
+    },
+    "40": {
+      "doanh": "Thuc"
+    },
+    "41": {
+      "doanh": "Ngo"
+    },
+    "42": {
+      "he": "Dia"
+    },
+    "43": {
+      "he": "Thuy"
+    },
+    "44": {
+      "he": "Hoa"
+    },
+    "45": {
+      "he": "Phong"
+    },
+    "46": {
+      "doanh": "Huynh"
+    },
+    "47": {
+      "doanh": "Nguy"
+    },
+    "48": {
+      "doanh": "Thuc"
+    },
+    "49": {
+      "doanh": "Ngo"
+    },
+    "50": {
+      "doanh": "Du"
+    },
+    "51": {
+      "he": "Dia"
+    },
+    "52": {
+      "he": "Thuy"
+    },
+    "53": {
+      "he": "Hoa"
+    },
+    "54": {
+      "he": "Phong"
+    },
+    "55": {
+      "doanh": "Huynh"
+    },
+    "56": {
+      "doanh": "Nguy"
+    },
+    "57": {
+      "doanh": "Thuc"
+    },
+    "58": {
+      "doanh": "Ngo"
+    },
+    "59": {
+      "doanh": "Du"
+    },
+    "60": {
+      "he": "Dia"
+    },
+    "61": {
+      "he": "Thuy"
+    },
+    "62": {
+      "he": "Hoa"
+    },
+    "63": {
+      "he": "Phong"
+    },
+    "64": {
+      "doanh": "Huynh"
+    },
+    "65": {
+      "doanh": "Nguy"
+    },
+    "66": {
+      "doanh": "Thuc"
+    },
+    "67": {
+      "doanh": "Ngo"
+    },
+    "68": {
+      "doanh": "Du"
+    },
+    "69": {
+      "he": "Dia"
+    },
+    "70": {
+      "he": "Thuy"
+    },
+    "71": {
+      "he": "Hoa"
+    },
+    "72": {
+      "he": "Phong"
+    },
+    "73": {
+      "doanh": "Huynh"
+    },
+    "74": {
+      "doanh": "Nguy"
+    },
+    "75": {
+      "doanh": "Thuc"
+    },
+    "76": {
+      "doanh": "Ngo"
+    },
+    "77": {
+      "doanh": "Du"
+    },
+    "78": {
+      "he": "Dia"
+    },
+    "79": {
+      "he": "Thuy"
+    },
+    "80": {
+      "he": "Hoa"
+    },
+    "81": {
+      "he": "Phong"
+    },
+    "82": {
+      "doanh": "Huynh"
+    },
+    "83": {
+      "doanh": "Nguy"
+    },
+    "84": {
+      "doanh": "Thuc"
+    },
+    "85": {
+      "doanh": "Ngo"
+    },
+    "86": {
+      "doanh": "Du"
+    },
+    "87": {
+      "he": "Dia"
+    },
+    "88": {
+      "he": "Thuy"
+    },
+    "89": {
+      "he": "Hoa"
+    },
+    "90": {
+      "he": "Phong"
+    },
+    "91": {
+      "doanh": "Huynh"
+    },
+    "92": {
+      "doanh": "Nguy"
+    },
+    "93": {
+      "doanh": "Thuc"
+    },
+    "94": {
+      "doanh": "Ngo"
+    },
+    "95": {
+      "doanh": "Du"
+    },
+    "96": {
+      "he": "Dia"
+    },
+    "97": {
+      "he": "Thuy"
+    },
+    "98": {
+      "he": "Hoa"
+    },
+    "99": {
+      "he": "Phong"
+    }
+  }
+}

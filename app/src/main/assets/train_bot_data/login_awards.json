@@ -1,0 +1,11 @@
+{
+  "_note": "Online gift milestones parsed from gamedata/Data/LoginAwardData_C.dat (group 3). Value = BitFlag id.",
+  "online_gifts": {
+    "10": 2,
+    "20": 3,
+    "30": 4,
+    "60": 5,
+    "90": 6,
+    "180": 7
+  }
+}

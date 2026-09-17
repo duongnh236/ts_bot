@@ -1,0 +1,257 @@
+{
+ "_note": "AUTO-SINH tu tools/crack_jiugongge.py (JiugonggeInfo_C.dat + JiugonggeMission_C.dat + TextData_C.dat). grid_id -> {name, awards[7].flag = co 永標 'da nhan' cua hang1-3/cot1-3/TAT CA}. EVENT DOI THEO THANG -> keo data moi roi chay lai tool.",
+ "grids": {
+  "1": {
+   "name": "Nhiệm vụ mỗi ngày",
+   "activity": 12,
+   "kind": 1,
+   "awards": [
+    {
+     "item": 31171,
+     "quant": 1,
+     "flag": 1541
+    },
+    {
+     "item": 29507,
+     "quant": 1,
+     "flag": 1542
+    },
+    {
+     "item": 65413,
+     "quant": 1,
+     "flag": 1543
+    },
+    {
+     "item": 65414,
+     "quant": 1,
+     "flag": 1544
+    },
+    {
+     "item": 45607,
+     "quant": 1,
+     "flag": 1545
+    },
+    {
+     "item": 45612,
+     "quant": 5,
+     "flag": 1546
+    },
+    {
+     "item": 23211,
+     "quant": 1,
+     "flag": 1547
+    }
+   ]
+  },
+  "2": {
+   "name": "Nhiệm vụ tân thủ ",
+   "activity": 11,
+   "kind": 2,
+   "awards": [
+    {
+     "item": 46037,
+     "quant": 10,
+     "flag": 1549
+    },
+    {
+     "item": 46831,
+     "quant": 1,
+     "flag": 1550
+    },
+    {
+     "item": 49001,
+     "quant": 10,
+     "flag": 1551
+    },
+    {
+     "item": 46474,
+     "quant": 5,
+     "flag": 1552
+    },
+    {
+     "item": 46163,
+     "quant": 1,
+     "flag": 1553
+    },
+    {
+     "item": 46029,
+     "quant": 10,
+     "flag": 1554
+    },
+    {
+     "item": 46627,
+     "quant": 1,
+     "flag": 1555
+    }
+   ]
+  },
+  "3": {
+   "name": "Nhiệm vụ tân thủ ",
+   "activity": 11,
+   "kind": 2,
+   "awards": [
+    {
+     "item": 46037,
+     "quant": 20,
+     "flag": 1549
+    },
+    {
+     "item": 46157,
+     "quant": 1,
+     "flag": 1550
+    },
+    {
+     "item": 50001,
+     "quant": 10,
+     "flag": 1551
+    },
+    {
+     "item": 46474,
+     "quant": 10,
+     "flag": 1552
+    },
+    {
+     "item": 46160,
+     "quant": 1,
+     "flag": 1553
+    },
+    {
+     "item": 32101,
+     "quant": 10,
+     "flag": 1554
+    },
+    {
+     "item": 65415,
+     "quant": 1,
+     "flag": 1555
+    }
+   ]
+  },
+  "4": {
+   "name": "Nhiệm vụ tân thủ ",
+   "activity": 11,
+   "kind": 2,
+   "awards": [
+    {
+     "item": 46037,
+     "quant": 50,
+     "flag": 1549
+    },
+    {
+     "item": 46241,
+     "quant": 1,
+     "flag": 1550
+    },
+    {
+     "item": 46192,
+     "quant": 10,
+     "flag": 1551
+    },
+    {
+     "item": 46474,
+     "quant": 15,
+     "flag": 1552
+    },
+    {
+     "item": 46239,
+     "quant": 1,
+     "flag": 1553
+    },
+    {
+     "item": 46497,
+     "quant": 10,
+     "flag": 1554
+    },
+    {
+     "item": 65416,
+     "quant": 1,
+     "flag": 1555
+    }
+   ]
+  },
+  "5": {
+   "name": "Nhiệm vụ tân thủ ",
+   "activity": 11,
+   "kind": 2,
+   "awards": [
+    {
+     "item": 46037,
+     "quant": 100,
+     "flag": 1549
+    },
+    {
+     "item": 46240,
+     "quant": 1,
+     "flag": 1550
+    },
+    {
+     "item": 46018,
+     "quant": 10,
+     "flag": 1551
+    },
+    {
+     "item": 46474,
+     "quant": 30,
+     "flag": 1552
+    },
+    {
+     "item": 46238,
+     "quant": 1,
+     "flag": 1553
+    },
+    {
+     "item": 46036,
+     "quant": 10,
+     "flag": 1554
+    },
+    {
+     "item": 23557,
+     "quant": 1,
+     "flag": 1555
+    }
+   ]
+  },
+  "6": {
+   "name": "Mừng Game Ra Mắt Hai Tháng",
+   "activity": 10,
+   "kind": 3,
+   "awards": [
+    {
+     "item": 55801,
+     "quant": 6,
+     "flag": 1534
+    },
+    {
+     "item": 46241,
+     "quant": 10,
+     "flag": 1535
+    },
+    {
+     "item": 65301,
+     "quant": 366,
+     "flag": 1536
+    },
+    {
+     "item": 46050,
+     "quant": 2,
+     "flag": 1537
+    },
+    {
+     "item": 46239,
+     "quant": 10,
+     "flag": 1538
+    },
+    {
+     "item": 46037,
+     "quant": 999,
+     "flag": 1539
+    },
+    {
+     "item": 23085,
+     "quant": 5,
+     "flag": 1540
+    }
+   ]
+  }
+ }
+}

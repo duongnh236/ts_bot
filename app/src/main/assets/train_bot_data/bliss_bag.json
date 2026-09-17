@@ -1,0 +1,3100 @@
+{
+ "_note": "Hop/tui trang bi bot tu mo. Sinh tu Data/BlissBag_C.dat (tools/crack_bliss_bag.py). fc>0 = phan giai duoc.",
+ "boxes": {
+  "0xb534": {
+   "name": "Hộp Trang Bị Cấp 20",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 11006,
+     "name": "Kiếm Phàn Vân",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18506,
+     "name": "Tam Lược",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18756,
+     "name": "Kim Quý Kinh",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 11007,
+     "name": "Kiếm Dương Sa",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18507,
+     "name": "Ngô Tử Binh Pháp",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18757,
+     "name": "Hoài Nam Tử",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 20006,
+     "name": "Xích Hổ Khôi",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20406,
+     "name": "Từ Phong Quan",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20706,
+     "name": "Diệt Địa Cân",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20407,
+     "name": "Phương Sĩ Quan",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20007,
+     "name": "Trường Đằng Khôi",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20707,
+     "name": "Vân Long Cân",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19006,
+     "name": "Giáp Thanh Thú",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19406,
+     "name": "Thanh Tu Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19706,
+     "name": "Áo Ấu Bi",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19007,
+     "name": "Giáp Ngự Lang",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19407,
+     "name": "Vân Bạch Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19707,
+     "name": "Áo Nghi Phong",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 21006,
+     "name": "Chân Hỏa Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21206,
+     "name": "Hoàng Trụ Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21706,
+     "name": "Thương Hà Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21007,
+     "name": "Khiết Thổ Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21207,
+     "name": "Nghịch Lưu Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21407,
+     "name": "Lẫn Liệt Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21707,
+     "name": "Lăng Thiên Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22006,
+     "name": "Tuyệt Diễm Ngoa",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22706,
+     "name": "Chức Sa Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22007,
+     "name": "Du Phong Ngoa",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22407,
+     "name": "Khiết Vũ Hài",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22707,
+     "name": "Tiêu Diễm Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb535": {
+   "name": "Hộp Trang Bị Cấp 30",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 12008,
+     "name": "Kích Tử Quang",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14008,
+     "name": "Lao Cuốn Phong",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18258,
+     "name": "Diễn Khổng Đồ",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 12009,
+     "name": "Kích Cự Diêm",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14009,
+     "name": "Hắt Xà Lao",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18259,
+     "name": "Sơn Hải Kinh",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 20408,
+     "name": "Quân Tử Quan",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20008,
+     "name": "Thanh Nha Khôi",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20708,
+     "name": "Ám Giác Cân",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20009,
+     "name": "Mãnh Hỏa Khôi",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20409,
+     "name": "Bát Tuấn Quan",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20709,
+     "name": "Thuần Băng Cân",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19008,
+     "name": "Giáp Quỷ Hỏa",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19408,
+     "name": "Bát Quái Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19708,
+     "name": "Áo Uy Sơn",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19009,
+     "name": "Giáp Thừa Phong",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19409,
+     "name": "Thổ Hoàng Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19709,
+     "name": "Áo Nhược Thủy",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 21008,
+     "name": "Trường Đào Oản",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21208,
+     "name": "Ma Diễm Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21708,
+     "name": "Động Địa Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21009,
+     "name": "Lạc Cương Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21209,
+     "name": "Thần Câu Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21709,
+     "name": "Ngọc Lưu Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22008,
+     "name": "Cự Sa Ngoa",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22408,
+     "name": "Cự Quang Hài",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22708,
+     "name": "Tấn Phong Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22009,
+     "name": "Hỏa Long Ngoa",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22409,
+     "name": "Khiếu Phong Hài",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22709,
+     "name": "Thoán Địa Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb536": {
+   "name": "Hộp Trang Bị Cấp 40",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 20010,
+     "name": "Viễn Tường Khôi",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20410,
+     "name": "Pháp Sư Quan",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20710,
+     "name": "Hỏa Lưu Cân",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20016,
+     "name": "Thu Thiền Khôi",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20416,
+     "name": "Thanh Triều Quan",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20716,
+     "name": "Lục Phong Cân",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19010,
+     "name": "Giáp Ngư Lân",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19410,
+     "name": "Hải Thanh Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19710,
+     "name": "Áo Ẩn Phong",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19016,
+     "name": "Giáp Tàng Giảo",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19416,
+     "name": "Tử Vân Trường Bào",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19716,
+     "name": "Áo Kỳ Diêm",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 12010,
+     "name": "Kích Hoàng Hà",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14010,
+     "name": "Hỏa Hạc Thương",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18260,
+     "name": "Xuân Thu Sấm",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18511,
+     "name": "Tôn Tẫn Binh Pháp",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18761,
+     "name": "Thư Thanh Nang",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 11016,
+     "name": "Kiếm Việt Vương",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21010,
+     "name": "Thanh Xà Oản",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21210,
+     "name": "Cực Băng Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21710,
+     "name": "Xích Đế Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21016,
+     "name": "Ngưng Tinh Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21211,
+     "name": "Cường Kích Oản",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21716,
+     "name": "Bạch Liên Thủ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22010,
+     "name": "Thanh Hổ Ngoa",
+     "sl": 1,
+     "pr": 3.4,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22410,
+     "name": "Diệt Địa Hài",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22710,
+     "name": "Du Thủy Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22016,
+     "name": "Ȁ",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22716,
+     "name": "Thần Hi Lý",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22416,
+     "name": "Thừa Vũ Hài",
+     "sl": 1,
+     "pr": 3.3,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb537": {
+   "name": "Hộp Trang Bị Cấp 50",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 20017,
+     "name": "Đạp Lang Khôi",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20417,
+     "name": "Hắc Đoạn Quan",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20717,
+     "name": "Quỷ Đạo Cân",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20018,
+     "name": "Trừng Hổ Khôi",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20418,
+     "name": "Cung Lô Quan",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20718,
+     "name": "Hà Thương Cân",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19417,
+     "name": "Hằng Huy Bào",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19717,
+     "name": "Áo Tường Hạc",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19017,
+     "name": "Giáp Hợp Kim",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19018,
+     "name": "Giáp Yêu Lân",
+     "sl": 1,
+     "pr": 3.52,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19418,
+     "name": "Tạo Thủy Bào",
+     "sl": 1,
+     "pr": 3.51,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19718,
+     "name": "Áo Dạ Điểu",
+     "sl": 1,
+     "pr": 3.52,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 11017,
+     "name": "Kiếm Quang Hợp",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18512,
+     "name": "Tiếp Yếu Binh Pháp",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18762,
+     "name": "Ngũ Sắc Chẩn",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18513,
+     "name": "Mạnh Đức Tân Thư",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 11018,
+     "name": "Kiếm Ngự Nhung",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18763,
+     "name": "Thanh Lĩnh Đạo",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 21017,
+     "name": "Viêm Hoàng Oản",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21212,
+     "name": "Tường Diễm Oản",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21717,
+     "name": "Ám Yêu Thủ",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21018,
+     "name": "Tử Quân Oản",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21213,
+     "name": "Cấm Quân Oản",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21718,
+     "name": "Thanh Bình Thủ",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22017,
+     "name": "Đạo Băng Ngoa",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22417,
+     "name": "Phong Vũ Hài",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22717,
+     "name": "Thương Lâm Lý",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22018,
+     "name": "Hồng Hạc Ngoa",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22418,
+     "name": "Xích Đế Hài",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22718,
+     "name": "Bàn Thạch Lý",
+     "sl": 1,
+     "pr": 3.53,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb539": {
+   "name": "Túi Thập Thường",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 46394,
+     "name": "Thập Thường Tinh",
+     "sl": 1,
+     "pr": 3.0,
+     "fc": 0,
+     "ft": 0,
+     "dn": false
+    },
+    {
+     "id": 20017,
+     "name": "Đạp Lang Khôi",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20417,
+     "name": "Hắc Đoạn Quan",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20507,
+     "name": "Sắc Quỷ Diện",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20717,
+     "name": "Quỷ Đạo Cân",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19417,
+     "name": "Hằng Huy Bào",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19717,
+     "name": "Áo Tường Hạc",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19017,
+     "name": "Giáp Hợp Kim",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 11017,
+     "name": "Kiếm Quang Hợp",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18512,
+     "name": "Tiếp Yếu Binh Pháp",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18762,
+     "name": "Ngũ Sắc Chẩn",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 10018,
+     "name": "Đao Chinh Ngạn",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 11507,
+     "name": "Lộc Thuẫn Kiếm",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18012,
+     "name": "Đinh Giáp Thư",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18262,
+     "name": "Vật Lý Luận",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 12017,
+     "name": "Kích Diệu Nhật",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14017,
+     "name": "Huân Phong Thương",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13017,
+     "name": "Đao Banh Lang",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 15017,
+     "name": "Kích Du Vân",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21017,
+     "name": "Viêm Hoàng Oản",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21212,
+     "name": "Tường Diễm Oản",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21417,
+     "name": "Tố Khiết Thủ",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21717,
+     "name": "Ám Yêu Thủ",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22017,
+     "name": "Đạo Băng Ngoa",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22417,
+     "name": "Phong Vũ Hài",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22717,
+     "name": "Thương Lâm Lý",
+     "sl": 1,
+     "pr": 3.88,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb531": {
+   "name": "Túi Thảo Phạt",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 46392,
+     "name": "Trang Bị Dũng Sĩ",
+     "sl": 1,
+     "pr": 1.0,
+     "fc": 0,
+     "ft": 0,
+     "dn": false
+    },
+    {
+     "id": 46386,
+     "name": "Túi Thảo Phạt Tinh",
+     "sl": 1,
+     "pr": 2.0,
+     "fc": 0,
+     "ft": 0,
+     "dn": false
+    },
+    {
+     "id": 20006,
+     "name": "Xích Hổ Khôi",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20406,
+     "name": "Từ Phong Quan",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20706,
+     "name": "Diệt Địa Cân",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19006,
+     "name": "Giáp Thanh Thú",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19406,
+     "name": "Thanh Tu Bào",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19706,
+     "name": "Áo Ấu Bi",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 12006,
+     "name": "Kích Luyện Thiết",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14006,
+     "name": "Ngoan Thạch Thương",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18006,
+     "name": "Tham Đồng Khế",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18256,
+     "name": "Hợp Thành Đồ",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 21006,
+     "name": "Chân Hỏa Oản",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21206,
+     "name": "Hoàng Trụ Oản",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21406,
+     "name": "Thanh Yêu Thủ",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21706,
+     "name": "Thương Hà Thủ",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22006,
+     "name": "Tuyệt Diễm Ngoa",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22406,
+     "name": "Thích Phong Hài",
+     "sl": 1,
+     "pr": 5.7,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22706,
+     "name": "Chức Sa Lý",
+     "sl": 1,
+     "pr": 5.8,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb53e": {
+   "name": "Túi Lữ Phụng Tiên",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 46399,
+     "name": "Túi Lữ Phụng Tiên Tinh",
+     "sl": 1,
+     "pr": 2.0,
+     "fc": 0,
+     "ft": 0,
+     "dn": false
+    },
+    {
+     "id": 20419,
+     "name": "Viêm Hán Quan",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20019,
+     "name": "Phù Long Khôi",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20719,
+     "name": "Sa La Cân",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19019,
+     "name": "Giáp Trừng Kim",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19419,
+     "name": "Vi Phong Bào",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19719,
+     "name": "Áo Lục Bo",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 12019,
+     "name": "Kích Trấn Quân",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14019,
+     "name": "Lao Đông Lai",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13019,
+     "name": "Đao Đằng Long",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 15019,
+     "name": "Kích Chân Võ",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21019,
+     "name": "Trúc Tiết Oản",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21214,
+     "name": "Bắc Đẩu Oản",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21419,
+     "name": "Chấn Địa Thủ",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21719,
+     "name": "Luyện Nham Thủ",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22019,
+     "name": "Cuồng Phong Ngoa",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22419,
+     "name": "Tôn Tẩn Hài",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22719,
+     "name": "Quyên Tơ Lý",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb545": {
+   "name": "Túi Bộc Dương",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 46406,
+     "name": "Túi Bộc Dương Cao",
+     "sl": 1,
+     "pr": 1.0,
+     "fc": 0,
+     "ft": 0,
+     "dn": false
+    },
+    {
+     "id": 20023,
+     "name": "Ngô Việt Khôi",
+     "sl": 1,
+     "pr": 5.9,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20423,
+     "name": "Lưu Khí Quan",
+     "sl": 1,
+     "pr": 5.9,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20723,
+     "name": "Hạt Nhạn Cân",
+     "sl": 1,
+     "pr": 5.9,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19023,
+     "name": "Giáp Cương Tạo",
+     "sl": 1,
+     "pr": 5.81,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19423,
+     "name": "Huề Vân Bào",
+     "sl": 1,
+     "pr": 5.81,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19723,
+     "name": "Áo Bí Cảnh",
+     "sl": 1,
+     "pr": 5.81,
+     "fc": 0,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 18268,
+     "name": "Dịch Vĩ Đồ",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18018,
+     "name": "Vạn Đạo Tông",
+     "sl": 1,
+     "pr": 5.77,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 12023,
+     "name": "Kích Ô Kim",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14023,
+     "name": "Lao Thiết Lưng",
+     "sl": 1,
+     "pr": 5.76,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21023,
+     "name": "Tào Muội Oản",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21218,
+     "name": "Thiên Phá Oản",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21423,
+     "name": "Phát Loạn Thủ",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21723,
+     "name": "Triệt Ngô Thủ",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22423,
+     "name": "Phiêu Phong Hài",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22023,
+     "name": "Banh Mã Ngoa",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22723,
+     "name": "Quán Thiên Lý",
+     "sl": 1,
+     "pr": 5.83,
+     "fc": 0,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb22e": {
+   "name": "Hộp Vũ Khí Sơ",
+   "luot": "thuong",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 18281,
+     "name": "Dũng Binh Pháp",
+     "sl": 1,
+     "pr": 1.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 10044,
+     "name": "Hương Dũng Đao",
+     "sl": 1,
+     "pr": 1.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18967,
+     "name": "Hàng Yêu Bổn",
+     "sl": 1,
+     "pr": 4.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10520,
+     "name": "Đao Thép T. Luyện",
+     "sl": 1,
+     "pr": 4.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18007,
+     "name": "Nguyệt Lệnh Chương",
+     "sl": 1,
+     "pr": 6.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 15007,
+     "name": "Kích Liệt Thổ",
+     "sl": 1,
+     "pr": 6.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 11007,
+     "name": "Kiếm Dương Sa",
+     "sl": 1,
+     "pr": 6.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10008,
+     "name": "Đao Nghi Phong",
+     "sl": 1,
+     "pr": 6.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 11013,
+     "name": "Kiếm Sáng Tinh",
+     "sl": 1,
+     "pr": 15.5,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18023,
+     "name": "Vô Vi Tam Chương",
+     "sl": 1,
+     "pr": 15.5,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18505,
+     "name": "Lục Thao",
+     "sl": 1,
+     "pr": 8.75,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18005,
+     "name": "Xuân Thu Phàn Lộ",
+     "sl": 1,
+     "pr": 8.75,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 11015,
+     "name": "Kiếm Phong Lô",
+     "sl": 1,
+     "pr": 8.75,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10006,
+     "name": "Đao HắcThiết",
+     "sl": 1,
+     "pr": 8.75,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    }
+   ]
+  },
+  "0xb53a": {
+   "name": "Thập Thường Tinh",
+   "luot": "tinh",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 20609,
+     "name": "Sùng Sơn Quan",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20610,
+     "name": "Tùng Du Quan",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20611,
+     "name": "Vy Hy Quan",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20612,
+     "name": "Bạc Vân Quan",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20211,
+     "name": "Kim Sa Khôi",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20212,
+     "name": "Tinh Đông Khôi",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20213,
+     "name": "Nhiệt Dung Khôi",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20214,
+     "name": "Tật Phong Khôi",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19609,
+     "name": "Tào Địa Bào",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19610,
+     "name": "Kích Lưu Bào",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19611,
+     "name": "Huy Hỏa Bào",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19612,
+     "name": "Hý Phong Bào",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19765,
+     "name": "Áo Hắc Diên",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19766,
+     "name": "Áo Thanh Vũ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19767,
+     "name": "Áo Xích Viêm",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19768,
+     "name": "Áo Bạch Hoa",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 14046,
+     "name": "Kích Địa Ngưu",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14047,
+     "name": "Kích Triều Lộ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14048,
+     "name": "Kích Âu Hỏa",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14049,
+     "name": "Kích Thanh Tranh",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21612,
+     "name": "Áp Sơn Thủ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21613,
+     "name": "Triều Thủ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21614,
+     "name": "Dương Viêm Thủ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21615,
+     "name": "Đằng Vụ Thủ",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22912,
+     "name": "Đạp Phong Lý",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22913,
+     "name": "Tiềm Giang Lý",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22914,
+     "name": "Diêm Vọng Lý",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22915,
+     "name": "Hồi Nam Lý",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb532": {
+   "name": "Túi Thảo Phạt Tinh",
+   "luot": "tinh",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 10501,
+     "name": "Đao Dương Trần",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10502,
+     "name": "Đao Phá Lãng",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10503,
+     "name": "Đao Phiêu Diễm",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10504,
+     "name": "Đao Ngạo Phong",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 18805,
+     "name": "Địa Khuyết Quyễn",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18806,
+     "name": "Dịch Thủy Quyết",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18807,
+     "name": "Lệnh Hỏa Quyết",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18808,
+     "name": "Khiển Phong Quyết",
+     "sl": 1,
+     "pr": 3.5,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 21301,
+     "name": "Địa Hiên Oản",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21302,
+     "name": "Thủy Dật Oản",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21303,
+     "name": "Hỏa Liệu Oản",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21304,
+     "name": "Phong Huân oản",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21605,
+     "name": "Địa Thần Thủ",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21606,
+     "name": "Thủy Thần Thủ",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21607,
+     "name": "Hỏa Thần Thủ",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21608,
+     "name": "Phong Thần Thủ",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 20205,
+     "name": "Địa Hài Khôi",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20206,
+     "name": "Đào Dũng Khôi",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20207,
+     "name": "Viêm Liệt Khôi",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20208,
+     "name": "Linh Phong Khôi",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19748,
+     "name": "Áo Nhung Địa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19749,
+     "name": "Áo Chích Thủy",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19750,
+     "name": "Áo Phùng Hỏa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19751,
+     "name": "Áo Tú Phong",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 22305,
+     "name": "Động Địa Ngoa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22306,
+     "name": "Bộ Hải Ngoa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22307,
+     "name": "Viêm Dung Ngoa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22308,
+     "name": "Tuần Phong Ngoa",
+     "sl": 1,
+     "pr": 3.6,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb53f": {
+   "name": "Túi Lữ Phụng Tiên Tinh",
+   "luot": "tinh",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 20914,
+     "name": "Phất Trần Cân",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20915,
+     "name": "Trường Quyên Cân",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20916,
+     "name": "Phong Hà Cân",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20917,
+     "name": "Yên Đẳng Cân",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19215,
+     "name": "Giáp Địa Cương",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19216,
+     "name": "Giáp Thủy Cương",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19217,
+     "name": "Giáp Hỏa Cương",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19218,
+     "name": "Giáp Phong Cương",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 18813,
+     "name": "Nguyên Địa Luận",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18814,
+     "name": "Thanh Lọc Luận",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18815,
+     "name": "Luyện Lô Luận",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 18816,
+     "name": "Quỷ Mô Luận",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 10512,
+     "name": "Đao Tuyết Ni",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10513,
+     "name": "Đao Linh Hồ",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10514,
+     "name": "Đao Thiên Cự",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 10515,
+     "name": "Đao Lăng Phong",
+     "sl": 1,
+     "pr": 4.18,
+     "fc": 50,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21309,
+     "name": "Long Thổ Oản",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21310,
+     "name": "Tân Thủy Oản",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21311,
+     "name": "Diệm Thiết Oản",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21312,
+     "name": "Mộ Dung Oản",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22659,
+     "name": "Cường Ngoa",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22660,
+     "name": "Sát Ngoa",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22661,
+     "name": "Chế Ngoa",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22662,
+     "name": "Lương Ngoa",
+     "sl": 1,
+     "pr": 4.16,
+     "fc": 260,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb546": {
+   "name": "Túi Bộc Dương Cao",
+   "luot": "tinh",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 20220,
+     "name": "Liệt Hồn Khôi",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 690,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20221,
+     "name": "Dũng Tuyền Khôi",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 690,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20222,
+     "name": "Diệm Vương Khôi",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 690,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 20223,
+     "name": "Phi Vân Khôi",
+     "sl": 1,
+     "pr": 3.58,
+     "fc": 690,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 19773,
+     "name": "Áo Thần Điêu",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19774,
+     "name": "Tật Yên Sam",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19775,
+     "name": "Chinh Nhạn Sam",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 19776,
+     "name": "Cự Tựu Sam",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 14054,
+     "name": "Hắc Lô Thương",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14055,
+     "name": "Tinh Thương",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14056,
+     "name": "Hoả Lân Thương",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 14057,
+     "name": "Thiên Thương",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13046,
+     "name": "Ưng Dương Đao",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13047,
+     "name": "Tuấn Ngạn Đao",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13048,
+     "name": "Quốc Sĩ Đao",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 13049,
+     "name": "Hùng Phi Đao",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 21113,
+     "name": "Thái Sơn Oản",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21114,
+     "name": "Vị Thủy Oản",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21115,
+     "name": "Phần Hỏa Oản",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 21116,
+     "name": "Phong Hộ Oản",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22446,
+     "name": "Bách Trảm Hài",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22447,
+     "name": "Quang Đạo Hài",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22448,
+     "name": "Tụ Long Hài",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22449,
+     "name": "Xuyên Sở Hài",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22920,
+     "name": "Hiệp Lữ Lý",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22921,
+     "name": "Tuyết Phong Lý",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22922,
+     "name": "Dã Hỏa Lý",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 22923,
+     "name": "Nguyên Khí Lý",
+     "sl": 1,
+     "pr": 3.57,
+     "fc": 690,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  },
+  "0xb538": {
+   "name": "Trang Bị Dũng Sĩ",
+   "luot": "tinh",
+   "kindCount": 1,
+   "items": [
+    {
+     "id": 10044,
+     "name": "Hương Dũng Đao",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": true
+    },
+    {
+     "id": 19042,
+     "name": "Dũng Bì Giáp",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 20042,
+     "name": "Hương Dũng Đới",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 21042,
+     "name": "Hương Dũng Oản",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22042,
+     "name": "Hương Dũng Ngoa",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    },
+    {
+     "id": 18281,
+     "name": "Dũng Binh Pháp",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 3,
+     "dn": false
+    },
+    {
+     "id": 19442,
+     "name": "Hương Dũng Bào",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 50,
+     "ft": 2,
+     "dn": true
+    },
+    {
+     "id": 20442,
+     "name": "Hương Dũng Quan",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 1,
+     "dn": true
+    },
+    {
+     "id": 21442,
+     "name": "Hương Dũng Thủ",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 0,
+     "ft": 4,
+     "dn": true
+    },
+    {
+     "id": 22330,
+     "name": "Hương Dũng Hài",
+     "sl": 1,
+     "pr": 10.0,
+     "fc": 50,
+     "ft": 5,
+     "dn": true
+    }
+   ]
+  }
+ }
+}

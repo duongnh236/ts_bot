@@ -1,0 +1,97 @@
+{
+ "_note": "Server game TS Online. key=ten noi bo. label=ten hien thi. ip=IP TCP. id=SERVER ID trong goi auth (byte thu 5: Trieu Van=1, Tao Thao=2, Lu Bo=3, Luu Bi=4, Ton Quyen=5, Truong Phi=6, Chu Du=7, Quan Vu=8, Dieu Thuyen=9, Gia Cat Luong=10, Dai Kieu=11, Manh Hoach=12, Hoang Trung=13, Ma Sieu=14, Quach Gia=15, Dien Vi=17, Truong Lieu=18, Dong Trac=19 - cac server tu id9 IP khac subnet 103.190.202.x). Login HTTP giong nhau.",
+ "_note_gap16": "id 16 = Bang Thong da DONG (loi ky thuat) nen nhay 15 (Quach Gia) -> 17 (Dien Vi) -> 18 (Truong Lieu). Khong phai thieu sot.",
+ "servers": {
+  "trieu_van": {
+   "label": "Triệu Vân",
+   "ip": "103.82.28.98",
+   "id": 1
+  },
+  "tao_thao": {
+   "label": "Tào Tháo",
+   "ip": "103.82.28.99",
+   "id": 2
+  },
+  "lu_bo": {
+   "label": "Lữ Bố",
+   "ip": "103.82.28.100",
+   "id": 3
+  },
+  "luu_bi": {
+   "label": "Lưu Bị",
+   "ip": "103.82.28.126",
+   "id": 4
+  },
+  "ton_quyen": {
+   "label": "Tôn Quyền",
+   "ip": "103.82.28.140",
+   "id": 5
+  },
+  "truong_phi": {
+   "label": "Trương Phi",
+   "ip": "103.82.28.143",
+   "id": 6
+  },
+  "chu_du": {
+   "label": "Chu Du",
+   "ip": "103.82.28.144",
+   "id": 7
+  },
+  "quan_vu": {
+   "label": "Quan Vũ",
+   "ip": "103.82.28.146",
+   "id": 8
+  },
+  "dieu_thuyen": {
+   "label": "Điêu Thuyền",
+   "ip": "103.190.202.43",
+   "id": 9
+  },
+  "gia_cat_luong": {
+   "label": "Gia Cát Lượng",
+   "ip": "103.190.202.44",
+   "id": 10
+  },
+  "dai_kieu": {
+   "label": "Đại Kiều",
+   "ip": "103.190.202.45",
+   "id": 11
+  },
+  "manh_hoach": {
+   "label": "Mạnh Hoạch",
+   "ip": "103.190.202.46",
+   "id": 12
+  },
+  "hoang_trung": {
+   "label": "Hoàng Trung",
+   "ip": "103.190.202.47",
+   "id": 13
+  },
+  "ma_sieu": {
+   "label": "Mã Siêu",
+   "ip": "103.190.202.48",
+   "id": 14
+  },
+  "quach_gia": {
+   "label": "Quách Gia",
+   "ip": "103.190.202.49",
+   "id": 15
+  },
+  "dien_vi": {
+   "label": "Điển Vi",
+   "ip": "103.190.202.60",
+   "id": 17
+  },
+  "truong_lieu": {
+   "label": "Trương Liêu",
+   "ip": "103.190.202.61",
+   "id": 18
+  },
+  "dong_trac": {
+   "label": "Đồng Trác",
+   "ip": "103.190.202.63",
+   "id": 19
+  }
+ },
+ "_note_ip_gap62": "IP nhay .61 (Truong Lieu) -> .63 (Dong Trac), KHONG dung .62. Boc tu capture MuMu 19/08/2026 (captures/dongtrac_server_20260819.pcap): goi auth C2S toi 103.190.202.63:6614 co server_id=19."
+}

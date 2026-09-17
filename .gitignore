@@ -1,0 +1,42 @@
+# Android / Gradle build outputs
+.gradle/
+**/build/
+build/
+
+# Local Android SDK configuration
+local.properties
+
+# IDE and OS metadata
+.idea/
+*.iml
+.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated APKs and release artifacts
+dist/
+*.apk
+*.aab
+*.apks
+
+# Runtime logs, captures and temporary files
+*.log
+*.tmp
+*.bak
+*.pcap
+*.pcapng
+
+# Local secrets / environment overrides
+.env
+.env.*
+!.env.example
+keystore.properties
+*.jks
+*.keystore
+

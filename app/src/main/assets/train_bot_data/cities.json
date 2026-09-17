@@ -1,0 +1,146 @@
+{
+ "_note": "Danh sach thanh de teleport (opcode 0x44). Moi thanh co city_id + flag rieng (CA HAI deu bat buoc).",
+ "_packet_format": "c0 91 0c 00 00 00 44 01 00 [city_id 2B LE] [flag 1B]",
+ "cities": {
+  "trac_quan": {
+   "name": "Trác Quận",
+   "city_id": 12001,
+   "flag": 0,
+   "hex": "2ee1"
+  },
+  "ng_thanh": {
+   "name": "Nghiệp Thành",
+   "city_id": 12061,
+   "flag": 2,
+   "hex": "2f1d"
+  },
+  "cu_loc": {
+   "name": "Cự Lộc",
+   "city_id": 12011,
+   "flag": 3,
+   "hex": "2eeb"
+  },
+  "bac_hai": {
+   "name": "Bắc Hải",
+   "city_id": 11011,
+   "flag": 1,
+   "hex": "2b03"
+  },
+  "kien_nghiep": {
+   "name": "Kiến Nghiệp",
+   "city_id": 18001,
+   "flag": 9,
+   "hex": "4651"
+  },
+  "tuong_binh": {
+   "name": "Tương Bình",
+   "city_id": 19001,
+   "flag": 11,
+   "hex": "4a39"
+  },
+  "hoi_ke": {
+   "name": "Hội Kê",
+   "city_id": 18021,
+   "flag": 10,
+   "hex": "4665"
+  },
+  "lac_duong": {
+   "name": "Lạc Dương",
+   "city_id": 13001,
+   "flag": 4,
+   "hex": "32c9"
+  },
+  "hua_xuong": {
+   "name": "Hứa Xương",
+   "city_id": 13011,
+   "flag": 5,
+   "hex": "32d3"
+  },
+  "truong_an": {
+   "name": "Trường An",
+   "city_id": 14001,
+   "flag": 6,
+   "hex": "36b1"
+  },
+  "tu_chau": {
+   "name": "Từ Châu",
+   "city_id": 15001,
+   "flag": 7,
+   "hex": "3a99"
+  },
+  "tho_xuan": {
+   "name": "Thọ Xuân",
+   "city_id": 15021,
+   "flag": 8,
+   "hex": "3aad"
+  },
+  "thuong_dang": {
+   "name": "Thượng Đảng",
+   "city_id": 20001,
+   "flag": 12,
+   "hex": "4e21"
+  },
+  "lau_bo": {
+   "name": "Lâu Bò",
+   "city_id": 56001,
+   "flag": 15,
+   "hex": "dac1"
+  },
+  "tuong_duong": {
+   "name": "Tương Dương",
+   "city_id": 21001,
+   "flag": 13,
+   "hex": "5209"
+  },
+  "giang_lang": {
+   "name": "Giang Lăng",
+   "city_id": 21011,
+   "flag": 14,
+   "hex": "5213"
+  },
+  "ta_ma_dai": {
+   "name": "Tả Mã Đài",
+   "city_id": 57001,
+   "flag": 16,
+   "hex": "dea9"
+  },
+  "truong_sa": {
+   "name": "Trường Sa",
+   "city_id": 23001,
+   "flag": 17,
+   "hex": "59d9"
+  },
+  "linh_lang": {
+   "name": "Linh Lăng",
+   "city_id": 23011,
+   "flag": 18,
+   "hex": "59e3"
+  },
+  "phien_ngu": {
+   "name": "Phiên Ngu",
+   "city_id": 26001,
+   "flag": 19,
+   "hex": "6591"
+  },
+  "y_chau": {
+   "name": "Y Châu",
+   "city_id": 26011,
+   "flag": 20,
+   "hex": "659b"
+  }
+ },
+ "special_maps": {
+  "di_gioi": {
+   "name": "Di Gioi",
+   "note": "Map TRAIN quan trong (treo may). Dang o map nay KHONG teleport ve thanh duoc (0x44 bi tu choi).",
+   "map_id": 49942,
+   "map_id_hex": "0xc316",
+   "map_id_note": "XAC NHAN tu broadcast 0x0c/0x07/0x03 offset 10 (LE). Gia tri cu 11971 la SAI.",
+   "exit_gate": [
+    270,
+    210
+   ],
+   "exit_note": "Khong co lenh thoat. Phai DI BO tung buoc nho toi cong (270,210) roi 0x14 04000100/08000100. 0x06 = bao vi tri di tung buoc, KHONG nhay xa duoc."
+  }
+ }
+}

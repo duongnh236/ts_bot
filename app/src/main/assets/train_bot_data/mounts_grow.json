@@ -1,0 +1,500 @@
+{
+ "_note": "Bang nang cap + boi duong THU CUOI. Sinh boi tools/crack_mounts_grow.py tu MountsGrow_C.dat (doc TUAN TU, ban ghi 39B). kind: 1=Atk 2=Int 3=Def 4=ExtraHp 5=ExtraSp. 'need' = so DIEM can de len 1 cap cua chi so do (diem cong don, moi vien = 1 diem). RANG BUOC client: cap chi so KHONG duoc vuot cap thu cuoi.",
+ "levels": {
+  "1": {
+   "speed": 20,
+   "up_item": 32101,
+   "up_count": 10,
+   "up_money": 1000,
+   "attrs": {
+    "1": {
+     "add": 1,
+     "item": 32102,
+     "need": 10
+    },
+    "2": {
+     "add": 1,
+     "item": 32103,
+     "need": 10
+    },
+    "3": {
+     "add": 1,
+     "item": 32104,
+     "need": 10
+    },
+    "4": {
+     "add": 10,
+     "item": 32105,
+     "need": 10
+    },
+    "5": {
+     "add": 5,
+     "item": 32106,
+     "need": 10
+    }
+   }
+  },
+  "2": {
+   "speed": 30,
+   "up_item": 32101,
+   "up_count": 20,
+   "up_money": 2000,
+   "attrs": {
+    "1": {
+     "add": 2,
+     "item": 32102,
+     "need": 20
+    },
+    "2": {
+     "add": 2,
+     "item": 32103,
+     "need": 20
+    },
+    "3": {
+     "add": 2,
+     "item": 32104,
+     "need": 20
+    },
+    "4": {
+     "add": 20,
+     "item": 32105,
+     "need": 20
+    },
+    "5": {
+     "add": 10,
+     "item": 32106,
+     "need": 20
+    }
+   }
+  },
+  "3": {
+   "speed": 40,
+   "up_item": 32101,
+   "up_count": 30,
+   "up_money": 5000,
+   "attrs": {
+    "1": {
+     "add": 3,
+     "item": 32102,
+     "need": 30
+    },
+    "2": {
+     "add": 3,
+     "item": 32103,
+     "need": 30
+    },
+    "3": {
+     "add": 3,
+     "item": 32104,
+     "need": 30
+    },
+    "4": {
+     "add": 30,
+     "item": 32105,
+     "need": 30
+    },
+    "5": {
+     "add": 15,
+     "item": 32106,
+     "need": 30
+    }
+   }
+  },
+  "4": {
+   "speed": 50,
+   "up_item": 32101,
+   "up_count": 50,
+   "up_money": 10000,
+   "attrs": {
+    "1": {
+     "add": 4,
+     "item": 32102,
+     "need": 50
+    },
+    "2": {
+     "add": 4,
+     "item": 32103,
+     "need": 50
+    },
+    "3": {
+     "add": 4,
+     "item": 32104,
+     "need": 50
+    },
+    "4": {
+     "add": 40,
+     "item": 32105,
+     "need": 50
+    },
+    "5": {
+     "add": 20,
+     "item": 32106,
+     "need": 50
+    }
+   }
+  },
+  "5": {
+   "speed": 60,
+   "up_item": 32101,
+   "up_count": 100,
+   "up_money": 50000,
+   "attrs": {
+    "1": {
+     "add": 5,
+     "item": 32102,
+     "need": 100
+    },
+    "2": {
+     "add": 5,
+     "item": 32103,
+     "need": 100
+    },
+    "3": {
+     "add": 5,
+     "item": 32104,
+     "need": 100
+    },
+    "4": {
+     "add": 50,
+     "item": 32105,
+     "need": 100
+    },
+    "5": {
+     "add": 25,
+     "item": 32106,
+     "need": 100
+    }
+   }
+  },
+  "6": {
+   "speed": 60,
+   "up_item": 32101,
+   "up_count": 150,
+   "up_money": 100000,
+   "attrs": {
+    "1": {
+     "add": 6,
+     "item": 32102,
+     "need": 300
+    },
+    "2": {
+     "add": 6,
+     "item": 32103,
+     "need": 300
+    },
+    "3": {
+     "add": 6,
+     "item": 32104,
+     "need": 300
+    },
+    "4": {
+     "add": 60,
+     "item": 32105,
+     "need": 300
+    },
+    "5": {
+     "add": 30,
+     "item": 32106,
+     "need": 300
+    }
+   }
+  },
+  "7": {
+   "speed": 60,
+   "up_item": 32101,
+   "up_count": 200,
+   "up_money": 500000,
+   "attrs": {
+    "1": {
+     "add": 7,
+     "item": 32102,
+     "need": 500
+    },
+    "2": {
+     "add": 7,
+     "item": 32103,
+     "need": 500
+    },
+    "3": {
+     "add": 7,
+     "item": 32104,
+     "need": 500
+    },
+    "4": {
+     "add": 70,
+     "item": 32105,
+     "need": 500
+    },
+    "5": {
+     "add": 35,
+     "item": 32106,
+     "need": 500
+    }
+   }
+  },
+  "8": {
+   "speed": 65,
+   "up_item": 32101,
+   "up_count": 250,
+   "up_money": 1000000,
+   "attrs": {
+    "1": {
+     "add": 8,
+     "item": 32102,
+     "need": 1000
+    },
+    "2": {
+     "add": 8,
+     "item": 32103,
+     "need": 1000
+    },
+    "3": {
+     "add": 8,
+     "item": 32104,
+     "need": 1000
+    },
+    "4": {
+     "add": 80,
+     "item": 32105,
+     "need": 1000
+    },
+    "5": {
+     "add": 40,
+     "item": 32106,
+     "need": 1000
+    }
+   }
+  },
+  "9": {
+   "speed": 65,
+   "up_item": 32101,
+   "up_count": 250,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 9,
+     "item": 32102,
+     "need": 2000
+    },
+    "2": {
+     "add": 9,
+     "item": 32103,
+     "need": 2000
+    },
+    "3": {
+     "add": 9,
+     "item": 32104,
+     "need": 2000
+    },
+    "4": {
+     "add": 90,
+     "item": 32105,
+     "need": 2000
+    },
+    "5": {
+     "add": 45,
+     "item": 32106,
+     "need": 2000
+    }
+   }
+  },
+  "10": {
+   "speed": 70,
+   "up_item": 32107,
+   "up_count": 100,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 10,
+     "item": 32102,
+     "need": 3000
+    },
+    "2": {
+     "add": 10,
+     "item": 32103,
+     "need": 3000
+    },
+    "3": {
+     "add": 10,
+     "item": 32104,
+     "need": 3000
+    },
+    "4": {
+     "add": 100,
+     "item": 32105,
+     "need": 3000
+    },
+    "5": {
+     "add": 50,
+     "item": 32106,
+     "need": 3000
+    }
+   }
+  },
+  "11": {
+   "speed": 75,
+   "up_item": 32107,
+   "up_count": 200,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 12,
+     "item": 32102,
+     "need": 3500
+    },
+    "2": {
+     "add": 12,
+     "item": 32103,
+     "need": 3500
+    },
+    "3": {
+     "add": 12,
+     "item": 32104,
+     "need": 3500
+    },
+    "4": {
+     "add": 120,
+     "item": 32105,
+     "need": 3500
+    },
+    "5": {
+     "add": 60,
+     "item": 32106,
+     "need": 3500
+    }
+   }
+  },
+  "12": {
+   "speed": 80,
+   "up_item": 32107,
+   "up_count": 255,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 15,
+     "item": 32102,
+     "need": 4000
+    },
+    "2": {
+     "add": 15,
+     "item": 32103,
+     "need": 4000
+    },
+    "3": {
+     "add": 15,
+     "item": 32104,
+     "need": 4000
+    },
+    "4": {
+     "add": 150,
+     "item": 32105,
+     "need": 4000
+    },
+    "5": {
+     "add": 75,
+     "item": 32106,
+     "need": 4000
+    }
+   }
+  },
+  "13": {
+   "speed": 85,
+   "up_item": 32107,
+   "up_count": 255,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 20,
+     "item": 32102,
+     "need": 4500
+    },
+    "2": {
+     "add": 20,
+     "item": 32103,
+     "need": 4500
+    },
+    "3": {
+     "add": 20,
+     "item": 32104,
+     "need": 4500
+    },
+    "4": {
+     "add": 200,
+     "item": 32105,
+     "need": 4500
+    },
+    "5": {
+     "add": 100,
+     "item": 32106,
+     "need": 4500
+    }
+   }
+  },
+  "14": {
+   "speed": 90,
+   "up_item": 32107,
+   "up_count": 255,
+   "up_money": 5000000,
+   "attrs": {
+    "1": {
+     "add": 30,
+     "item": 32102,
+     "need": 5000
+    },
+    "2": {
+     "add": 30,
+     "item": 32103,
+     "need": 5000
+    },
+    "3": {
+     "add": 30,
+     "item": 32104,
+     "need": 5000
+    },
+    "4": {
+     "add": 300,
+     "item": 32105,
+     "need": 5000
+    },
+    "5": {
+     "add": 150,
+     "item": 32106,
+     "need": 5000
+    }
+   }
+  },
+  "15": {
+   "speed": 100,
+   "up_item": 0,
+   "up_count": 0,
+   "up_money": 0,
+   "attrs": {
+    "1": {
+     "add": 50,
+     "item": 32102,
+     "need": 5000
+    },
+    "2": {
+     "add": 50,
+     "item": 32103,
+     "need": 5000
+    },
+    "3": {
+     "add": 50,
+     "item": 32104,
+     "need": 5000
+    },
+    "4": {
+     "add": 500,
+     "item": 32105,
+     "need": 5000
+    },
+    "5": {
+     "add": 250,
+     "item": 32106,
+     "need": 5000
+    }
+   }
+  }
+ }
+}

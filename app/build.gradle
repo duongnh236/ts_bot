@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'com.fen.tsbot'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.fen.tsbot'
+        minSdk 26
+        targetSdk 35
+        versionCode 67
+        versionName '0.67-reconnect-resume-train'
+
+        python {
+            version '3.8'
+        }
+        ndk {
+            abiFilters 'arm64-v8a', 'x86_64'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
