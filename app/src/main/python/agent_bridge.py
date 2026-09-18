@@ -563,12 +563,59 @@ def auto_battle_one_json(username, map_id=0, x=0, y=0):
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
 
 
+def start_farm_mode_json(mode, map_id, x, y):
+    """Start the selected workflow without resetting account slots or battle settings."""
+    mode = str(mode)
+    if mode == "train":
+        return auto_battle_team_json(map_id, x, y)
+    if mode == "stand":
+        return json.dumps({"ok": False, "message": "Đứng yên không chạy farm; hãy chọn Train hoặc Dị giới + farm"}, ensure_ascii=False)
+    try:
+        if mode != "digioi_train":
+            raise ValueError("Chế độ không hợp lệ")
+        from train_bot import config
+        runner = _get_runner()
+        st = runner._pstate(0)
+        live = _live_party(runner)
+        leader = config.PARTY_LEADER_ACC.get(0)
+        if not live or leader not in dict(live):
+            raise RuntimeError("Hãy đăng nhập leader và các thành viên trước")
+        if any(c.in_team_dungeon() for _, c in live):
+            raise RuntimeError("Hãy hoàn tất phụ bản hiện tại trước")
+        map_id, x, y = int(map_id), int(x), int(y)
+        if min(map_id, x, y) <= 0:
+            raise ValueError("Hãy chọn bãi farm và tọa độ trước")
+        with st["lock"]:
+            if st.get("daily_active") or st.get("leader_switch_pending") or st.get("ui_mode_restart_users"):
+                raise RuntimeError("Luồng team khác đang chạy; hãy chờ hoàn tất")
+            entry = config.TRAIN_MAPS.setdefault(map_id, {"safe": [], "name": str(map_id)})
+            entry["mobs"] = [(x, y)]
+            config.PARTY_CONFIG[0].update(mode="digioi_train", start_city_id=map_id,
+                                         mob_index=0, train_pick="", do_daily=False,
+                                         auto_world_boss=False, auto_team_dungeon=False,
+                                         fight_legion_boss=False, do_van_tieu=False)
+            st["dt_phase"] = "digioi"
+            st["dt_train_prepared"] = False
+            st["ui_train_target"] = None  # Khong de coordinator ra farm khi DG chua xong.
+            st["cmd"] = None
+            st["cmd_gen"] += 1
+            st["ui_mode_restart_users"] = {u for u, _ in live}
+            for _, c in live:
+                c._ui_auto_battle = True
+                c._ui_mode_restart = True
+        return json.dumps({"ok": True, "message": "Đã chạy Dị giới → farm: chờ hết trận, vào Dị giới; cả team hết giờ Dị giới sẽ ra bãi farm đã chọn"}, ensure_ascii=False)
+    except Exception as exc:
+        return json.dumps({"ok": False, "message": str(exc)}, ensure_ascii=False)
+
+
 def auto_battle_team_json(map_id=0, x=0, y=0):
     """Nut AUTO BATTLE moi: mot lan bam dieu phoi toan bo party toi bai train."""
     try:
         runner = _get_runner()
         if runner._pstate(0).get("leader_switch_pending"):
             raise RuntimeError("Đang đổi leader; hãy chờ hoàn tất trước khi bắt đầu farm")
+        if runner._pstate(0).get("ui_mode_restart_users"):
+            raise RuntimeError("Đang chuyển luồng Dị giới; hãy chờ hoàn tất")
         configured = runner.party_accounts(0)
         live = _live_party(runner)
         if not configured:

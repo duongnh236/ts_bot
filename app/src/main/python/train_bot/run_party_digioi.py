@@ -7495,6 +7495,17 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             c._wait_leader_on_stop = True
         _exited_tower = False
         while c.running:
+            if getattr(c, "_ui_mode_restart", False):
+                if c.in_combat(idle_secs=2.0):
+                    time.sleep(0.5)
+                    continue
+                c._ui_mode_restart = False
+                with st["lock"]:
+                    st.get("ui_mode_restart_users", set()).discard(username)
+                # Doc lai mode bang supervisor tren cung socket, nhu chuyen DG -> train.
+                _dt["relogin_train"] = True
+                account_continue[username] = c
+                return
             # Vai tro runtime thay doi sau online leader handover; khong giu tham so
             # is_leader cu suot doi thread, va khong doi username/slot/relogin.
             _previous_leader_role = is_leader
@@ -11260,7 +11271,7 @@ def _dieu_phoi_loop():
                     lech_tu.pop(pidx, None)
                     continue
                 st = _pstate(pidx)
-                if st.get("leader_switch_pending"):
+                if st.get("leader_switch_pending") or st.get("ui_mode_restart_users"):
                     continue
                 kh, ly_do, lech_tu[pidx] = _dieu_phoi_quyet(pidx, st, song, lech_tu.get(pidx))
                 doi = _ghi_ke_hoach(st, pidx, kh, ly_do)

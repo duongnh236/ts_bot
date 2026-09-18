@@ -11,8 +11,8 @@ android {
         applicationId 'com.fen.tsbot'
         minSdk 26
         targetSdk 35
-        versionCode 100
-        versionName '0.100-single-online-leader'
+        versionCode 102
+        versionName '0.102-digioi-then-farm'
 
         python {
             version '3.8'
