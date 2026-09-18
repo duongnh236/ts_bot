@@ -50,12 +50,11 @@ except Exception:
 # cat cut - trong khi chinh cai log do dang duoc dung de chan doan loi that.
 if "unittest" in sys.modules or os.environ.get("ATS_TEST"):
     _log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "party_test.log")
-# RotatingFileHandler: gioi han party.log ~1GB (backup 2 -> toi da ~3GB) de file KHONG phinh
-# vo han (truoc day 30 party 8h ra 570MB). mode="w" -> van truncate moi lan khoi dong nhu cu.
-# Lich su: 50MB -> 100MB -> 500MB (20/08) -> 1GB (30/08). Ly do tang tiep: dieu tra acc ket/party
-# dung hinh can log CU hang gio truoc; 100MB voi 30 party chi giu duoc vai chuc phut.
+# Android chi can log gan nhat de debug. Giu 1 file hien tai + 2 backup, moi file 8MB
+# (toi da khoang 24MB) de may cam lau ngay khong day bo nho. mode="w" con don log moi lan
+# process bot khoi dong lai.
 from logging.handlers import RotatingFileHandler as _RotLog
-_file_handler = _RotLog(_log_path, mode="w", maxBytes=1024 * 1024 * 1024, backupCount=2,
+_file_handler = _RotLog(_log_path, mode="w", maxBytes=8 * 1024 * 1024, backupCount=2,
                         encoding="utf-8")
 logging.basicConfig(level=_lvl, format="%(asctime)s %(message)s", datefmt="%H:%M:%S",
                     handlers=[_file_handler, logging.StreamHandler()])
@@ -6801,7 +6800,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         st["manual_route_plan_ready"].set()
                         st["manual_route_done"].set()
                         return
-                    users = _active_party_usernames(pidx)
+                    users = (list(st.get("manual_train_users") or []) if kind == "train"
+                             else _active_party_usernames(pidx))
+                    if not users:
+                        users = _active_party_usernames(pidx)
                     expected = max(1, len(users))
                     plan = {
                         "source": int(source),
@@ -7186,6 +7188,12 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 else:
                     _do_manual_route()
             elif kind == "train":
+                # Snapshot chi gom account da online luc bam. Account con connecting khong
+                # duoc chen vao barrier route va lam leader cho vo han; online sau se rejoin
+                # bang luong dong bo/reconnect binh thuong.
+                if st.get("manual_train_users") and username not in st["manual_train_users"]:
+                    log.info("[%s] START FARM: online sau snapshot -> cho dong bo voi leader", label)
+                    return
                 # AUTO BATTLE Android = MOT lenh cho CA TEAM: smart route tu thanh gan nhat,
                 # lap party, leader keo toi map dich roi keo tiep toi dung bai train.
                 # Bat chien dau NGAY truoc khi roi thanh: gap quai tren duong thi ca team danh
@@ -7487,6 +7495,19 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             c._wait_leader_on_stop = True
         _exited_tower = False
         while c.running:
+            # Vai tro runtime thay doi sau online leader handover; khong giu tham so
+            # is_leader cu suot doi thread, va khong doi username/slot/relogin.
+            _previous_leader_role = is_leader
+            has_leader = config.PARTY_LEADER_ACC.get(pidx) is not None
+            is_leader = username == config.PARTY_LEADER_ACC.get(pidx)
+            is_picker = is_leader if has_leader else username == party_accounts(pidx)[0][0]
+            role = "LEADER" if is_leader else "member"
+            if _previous_leader_role != is_leader:
+                c._return_safe_on_stop = train_safes if is_leader and train_on_map else None
+                c._wait_leader_on_stop = bool(not is_leader and has_leader and train_on_map)
+            if st.get("leader_switch_pending"):
+                time.sleep(0.5)
+                continue
             # VE PET MAC DINH: vong lap nay chay GIUA cac hoat dong (boss/PB/quest goi tuan tu
             # trong cung thread) nen day la cho tra pet ve vai thuong. Mode event dung chung pet
             # voi quest/PB. ensure_pet_role khong gui goi nao neu dang dung dung pet -> gan nhu
@@ -9504,6 +9525,9 @@ def _run_account_supervised(username, password, pidx, is_leader, is_picker=False
     first = True
     while True:
         account_reconnect[username] = False
+        _runtime_leader = config.PARTY_LEADER_ACC.get(pidx)
+        is_leader = username == _runtime_leader
+        is_picker = is_leader if _runtime_leader else username == party_accounts(pidx)[0][0]
         _tiep = account_continue.pop(username, None)
         try:
             run_account(username, password, pidx, is_leader, is_picker, is_reconnect=not first,
@@ -11236,6 +11260,8 @@ def _dieu_phoi_loop():
                     lech_tu.pop(pidx, None)
                     continue
                 st = _pstate(pidx)
+                if st.get("leader_switch_pending"):
+                    continue
                 kh, ly_do, lech_tu[pidx] = _dieu_phoi_quyet(pidx, st, song, lech_tu.get(pidx))
                 doi = _ghi_ke_hoach(st, pidx, kh, ly_do)
                 _dieu_phoi_thi_hanh(pidx, st, dict(kh, ly_do=ly_do), doi)
@@ -12595,7 +12621,7 @@ def party_train_map(pidx, map_id, x, y):
         st["ui_train_target"] = (map_id, x, y)
         _online_expected = max(1, len([u for u, _p, _l, _k in party_accounts(pidx)
                                       if is_account_running(u)]))
-        st["manual_train_expected"] = int(st.get("manual_train_expected") or _online_expected)
+        st["manual_train_expected"] = len(st.get("manual_train_users") or []) or _online_expected
         st["n_members"] = max(0, st["manual_train_expected"] - 1)
         st["train_map_dich"] = map_id
         st["mob_spot"] = (x, y)

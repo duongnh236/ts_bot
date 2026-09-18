@@ -71,9 +71,9 @@ public class AccountManagerView extends LinearLayout {
         String party="👥 Party hiện tại: "+a.optInt("party_count")+" / "+a.optInt("party_expected")+" thành viên";
         TextView location=txt(current+"\n"+train+"\n"+party,13,Color.rgb(205,220,240));location.setPadding(dp(12),dp(10),dp(12),dp(10));location.setBackgroundColor(Color.rgb(20,38,61));LayoutParams locationLp=new LayoutParams(-1,-2);locationLp.setMargins(0,dp(6),0,dp(8));body.addView(location,locationLp);
 
-        if(a.optBoolean("leader")&&selected==0)renderLeaderChannelPolicy(a,on);
+        if(a.optBoolean("leader"))renderLeaderChannelPolicy(a,on);
 
-        renderSectionGrid(on,a.optBoolean("leader")&&selected==0);
+        renderSectionGrid(on,a.optBoolean("leader"));
         if(!actionMessage.isEmpty()){TextView msg=txt(actionMessage,13,actionError?Color.rgb(255,110,100):Color.rgb(100,210,255));msg.setPadding(dp(10),dp(10),dp(10),dp(10));msg.setBackgroundColor(card);body.addView(msg,new LayoutParams(-1,-2));}
         if(a.length()==0){body.addView(txt("Nhập tài khoản ngay phía trên rồi bấm LOGIN.",14,Color.LTGRAY));return;}
         if(sectionMode==1)renderBag(a.optJSONObject("bag"));else if(sectionMode==2)renderActivityLog(a.optJSONArray("activity_log"));else if(sectionMode==3)renderTeleport(a);else if(sectionMode==4)renderCombatSettingsSaved(a);else if(sectionMode==5)renderAccountMap(a);else renderInfo(a);
@@ -141,7 +141,23 @@ public class AccountManagerView extends LinearLayout {
         renderDailyProgress(a);
         TextView note=txt("EXP pet lấy trực tiếp từ packet pet login. Tổng EXP lên cấp chỉ hiện khi đã có mốc đối chiếu từ UI game.",12,Color.rgb(155,175,200));note.setPadding(0,dp(10),0,0);body.addView(note);
     }
-    private void renderExpRate(JSONObject a,String charName,String petName){JSONObject r=a.optJSONObject("exp_rate");LinearLayout box=new LinearLayout(getContext());box.setOrientation(VERTICAL);box.setPadding(dp(12),dp(12),dp(12),dp(12));box.setBackgroundColor(Color.rgb(13,38,48));TextView title=txt("⏱ HIỆU SUẤT FARM • ACCOUNT NÀY",15,Color.rgb(105,225,180));title.setTypeface(Typeface.DEFAULT_BOLD);box.addView(title);if(r==null||r.optInt("battles")==0){box.addView(txt("Chưa có trận hoàn tất của account này trong phiên đăng nhập.",13,Color.rgb(180,200,215)));box.addView(txt("👤 "+charName+": 0 EXP/giờ\n🐾 "+petName+": 0 EXP/giờ",13,Color.rgb(160,185,205)));}else{double seconds=r.optDouble("last_battle_seconds",0),bph=r.optDouble("battles_per_hour",0);box.addView(txt("Trận gần nhất: "+String.format(Locale.US,"%.1f",seconds)+" giây  •  "+String.format(Locale.US,"%.1f",bph)+" trận/giờ",14,Color.WHITE));box.addView(txt("👤 "+charName+": "+num(r.optLong("char_exp_per_hour"))+" EXP/giờ",13,Color.rgb(115,225,140)));box.addView(txt("🐾 "+petName+": "+num(r.optLong("pet_exp_per_hour"))+" EXP/giờ",13,Color.rgb(105,185,255)));box.addView(txt("Đã đo riêng account này: "+r.optInt("battles")+" trận trong "+formatDuration(r.optLong("session_seconds")),12,Color.rgb(160,185,205)));}LayoutParams lp=new LayoutParams(-1,-2);lp.setMargins(0,dp(6),0,dp(8));body.addView(box,lp);}
+    private void renderExpRate(JSONObject a,String charName,String petName){
+        JSONObject r=a.optJSONObject("exp_rate");if(r==null)r=new JSONObject();
+        LinearLayout box=new LinearLayout(getContext());box.setOrientation(VERTICAL);
+        box.setPadding(dp(12),dp(12),dp(12),dp(12));box.setBackgroundColor(Color.rgb(13,38,48));
+        TextView title=txt("⏱ HIỆU SUẤT FARM • "+charName,15,Color.rgb(105,225,180));
+        title.setTypeface(Typeface.DEFAULT_BOLD);box.addView(title);
+        int battles=r.optInt("battles");long elapsed=r.optLong("session_seconds");
+        double bph=r.optDouble("battles_per_hour",0);
+        box.addView(txt("Số trận/giờ: "+String.format(Locale.US,"%.1f",bph)+(elapsed<60?"  •  Đang đo, chưa đủ 1 phút":""),14,Color.WHITE));
+        box.addView(txt("👤 "+charName+": "+num(r.optLong("char_exp_per_hour"))+" EXP/giờ",14,Color.rgb(115,225,140)));
+        box.addView(txt("🐾 "+petName+": "+num(r.optLong("pet_exp_per_hour"))+" EXP/giờ",14,Color.rgb(105,185,255)));
+        if(battles>0)box.addView(txt("Trận gần nhất: "+String.format(Locale.US,"%.1f",r.optDouble("last_battle_seconds",0))+" giây",13,Color.WHITE));
+        box.addView(txt("Riêng account này: "+battles+" trận hoàn tất / "+formatDuration(elapsed)+" • gồm thời gian nghỉ giữa trận",12,Color.rgb(160,185,205)));
+        box.addView(txt("EXP đã nhận: Tướng +"+num(r.optLong("char_exp_total"))+" • Pet +"+num(r.optLong("pet_exp_total")),12,Color.rgb(160,185,205)));
+        if(r.optLong("char_exp_total")==0)box.addView(txt("Chưa ghi nhận EXP tướng tăng từ server trong phiên này.",12,Color.rgb(255,185,90)));
+        LayoutParams lp=new LayoutParams(-1,-2);lp.setMargins(0,dp(6),0,dp(8));body.addView(box,lp);
+    }
     private String formatDuration(long seconds){long h=seconds/3600,m=(seconds%3600)/60,s=seconds%60;return h>0?h+"g "+m+"p":m>0?m+"p "+s+"g":s+" giây";}
     private void gameStatusPanel(String name,String sub,long hp,long hpMax,long sp,long spMax,long exp,long expMax,boolean hasExp,boolean hasExpMax){LinearLayout box=new LinearLayout(getContext());box.setOrientation(VERTICAL);box.setPadding(dp(12),dp(11),dp(12),dp(12));box.setBackgroundColor(Color.rgb(14,31,51));TextView title=txt(name,17,Color.WHITE);title.setTypeface(Typeface.DEFAULT_BOLD);box.addView(title);box.addView(txt(sub,12,Color.rgb(175,200,225)));gameBar(box,"HP",hp,hpMax,true,Color.rgb(225,53,64));gameBar(box,"SP",sp,spMax,true,Color.rgb(44,139,232));gameBar(box,"EXP",exp,expMax,hasExp&&hasExpMax,Color.rgb(77,196,64));LayoutParams lp=new LayoutParams(-1,-2);lp.setMargins(0,dp(6),0,dp(8));body.addView(box,lp);}
     private void gameBar(LinearLayout box,String label,long value,long max,boolean known,int color){LinearLayout line=new LinearLayout(getContext());line.setGravity(Gravity.CENTER_VERTICAL);TextView key=txt(label,12,Color.WHITE);key.setTypeface(Typeface.DEFAULT_BOLD);line.addView(key,new LayoutParams(dp(38),-2));ProgressBar bar=new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);bar.setMax(1000);int progress=known&&max>0?(int)Math.max(0,Math.min(1000,value*1000L/max)):0;bar.setProgress(progress);bar.setProgressTintList(ColorStateList.valueOf(color));bar.setProgressBackgroundTintList(ColorStateList.valueOf(Color.rgb(48,57,70)));line.addView(bar,new LayoutParams(0,dp(19),1));String valueText=known&&max>0?num(value)+" / "+num(max)+"   "+Math.max(0,Math.min(100,(value*100L/max)))+"%":"Chưa có dữ liệu";TextView amount=txt(valueText,11,Color.WHITE);amount.setGravity(Gravity.RIGHT);line.addView(amount,new LayoutParams(dp(178),-2));LayoutParams lp=new LayoutParams(-1,dp(34));lp.setMargins(0,dp(2),0,0);box.addView(line,lp);}

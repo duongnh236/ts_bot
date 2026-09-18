@@ -3223,6 +3223,18 @@ class GameClient:
             self.server_closed = True
         self._deliberate_close = True   # ta tu dong -> OSError trong recv KHONG phai server rot
         self.running = False
+        # Timer combat giu bound-method -> giu ca GameClient trong RAM cho toi khi timer chay.
+        # Huy ngay khi close, dong thoi bo cac queue callback/debug khong con dung nua.
+        try:
+            if self._decision_timer is not None:
+                self._decision_timer.cancel()
+        except Exception:
+            pass
+        self._decision_timer = None
+        self._pending_party_invites.clear()
+        self._pending_0b[:] = []
+        self._bag_queue[:] = []
+        self.available.clear()
         self.stop_npc40_loop()
         self.stop_loandau_loop()  # thieu -> thread loan dau con gui 0x14 06 len socket dang dong
         self.stop_floor_crawl()   # 2K: bao dung vong leo thap (thieu -> thread con bam tiep,
@@ -3767,6 +3779,8 @@ class GameClient:
             pkts, consumed = protocol.parse_stream(self.recv_buf)
             self.recv_buf = self.recv_buf[consumed:]
             for opcode, pkt in pkts:
+                from .packet_trace import record as _record_server_packet
+                _record_server_packet(self._username or self._label, opcode, pkt)
                 self._recent_recvs.append((time.time(), opcode, pkt.hex()[:60]))
                 try:
                     self._dispatch(opcode, pkt)
@@ -4018,6 +4032,11 @@ class GameClient:
             _fallback_gain = int(self.char_exp) - int(_exp_start)
             self._metrics_battle_char_exp = _fallback_gain
             self.exp_stats_char_total += _fallback_gain
+            _row = {"type": "exp", "time": time.strftime("%H:%M:%S"),
+                    "who": "character", "kind": 1, "exp": _fallback_gain,
+                    "source": "character total at battle end"}
+            self.combat_exp_log.appendleft(dict(_row))
+            self.activity_log.appendleft(dict(_row))
         self.last_battle_seconds = max(0.1, time.time() - started)
         self.last_battle_char_exp = int(self._metrics_battle_char_exp)
         self.last_battle_pet_exp = int(self._metrics_battle_pet_exp)
@@ -4047,8 +4066,8 @@ class GameClient:
 
     def _dispatch(self, opcode: int, pkt: bytes):
         log.debug("[%s] RECV op=0x%02x len=%d %s", self._label, opcode, len(pkt), pkt.hex())
-        if opcode == protocol.OP_BATTLE_START:
-            self._metrics_battle_start()
+        # Metrics theo start/end cua battle tracker, khong theo broadcast 0x34 (co noise
+        # va member co the duoc bootstrap ma khong nhan start legacy).
         # Giu ma ack Boss QD de khong gui lenh vao instance khi lenh mo da bi tu choi.
         if opcode == 0x27 and len(pkt) >= 10 and pkt[7:9] == b"\x77\x00":
             self._legion_start_result = int(pkt[9])
@@ -5500,7 +5519,20 @@ class GameClient:
             self.char_element = body[2]
         if len(body) >= 28:
             self.char_skill_point = int.from_bytes(body[26:28], "little")
+            _old_char_exp = self.char_exp
             self.char_exp = int.from_bytes(body[22:26], "little")
+            # Full character refresh cung co the cap nhat EXP sau tran. Khong dem snapshot
+            # login dau tien, va chi dem chenh lech duong tu tong da biet cua chinh account.
+            if (self.exp_stats_started_at is not None and _old_char_exp is not None
+                    and self.char_exp > int(_old_char_exp)):
+                _gain = self.char_exp - int(_old_char_exp)
+                _row = {"type": "exp", "time": time.strftime("%H:%M:%S"),
+                        "who": "character", "kind": 1, "exp": int(_gain),
+                        "total": int(self.char_exp), "source": "0x05/03 character refresh"}
+                self.combat_exp_log.appendleft(dict(_row))
+                self.activity_log.appendleft(dict(_row))
+                self._metrics_exp_gain("character", _gain)
+                log.info("[%s] EXP NHAN VAT: +%d (full character refresh)", self._label, _gain)
             log.info("[%s] CHAR login EXP hien tai (0x05 +22)=%d",
                      self._label, self.char_exp)
         if len(body) < 98:
@@ -6135,7 +6167,10 @@ class GameClient:
         )
         self.state.sync_from_tracker()
         for event in events:
-            if event.kind == "turn_start":
+            if event.kind == "start":
+                self._metrics_battle_start()
+            elif event.kind == "turn_start":
+                self._metrics_battle_start()
                 self._prepare_tracker_turn()
                 # train_block_stats: battle tracker MOI thay nhanh 0x33 legacy -> ghi so block quai
                 # o day, 1 lan/tran (theo generation). Truoc day _record_train_block_stats CHI goi o
@@ -6151,6 +6186,7 @@ class GameClient:
                         self._label, event.generation, event.turn, event.source,
                     )
             elif event.kind == "end":
+                self._metrics_battle_end()
                 self.available = {}
                 if self._decision_timer:
                     self._decision_timer.cancel()

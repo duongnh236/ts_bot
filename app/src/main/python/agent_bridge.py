@@ -14,6 +14,140 @@ _lock = threading.RLock()
 _ground_ui_cache = {}
 _account_settings_lock = threading.RLock()
 _account_slots = {}
+_selected_leader_user = None
+
+
+def server_packets_json():
+    from train_bot.packet_trace import snapshot
+    return json.dumps(snapshot(100), ensure_ascii=False, indent=2)
+
+
+def switch_leader_json(username):
+    """Online leader handover via verified leave/invite protocol, never guessed opcodes."""
+    global _selected_leader_user
+    runner = _get_runner()
+    from train_bot import config
+    st = runner._pstate(0)
+    username = str(username or "").strip()
+    old_user = config.PARTY_LEADER_ACC.get(0)
+    live = _live_party(runner)
+    clients = dict(live)
+    old = clients.get(old_user)
+    target = clients.get(username)
+    if target is None:
+        return json.dumps({"ok": False, "message": "Account được chọn phải online"}, ensure_ascii=False)
+    if username == old_user:
+        return json.dumps({"ok": True, "message": "Account này đã là leader"}, ensure_ascii=False)
+    if any(c.in_team_dungeon() for c in clients.values()):
+        return json.dumps({"ok": False, "message": "Hãy hoàn tất phụ bản trước khi đổi leader"}, ensure_ascii=False)
+    # Chua co party: doi vai tro bot truc tiep, khong can ACC1 online hay SAFE.
+    if not any(c.party_leader or c.party_members for c in clients.values()):
+        with st["lock"]:
+            if st.get("daily_active") or st.get("leader_switch_pending") or st.get("cmd"):
+                return json.dumps({"ok": False, "message": "Hãy dừng/chờ luồng team hiện tại trước khi đổi leader"}, ensure_ascii=False)
+            config.PARTY_LEADER_ACC[0] = username
+            _selected_leader_user = username
+            st["leader_manual_off"] = False
+            st["leader_gone"].clear()
+            st["reform_gen_thoa"] = st.get("reform_gen", 0)
+        runner.reset_party_joined(0)
+        return json.dumps({"ok": True, "message": "Đã chọn %s làm leader; không cần ACC1 online" % (target.char_name or username)}, ensure_ascii=False)
+    if old is None:
+        return json.dumps({"ok": False, "message": "Party vẫn còn trên server; hãy rời party trước khi chọn leader mới"}, ensure_ascii=False)
+    safes = list((config.TRAIN_MAPS.get(old.current_map) or {}).get("safe") or [])
+    if not safes:
+        return json.dumps({"ok": False, "message": "Map hiện tại chưa có SAFE xác minh; chưa đổi leader để an toàn"}, ensure_ascii=False)
+    if any(c.current_map != old.current_map or c.current_channel != old.current_channel
+           for c in clients.values()):
+        return json.dumps({"ok": False, "message": "Team phải cùng map và phân khu trước khi đổi leader"}, ensure_ascii=False)
+    old_entity = bytes(old.self_entity or b"")
+    old_roster = {bytes(e) for e in old.party_members or []} | {old_entity}
+    if any(bytes(c.self_entity or b"") not in old_roster for c in clients.values()):
+        return json.dumps({"ok": False, "message": "Hãy lập đủ party các account online trước khi đổi leader"}, ensure_ascii=False)
+    with st["lock"]:
+        if st.get("daily_active") or st.get("leader_switch_pending"):
+            return json.dumps({"ok": False, "message": "Daily/đổi leader đang chạy; hãy chờ hoàn tất"}, ensure_ascii=False)
+        st["leader_switch_pending"] = True
+        st["cmd_gen"] += 1
+        st["cmd"] = None
+        st["kenh_dich"] = None
+    combat_flags = {u: (bool(getattr(c, "_ui_auto_battle", False)), c.flee_mode)
+                    for u, c in live}
+    changed = False
+    dissolved = False
+    try:
+        for c in clients.values():
+            c._ui_auto_battle = False
+            c.flee_mode = True
+        deadline = time.time() + 120
+        while any(c.in_combat(idle_secs=2.0) for c in clients.values()):
+            if time.time() > deadline or any(not c.running for c in clients.values()):
+                raise RuntimeError("Chưa hết trận hoặc có account disconnect; hủy đổi leader")
+            time.sleep(1)
+        if not old.pos:
+            raise RuntimeError("Chưa có tọa độ leader cũ")
+        safe = min(safes, key=lambda p: (p[0] - old.pos[0]) ** 2 + (p[1] - old.pos[1]) ** 2)
+        if not old.navigate_to(int(safe[0]), int(safe[1]), flee=True, require_smart_path=True,
+                               abort=lambda: any(not c.running for c in clients.values())):
+            raise RuntimeError("Không xác nhận tới SAFE; hủy đổi leader")
+        time.sleep(3)
+        old.leave_party()
+        dissolved = True
+        deadline = time.time() + 20
+        while any(c.party_leader or c.party_members for c in clients.values()):
+            if time.time() > deadline:
+                raise RuntimeError("Server chưa xác nhận giải tán party")
+            time.sleep(1)
+        runner.reset_party_joined(0)
+        for c in clients.values():
+            c.auto_accept_party = True
+            c.set_party_invite_ready(True)
+        deadline = time.time() + 90
+        target_entity = bytes(target.self_entity or b"")
+        while True:
+            roster = {bytes(e) for e in target.party_members or []} | {target_entity}
+            confirmed = (bytes(target.party_leader or b"") == target_entity
+                         and all(bytes(c.self_entity or b"") in roster
+                                 and bytes(c.party_leader or b"") == target_entity
+                                 for c in clients.values()))
+            if confirmed:
+                break
+            if time.time() > deadline or any(not c.running for c in clients.values()):
+                raise RuntimeError("Party leader mới chưa được server xác nhận đủ thành viên")
+            target.invite_members(gap=0.5)
+            time.sleep(2)
+        # Chot vai tro chi sau roster server xac nhan, khong doi vi tri cac slot UI.
+        config.PARTY_LEADER_ACC[0] = username
+        _selected_leader_user = username
+        changed = True
+        with st["lock"]:
+            st["leader_manual_off"] = False
+            st["leader_gone"].clear()
+            st["reform_gen_thoa"] = st.get("reform_gen", 0)
+        try:
+            target.set_party_strategist()
+        except Exception:
+            pass
+        message = "Đã đổi leader sang %s; team vẫn online tại SAFE" % (target.char_name or username)
+    except Exception as exc:
+        if dissolved and not changed:
+            try:
+                target.leave_party()
+                time.sleep(2)
+                old.invite_members(gap=0.5)
+            except Exception:
+                pass
+        message = "Đổi leader chưa hoàn tất: %s. Giữ cấu hình leader cũ; kiểm tra party rồi bấm Bắt đầu farm." % exc
+    finally:
+        for u, c in live:
+            c._ui_auto_battle, c.flee_mode = combat_flags[u]
+        with st["lock"]:
+            st["leader_switch_pending"] = False
+    if changed and any(flags[0] for flags in combat_flags.values()):
+        train = st.get("ui_train_target")
+        if train:
+            auto_battle_team_json(*train)
+    return json.dumps({"ok": changed, "message": message}, ensure_ascii=False)
 
 # Moc EXP da doi chieu truc tiep voi UI game cua account YeuQuai.
 # level -> (tong EXP tich luy tai dau cap, EXP can tu dau cap de len cap ke)
@@ -293,6 +427,12 @@ def start_json(payload):
             fight_legion_boss=False,
             auto_sell_noi_dat=False, auto_bag_clean=False, auto_discard_junk=False,
             auto_donate_materials=False, death_return_town=True, pet_death_return_town=True)
+        from train_bot import config
+        configured_users = {a[0] for a in config.PARTIES[0]}
+        default_leader = next((str(a.get("u", "")).strip() for a in data.get("accounts", [])
+                               if int(a.get("slot", -1)) == 0 and str(a.get("u", "")).strip()), None)
+        config.PARTY_LEADER_ACC[0] = (_selected_leader_user if _selected_leader_user in configured_users
+                                    else default_leader)
         channel = int(data.get("channel", 0) or 0)
         if channel > 0:
             st = runner._pstate(0)
@@ -427,6 +567,8 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
     """Nut AUTO BATTLE moi: mot lan bam dieu phoi toan bo party toi bai train."""
     try:
         runner = _get_runner()
+        if runner._pstate(0).get("leader_switch_pending"):
+            raise RuntimeError("Đang đổi leader; hãy chờ hoàn tất trước khi bắt đầu farm")
         configured = runner.party_accounts(0)
         live = _live_party(runner)
         if not configured:
@@ -461,6 +603,7 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
         with st["lock"]:
             st["ui_train_target"] = (map_id, x, y)
             st["manual_train_expected"] = len(live)
+            st["manual_train_users"] = sorted(live_users)
         runner.party_train_map(0, map_id, x, y)
         return json.dumps({"ok": True, "message":
                            "Da gui START TRAIN TEAM: %d account se ve thanh gan map %d, giu phan khu manual da chon, lap PT va leader keo toi X %d Y %d" %
@@ -573,6 +716,8 @@ def set_train_channel_policy_json(auto_mode=False, channel=0):
 
 def run_daily_tasks_json(tasks_json):
     try:
+        if _get_runner()._pstate(0).get("leader_switch_pending"):
+            raise RuntimeError("Đang đổi leader; hãy chờ hoàn tất trước khi chạy Daily")
         tasks = json.loads(str(tasks_json))
         if not isinstance(tasks, list):
             raise ValueError("Danh sach daily khong hop le")

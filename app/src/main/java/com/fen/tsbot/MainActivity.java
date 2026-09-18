@@ -31,11 +31,14 @@ public class MainActivity extends Activity {
     private final List<JSONObject> servers = new ArrayList<>(), maps = new ArrayList<>();
     private Spinner serverSpinner, mapSpinner, modeSpinner, farmPointSpinner; private EditText farmX, farmY; private TextView status, selectionInfo,dailyStatus,updateStatus; private Button dailyStop,updateButton,startFarmButton;
     private SharedPreferences trainPrefs; private boolean restoringTrainSelection=false;
+    private Button switchLeaderButton;
     private View configView; private TeamMapView teamMapView; private AccountManagerView accountManagerView; private FrameLayout pageHost;
     private final Button[] accountNavButtons=new Button[5]; private Button controlNavButton; private int currentPage=0,selectedAccount=0; private JSONArray bottomAccounts=new JSONArray();
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
-    private final Runnable poll = new Runnable() { public void run() { refreshStatus(); refreshMapSnapshot(); refreshAccountsDashboard(); refreshDailyStatus(); handler.postDelayed(this, 2500); } };
+    // Queue co gioi han + bo qua mot nhip poll khi nhip truoc chua xu ly xong. Neu Python/server
+    // cham, Executors.newSingleThreadExecutor cu se tich vo han 4 task moi 2.5 giay va an RAM.
+    private final ThreadPoolExecutor io = new ThreadPoolExecutor(1,1,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(32),new ThreadPoolExecutor.AbortPolicy());
+    private final Runnable poll = new Runnable() { public void run() { if(!io.isShutdown()&&io.getQueue().isEmpty()){refreshStatus();refreshMapSnapshot();refreshAccountsDashboard();refreshDailyStatus();}handler.postDelayed(this,2500); } };
     private final BroadcastReceiver resultReceiver = new BroadcastReceiver() {
         public void onReceive(Context c, Intent i) { String raw=i.getStringExtra("json");status.setText(raw);try{JSONObject r=new JSONObject(raw);String msg=r.optString("message",raw);boolean error=!r.optBoolean("ok");if(accountManagerView!=null)accountManagerView.setActionMessage(msg,error);Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();}catch(Exception e){if(accountManagerView!=null)accountManagerView.setActionMessage(raw,true);} }
     };
@@ -75,6 +78,7 @@ public class MainActivity extends Activity {
         TextView note = text("Bản test kết nối trực tiếp TS Online. Hãy dùng tài khoản thử; mật khẩu không được lưu sau khi đóng app.", 13, Color.rgb(185,198,215));
         note.setPadding(dp(12),dp(10),dp(12),dp(10)); note.setBackgroundColor(CARD); root.addView(note, matchWrap());
         root.addView(section("CẤU HÌNH PARTY"));
+        switchLeaderButton=button("👑 ĐỔI LEADER ONLINE",Color.rgb(145,100,30),Color.WHITE);switchLeaderButton.setOnClickListener(v->showLeaderSwitchDialog());root.addView(switchLeaderButton,matchWrap());
         serverSpinner = spinner(); modeSpinner = spinner(); mapSpinner = spinner(); farmPointSpinner=spinner();
         modeSpinner.setAdapter(adapter(Arrays.asList("Train theo map", "Đứng yên", "Dị giới + train")));
         root.addView(label("Server")); root.addView(serverSpinner, matchWrap());
@@ -90,6 +94,7 @@ public class MainActivity extends Activity {
         LinearLayout allAccountActions=row();Button loginAll=button("🔑  LOGIN ALL",Color.rgb(30,125,200),Color.WHITE);Button logoutAll=button("⏻  LOGOUT ALL",Color.rgb(175,62,72),Color.WHITE);loginAll.setOnClickListener(v->loginAll());logoutAll.setOnClickListener(v->logoutAllSafe());allAccountActions.addView(loginAll,weight());allAccountActions.addView(logoutAll,weight());root.addView(allAccountActions,matchWrap());
         TextView accountHint=text("LOGIN/OUT riêng nằm trong từng tab ACC. LOGIN ALL và LOGOUT ALL thao tác một lần cho toàn bộ account đã cấu hình.",13,Color.rgb(170,195,220));accountHint.setPadding(dp(10),dp(12),dp(10),dp(12));accountHint.setBackgroundColor(CARD);root.addView(accountHint,matchWrap());
         root.addView(section("TRẠNG THÁI / LOG"));
+        Button packetJson=button("📦 XEM PACKET SERVER JSON",Color.rgb(38,75,119),Color.WHITE);packetJson.setOnClickListener(v->showServerPackets());root.addView(packetJson,matchWrap());
         status = text("Đang nạp dữ liệu server và bản đồ…", 13, Color.rgb(162,220,255));
         status.setTypeface(Typeface.MONOSPACE); status.setPadding(dp(12),dp(12),dp(12),dp(12)); status.setBackgroundColor(Color.rgb(5,12,22));
         root.addView(status, new LinearLayout.LayoutParams(-1, dp(300)));
@@ -107,6 +112,9 @@ public class MainActivity extends Activity {
             public void onError(String message){runOnUiThread(()->{resetUpdateButton();updateStatus.setText("Không kiểm tra được cập nhật: "+message);Toast.makeText(MainActivity.this,"Lỗi cập nhật: "+message,Toast.LENGTH_LONG).show();});}
         });
     }
+private void showLeaderSwitchDialog(){List<String> names=new ArrayList<>(),ids=new ArrayList<>();for(int i=0;i<bottomAccounts.length();i++){JSONObject a=bottomAccounts.optJSONObject(i);if(a!=null&&a.optBoolean("online")){ids.add(a.optString("user"));names.add(a.optString("name",a.optString("user"))+(a.optBoolean("leader")?" • LEADER HIỆN TẠI":""));}}if(ids.isEmpty()){Toast.makeText(this,"Cần ít nhất 1 account online",Toast.LENGTH_LONG).show();return;}new AlertDialog.Builder(this).setTitle("Chọn leader mới").setItems(names.toArray(new String[0]),(d,index)->new AlertDialog.Builder(this).setTitle("Đổi leader sang "+names.get(index)).setMessage("Nếu chưa có party: chọn trực tiếp, không cần ACC1 online. Nếu đã có party: chờ hết trận → leader cũ kéo team về SAFE → giải tán party → leader mới mời lại team. Không logout account. Nếu đang farm sẽ tiếp tục bãi đã chọn sau khi đổi xong.").setNegativeButton("HỦY",null).setPositiveButton("ĐỔI LEADER",(confirm,w)->switchOnlineLeader(ids.get(index))).show()).setNegativeButton("ĐÓNG",null).show();}
+    private void switchOnlineLeader(String user){switchLeaderButton.setEnabled(false);switchLeaderButton.setText("⌛ ĐANG ĐỔI LEADER…");startFarmButton.setEnabled(false);status.setText("Đang chờ hết trận, về SAFE và lập lại party với leader mới…");io.execute(()->{try{JSONObject r=new JSONObject(Python.getInstance().getModule("agent_bridge").callAttr("switch_leader_json",user).toString());runOnUiThread(()->{if(isFinishing()||isDestroyed())return;switchLeaderButton.setEnabled(true);switchLeaderButton.setText("👑 ĐỔI LEADER ONLINE");startFarmButton.setEnabled(true);status.setText(r.optString("message"));Toast.makeText(this,r.optString("message"),Toast.LENGTH_LONG).show();refreshAccountsDashboard();});}catch(Exception e){runOnUiThread(()->{if(isFinishing()||isDestroyed())return;switchLeaderButton.setEnabled(true);switchLeaderButton.setText("👑 ĐỔI LEADER ONLINE");startFarmButton.setEnabled(true);status.setText("Lỗi đổi leader: "+e.getMessage());});}});}
+    private void showServerPackets(){io.execute(()->{try{String raw=Python.getInstance().getModule("agent_bridge").callAttr("server_packets_json").toString();runOnUiThread(()->{if(isFinishing()||isDestroyed())return;TextView content=text(raw,11,Color.WHITE);content.setTypeface(Typeface.MONOSPACE);content.setTextIsSelectable(true);content.setPadding(dp(12),dp(12),dp(12),dp(12));ScrollView scroll=new ScrollView(this);scroll.setBackgroundColor(BG);scroll.addView(content);new AlertDialog.Builder(this).setTitle("100 packet server gần nhất • JSON").setView(scroll).setPositiveButton("ĐÓNG",null).show();});}catch(Exception e){runOnUiThread(()->Toast.makeText(this,"Không đọc được packet JSON: "+e.getMessage(),Toast.LENGTH_LONG).show());}});}
 
     private void downloadUpdate(UpdateManager.Release release){
         updateButton.setText("⬇  ĐANG TẢI APK…");updateButton.setEnabled(false);
@@ -210,5 +218,5 @@ public class MainActivity extends Activity {
     private Button button(String s,int bg,int fg){Button b=new Button(this);b.setText(s);b.setTextColor(fg);b.setBackgroundColor(bg);return b;} private View space(int h){Space s=new Space(this);s.setLayoutParams(new LinearLayout.LayoutParams(1,dp(h)));return s;}
     private LinearLayout.LayoutParams matchWrap(){return new LinearLayout.LayoutParams(-1,-2);} private LinearLayout.LayoutParams weight(){LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-2,1);p.setMargins(dp(4),dp(8),dp(4),dp(8));return p;} private int dp(int n){return (int)(n*getResources().getDisplayMetrics().density+.5f);}
     @Override protected void onResume(){super.onResume();handler.post(poll);} @Override protected void onPause(){saveTrainSelection();handler.removeCallbacks(poll);super.onPause();}
-    @Override protected void onDestroy(){unregisterReceiver(resultReceiver);io.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){handler.removeCallbacksAndMessages(null);try{unregisterReceiver(resultReceiver);}catch(Exception ignored){}io.getQueue().clear();io.shutdownNow();super.onDestroy();}
 }
