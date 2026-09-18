@@ -8,7 +8,7 @@ import unittest
 from collections import deque
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1] / "app/src/main/python"
 
@@ -21,6 +21,76 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_team_json_is_bounded_and_omits_credentials(self):
+        import io
+        cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, map_display_name=lambda _: "Trác Quận")
+        st = {"lock": threading.RLock(), "ui_dg_users": {"leader"}}
+        client = SimpleNamespace(running=True, current_map=12001, pos=(100, 200), current_channel=2, party_members=[])
+        runner = SimpleNamespace(_pstate=lambda _: st, _log_path="fake.log",
+                                 party_accounts=lambda _: [("leader", "secret-password", True, 0)],
+                                 account_clients={"leader": client},
+                                 account_status=lambda _: {"char": "Yêu Quái"},
+                                 get_account_task=lambda _: {"task": "chờ member", "phase": "wait", "elapsed": 12})
+        ns = {"_get_runner": lambda: runner, "json": json, "time": time}
+        fn = function("agent_bridge.py", "team_debug_json", ns)
+        data = ("waiting\n" * 350 + "password=secret-password\naccess_token=secret-token\n").encode()
+        with patch.dict("sys.modules", {"train_bot": SimpleNamespace(config=cfg)}), patch("builtins.open", return_value=io.BytesIO(data)):
+            result = fn()
+        self.assertNotIn("secret-password", result)
+        self.assertNotIn("secret-token", result)
+        snapshot = json.loads(result)
+        self.assertEqual(len(snapshot["logs"]), 300)
+        self.assertEqual(snapshot["accounts"][0]["activity"], "chờ member")
+        self.assertEqual(snapshot["coordination"]["ui_dg_users"], ["leader"])
+
+    def test_farm_requires_exact_server_roster(self):
+        leader = SimpleNamespace(current_map=12001, current_channel=2, party_members=[b"other"])
+        member = SimpleNamespace(running=True, current_map=12001, current_channel=2, self_entity=b"member")
+        ns = {"config": SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}),
+              "account_clients": {"member": member}}
+        fn = function("train_bot/run_party_digioi.py", "_farm_party_missing", ns)
+        self.assertEqual(fn(0, ["leader", "member"], leader), ["member"])
+        leader.party_members = [b"member"]
+        self.assertEqual(fn(0, ["leader", "member"], leader), [])
+        member.running = False
+        self.assertEqual(fn(0, ["leader", "member"], leader), ["member"])
+
+    def test_dg_handoff_waits_for_all_command_loops_and_dispatches_once(self):
+        st = {"lock": threading.RLock(), "cmd_gen": 7, "ui_dg_train_target": (21001, 100, 200)}
+        clients = {u: SimpleNamespace(running=True, in_di_gioi=lambda: False,
+                                     _dg_train_ready_token=7 if u == "leader" else None,
+                                     stop_run_around=Mock()) for u in ("leader", "member")}
+        callbacks = []
+        dispatch = Mock(side_effect=lambda *args: st.update(cmd_gen=8))
+        sleeps = []
+        def sleep(_seconds):
+            self.assertEqual(dispatch.call_count, 0)
+            sleeps.append(True)
+            clients["member"]._dg_train_ready_token = 7
+        fake_threads = SimpleNamespace(Thread=lambda **kw: SimpleNamespace(start=lambda: callbacks.append(kw["target"])))
+        cfg = SimpleNamespace(PARTY_CONFIG={0: {}}, PARTY_LEADER_ACC={0: "leader"})
+        ns = {"config": cfg, "account_clients": clients, "threading": fake_threads,
+              "time": SimpleNamespace(time=lambda: 100, sleep=sleep),
+              "log": logging.getLogger("test"), "_dt_party_usernames": lambda _: list(clients),
+              "party_train_map": dispatch}
+        fn = function("train_bot/run_party_digioi.py", "_android_dg_train_handoff", ns)
+        fn(0, st)
+        self.assertEqual(cfg.PARTY_CONFIG[0]["mode"], "stand")
+        callbacks[0]()
+        self.assertEqual(len(sleeps), 1)
+        dispatch.assert_called_once_with(0, 21001, 100, 200)
+        self.assertEqual(st["manual_train_users"], ["leader", "member"])
+        self.assertFalse(st["ui_dg_transition_pending"])
+        fn(0, st)
+        self.assertEqual(len(callbacks), 1)
+
+    def test_dg_snapshot_excludes_offline_configured_accounts(self):
+        ns = {"_pstate": lambda _: {"ui_dg_users": {"leader", "member"}},
+              "party_accounts": lambda _: [(u, "", False, 0) for u in ("leader", "member", "offline")],
+              "account_stops": {}}
+        fn = function("train_bot/run_party_digioi.py", "_dt_party_usernames", ns)
+        self.assertEqual(fn(0), ["leader", "member"])
+
     def test_dg_pursuit_stops_outside_and_during_daily(self):
         tree = ast.parse((ROOT / "train_bot/client.py").read_text())
         node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "sync_area_combat_mode")

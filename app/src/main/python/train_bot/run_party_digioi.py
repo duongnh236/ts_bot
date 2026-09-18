@@ -861,7 +861,10 @@ def _active_party_usernames(pidx):
 
 def _dt_party_usernames(pidx):
     users = []
+    selected = _pstate(pidx).get("ui_dg_users")
     for u, _p, _l, _pk in party_accounts(pidx):
+        if selected is not None and u not in selected:
+            continue
         ev = account_stops.get(u)
         if ev is not None and ev.is_set():
             continue
@@ -2452,6 +2455,74 @@ def _party_khong_thay_nhau(c, pidx, grace=30.0):
     return out
 
 
+def _farm_party_missing(pidx, users, leader):
+    """Verify exact participants against the leader's SERVER roster, not local ACK count."""
+    roster = {bytes(e) for e in (getattr(leader, "party_members", None) or [])}
+    missing = []
+    leader_user = config.PARTY_LEADER_ACC.get(pidx)
+    for user in users:
+        if user == leader_user:
+            continue
+        client = account_clients.get(user)
+        if (client is None or not client.running
+                or client.current_map != leader.current_map
+                or getattr(client, "current_channel", None) != getattr(leader, "current_channel", None)
+                or not getattr(client, "self_entity", None)
+                or bytes(client.self_entity) not in roster):
+            missing.append(user)
+    return missing
+
+
+def _android_dg_train_handoff(pidx, st):
+    """One command after ALL DG workers resume their same-socket command loop."""
+    target = st.get("ui_dg_train_target")
+    if not target or st.get("ui_dg_handoff_started"):
+        return
+    token = st.get("cmd_gen", 0)
+    st["ui_dg_handoff_started"] = True
+    st["ui_dg_transition_pending"] = True
+    st["ui_dg_transition_token"] = token
+    config.PARTY_CONFIG[pidx].update(mode="stand", start_city_id=0)
+
+    def wait_and_dispatch():
+        last_log = 0
+        try:
+            while st.get("cmd_gen", 0) == token and st.get("ui_dg_transition_pending"):
+                users = set(_dt_party_usernames(pidx))
+                missing = []
+                for user in sorted(users):
+                    client = account_clients.get(user)
+                    if (client is None or not client.running or client.in_di_gioi()
+                            or getattr(client, "_dg_train_ready_token", None) != token):
+                        missing.append(user)
+                leader = config.PARTY_LEADER_ACC.get(pidx)
+                if users and leader in users and not missing:
+                    with st["lock"]:
+                        if st.get("cmd_gen", 0) != token:
+                            return
+                        st["manual_train_users"] = sorted(users)
+                        for user in users:
+                            client = account_clients[user]
+                            client.stop_run_around()
+                            client.flee_mode = False
+                            client._ui_auto_battle = True
+                        party_train_map(pidx, *target)
+                        st["ui_dg_transition_pending"] = False
+                    log.info("[party %d] DG -> FARM: du %d account, bat dau gom/phan khu manual/lap party/ra bai", pidx + 1, len(users))
+                    return
+                if time.time() - last_log >= 10:
+                    last_log = time.time()
+                    log.info("[party %d] DG -> FARM: DUNG CHO account thoat DG va san sang: %s | leader=%s", pidx + 1, ", ".join(missing) or "leader offline", leader)
+                time.sleep(1)
+        except Exception:
+            log.exception("[party %d] DG -> FARM: loi chuyen luong, giu team tai diem cho", pidx + 1)
+        finally:
+            with st["lock"]:
+                if st.get("ui_dg_transition_token") == token:
+                    st["ui_dg_transition_pending"] = False
+    threading.Thread(target=wait_and_dispatch, name="dg-train-handoff", daemon=True).start()
+
+
 def _dt_wait_all_digioi_done(pidx, username, label, stopped_fn):
     """MODE digioi_train: acc nay DA XONG DG -> DUNG YEN cho CA PARTY xong DG.
     Du het -> doi pha party sang "train" (moi acc relogin se chay mode train).
@@ -2571,6 +2642,8 @@ def _dt_wait_all_digioi_done(pidx, username, label, stopped_fn):
             if _prepare_train_phase_once():
                 log.info("[%s] DG+Train: CA PARTY (%d acc) da xong Di Gioi -> reset state DG, "
                          "CHUYEN PHA TRAIN", label, n_users or len(users))
+            with st["lock"]:
+                _android_dg_train_handoff(pidx, st)
             return True
         if time.time() - last_log > 60:
             last_log = time.time()
@@ -6584,6 +6657,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     or (_pending_cmd and _pending_cmd[0] == "daily"
                         and st.get("daily_active"))):
                 cmd_gen_handled = max(0, cmd_gen_handled - 1)
+        if st.get("ui_dg_transition_pending") and not c.in_di_gioi():
+            c.stop_run_around()
+            c._dg_train_ready_token = st.get("ui_dg_transition_token")
         disc_gen_handled = st["disc_gen"] # RECONNECT: gen disconnect da xu ly (init = hien tai)
         resync_gen_handled = st["resync_gen"]  # RESYNC party (event 40NPC): gen da xu ly
         # (rally_gen_handled da khoi tao SOM o tren - KHONG lam moi o day, lam moi la nuot mat
@@ -6874,7 +6950,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         # moi mai (dung benh da giet party 19).
                         _mr_g0 = st["reform_gen"]
                         _mr_t0 = time.time()
-                        while joined_member_count(pidx) < expected - 1:
+                        while (joined_member_count(pidx) < expected - 1
+                               or (kind == "train" and _farm_party_missing(pidx, users, c))):
                             _nghe_lenh_kenh()   # lenh dieu phoi phai nghe duoc o MOI vong cho
                             if not c.running or _stopped():
                                 return
@@ -7305,9 +7382,15 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             if chosen:
                                 reset_party_joined(pidx)
                             invite_start = time.time()
-                            while joined_member_count(pidx) < expected - 1:
-                                if not c.running or _stopped() or time.time() - invite_start > 120:
-                                    break
+                            _farm_users = st.get("manual_train_users") or _active_party_usernames(pidx)
+                            while _farm_party_missing(pidx, _farm_users, c):
+                                if not c.running or _stopped() or st.get("cmd_gen", 0) != cmd_gen_handled:
+                                    return
+                                if time.time() - invite_start > 120:
+                                    log.warning("[%s] FARM: chua du roster server, DUNG CHO: %s", label,
+                                                ", ".join(_farm_party_missing(pidx, _farm_users, c)))
+                                    set_account_activity(username, "Farm: cho du party server", phase="wait")
+                                    return
                                 try:
                                     c.invite_members(gap=1.0)
                                 except Exception:
@@ -10694,7 +10777,7 @@ def _dieu_phoi_quyet(pidx, st, song, lech_tu):
     if st.get("ui_train_target"):
         pha = "train"
     ly_do = ""
-    if raw_mode == "digioi_train" and pha == "digioi":
+    if raw_mode == "digioi_train" and pha == "digioi" and not st.get("ui_dg_train_target"):
         # CA PARTY het gio DG -> DOI PHA. Dieu phoi tu ket luan tu dong ho tung acc.
         con_gio = [u for u, c in song if not _het_gio_dg(c)]
         if song and not con_gio:
@@ -11389,6 +11472,7 @@ def _dieu_phoi_loop():
                     continue
                 st = _pstate(pidx)
                 if (st.get("leader_switch_pending") or st.get("ui_mode_restart_users")
+                        or st.get("ui_dg_transition_pending")
                         or st.get("daily_active") or st.get("daily_hold_after_stop")):
                     continue
                 kh, ly_do, lech_tu[pidx] = _dieu_phoi_quyet(pidx, st, song, lech_tu.get(pidx))

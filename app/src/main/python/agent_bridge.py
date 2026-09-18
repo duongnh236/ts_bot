@@ -17,6 +17,57 @@ _account_slots = {}
 _selected_leader_user = None
 
 
+def team_debug_json():
+    """Bounded coordination snapshot: no passwords, auth or raw packet payloads."""
+    import re
+    from train_bot import config
+    runner = _get_runner()
+    st = runner._pstate(0)
+    with st["lock"]:
+        coordination = {}
+        for key in ("dt_phase", "ui_dg_transition_pending", "ui_dg_users",
+                    "ui_dg_train_target", "ui_train_target", "manual_train_users",
+                    "train_channel_manual", "daily_active", "cmd_gen", "cmd",
+                    "reform_gen", "n_members"):
+            value = st.get(key)
+            coordination[key] = sorted(value) if isinstance(value, set) else value
+    accounts = []
+    for user, _password, _leader, _pet in runner.party_accounts(0):
+        c = runner.account_clients.get(user)
+        state = runner.account_status(user) or {}
+        task = runner.get_account_task(user) or {}
+        accounts.append({"user": user, "online": bool(c and c.running),
+                         "name": state.get("char", ""),
+                         "area": config.map_display_name(int(getattr(c, "current_map", 0) or 0)),
+                         "map": getattr(c, "current_map", None),
+                         "position": getattr(c, "pos", None),
+                         "channel": getattr(c, "current_channel", None),
+                         "activity": str(task.get("task", "")),
+                         "phase": str(task.get("phase", "")),
+                         "waiting_seconds": task.get("elapsed", 0),
+                         "party_members": len(getattr(c, "party_members", None) or [])})
+    lines = []
+    error = ""
+    try:
+        with open(runner._log_path, "rb") as f:
+            f.seek(0, 2)
+            offset = max(0, f.tell() - 256 * 1024)
+            f.seek(offset)
+            raw = f.read(256 * 1024).decode("utf-8", errors="replace")
+        if offset:
+            raw = raw.partition("\n")[2]
+        sensitive = re.compile(r"password|passwd|access.?token|refresh.?token|authorization|bearer|credential|login.?packet|session.?key|0x(?:01|02)\b", re.I)
+        lines = [line[:1500] for line in raw.splitlines() if not sensitive.search(line)][-300:]
+    except FileNotFoundError:
+        pass
+    except Exception:
+        error = "Không đọc được nhật ký team"
+    return json.dumps({"schema": 1, "exported_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                       "leader": config.PARTY_LEADER_ACC.get(0),
+                       "coordination": coordination, "accounts": accounts,
+                       "logs": lines, "error": error}, ensure_ascii=False, indent=2, default=str)
+
+
 def server_packets_json():
     from train_bot.packet_trace import snapshot
     return json.dumps(snapshot(100), ensure_ascii=False, indent=2)
@@ -641,6 +692,12 @@ def start_farm_mode_json(mode, map_id, x, y):
                                          fight_legion_boss=False, do_van_tieu=False)
             st["dt_phase"] = "digioi"
             st["dt_train_prepared"] = False
+            st["ui_dg_users"] = {u for u, _ in live}
+            st["ui_dg_train_target"] = (map_id, x, y)
+            st["ui_dg_transition_pending"] = False
+            st["ui_dg_handoff_started"] = False
+            for _, c in live:
+                c._dg_train_ready_token = None
             st["ui_train_target"] = None  # Khong de coordinator ra farm khi DG chua xong.
             st["cmd"] = None
             st["cmd_gen"] += 1
