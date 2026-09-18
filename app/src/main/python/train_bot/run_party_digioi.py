@@ -2455,85 +2455,80 @@ def _party_khong_thay_nhau(c, pidx, grace=30.0):
     return out
 
 
+def _workflow_services():
+    """Explicit legacy adapter. Workflow modules never reach into runner globals."""
+    from types import SimpleNamespace
+    from .workflows.lifecycle import activate_locked
+    return SimpleNamespace(activate_workflow=activate_locked, **{
+        "_dt_party_usernames": _dt_party_usernames,
+        "_nearest_safe": _nearest_safe,
+        "_pstate": _pstate,
+        "_workflow_leave_current_area": _workflow_leave_current_area,
+        "account_clients": account_clients,
+        "config": config,
+        "dat_party_dang_gom": dat_party_dang_gom,
+        "is_account_running": is_account_running,
+        "log": log,
+        "party_accounts": party_accounts,
+        "party_train_map": party_train_map,
+        "set_account_activity": set_account_activity,
+        "threading": threading,
+        "time": time,
+    })
+
+
+def _workflow_leave_current_area(c, stopped_fn):
+    """Compatibility entry point; implementation lives in workflows.common."""
+    from .workflows.common import _workflow_leave_current_area as implementation
+    return implementation(c, stopped_fn, services=_workflow_services())
+
+
+def _daily_return_to_city(c, username, stopped_fn):
+    """Compatibility entry point; implementation lives in workflows.daily."""
+    from .workflows.daily import _daily_return_to_city as implementation
+    return implementation(c, username, stopped_fn, services=_workflow_services())
+
+
 def _open_route_member_invites(client, st, username, label, generation):
-    """Open invitation gate BEFORE waiting for the leader's party-ready event."""
-    if (not client.running or st.get("cmd_gen", 0) != generation
-            or getattr(client, "_individual_safe_logout", False)
-            or getattr(client, "_daily_hold", False)):
-        return False
-    client.set_party_invite_ready(True)
-    set_account_activity(username, "Farm: da tap ket, cho leader moi party", phase="wait")
-    log.info("[%s] FARM: da mo nhan loi moi party tai map %s/k%s", label,
-             client.current_map, getattr(client, "current_channel", None))
-    return True
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _open_route_member_invites as implementation
+    return implementation(client, st, username, label, generation, services=_workflow_services())
 
 
-def _farm_party_missing(pidx, users, leader):
-    """Verify exact participants against the leader's SERVER roster, not local ACK count."""
-    roster = {bytes(e) for e in (getattr(leader, "party_members", None) or [])}
-    missing = []
-    leader_user = config.PARTY_LEADER_ACC.get(pidx)
-    for user in users:
-        if user == leader_user:
-            continue
-        client = account_clients.get(user)
-        if (client is None or not client.running
-                or client.current_map != leader.current_map
-                or getattr(client, "current_channel", None) != getattr(leader, "current_channel", None)
-                or not getattr(client, "self_entity", None)
-                or bytes(client.self_entity) not in roster):
-            missing.append(user)
-    return missing
+def _android_train_recovery_tick(c, st, username, pidx, stopped_fn):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _android_train_recovery_tick as implementation
+    return implementation(c, st, username, pidx, stopped_fn, services=_workflow_services())
+
+
+def _train_adopt_map_channel(st, map_id, channel, generation=None):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _train_adopt_map_channel as implementation
+    return implementation(st, map_id, channel, generation, services=_workflow_services())
+
+
+def _train_fallback_full_channel(c, st, users, cmd, generation, label):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _train_fallback_full_channel as implementation
+    return implementation(c, st, users, cmd, generation, label, services=_workflow_services())
+
+
+def _train_retry_leader_channel(c, st, username, label, generation, stopped_fn):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _train_retry_leader_channel as implementation
+    return implementation(c, st, username, label, generation, stopped_fn, services=_workflow_services())
+
+
+def _farm_party_missing(pidx, users, leader, skip=()):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import _farm_party_missing as implementation
+    return implementation(pidx, users, leader, skip, services=_workflow_services())
 
 
 def _android_dg_train_handoff(pidx, st):
-    """One command after ALL DG workers resume their same-socket command loop."""
-    target = st.get("ui_dg_train_target")
-    if not target or st.get("ui_dg_handoff_started"):
-        return
-    token = st.get("cmd_gen", 0)
-    st["ui_dg_handoff_started"] = True
-    st["ui_dg_transition_pending"] = True
-    st["ui_dg_transition_token"] = token
-    config.PARTY_CONFIG[pidx].update(mode="stand", start_city_id=0)
-
-    def wait_and_dispatch():
-        last_log = 0
-        try:
-            while st.get("cmd_gen", 0) == token and st.get("ui_dg_transition_pending"):
-                users = set(_dt_party_usernames(pidx))
-                missing = []
-                for user in sorted(users):
-                    client = account_clients.get(user)
-                    if (client is None or not client.running or client.in_di_gioi()
-                            or getattr(client, "_dg_train_ready_token", None) != token):
-                        missing.append(user)
-                leader = config.PARTY_LEADER_ACC.get(pidx)
-                if users and leader in users and not missing:
-                    with st["lock"]:
-                        if st.get("cmd_gen", 0) != token:
-                            return
-                        st["manual_train_users"] = sorted(users)
-                        for user in users:
-                            client = account_clients[user]
-                            client.stop_run_around()
-                            client.flee_mode = False
-                            client._ui_auto_battle = True
-                        party_train_map(pidx, *target)
-                        st["ui_dg_transition_pending"] = False
-                    log.info("[party %d] DG -> FARM: du %d account, bat dau gom/phan khu manual/lap party/ra bai", pidx + 1, len(users))
-                    return
-                if time.time() - last_log >= 10:
-                    last_log = time.time()
-                    log.info("[party %d] DG -> FARM: DUNG CHO account thoat DG va san sang: %s | leader=%s", pidx + 1, ", ".join(missing) or "leader offline", leader)
-                time.sleep(1)
-        except Exception:
-            log.exception("[party %d] DG -> FARM: loi chuyen luong, giu team tai diem cho", pidx + 1)
-        finally:
-            with st["lock"]:
-                if st.get("ui_dg_transition_token") == token:
-                    st["ui_dg_transition_pending"] = False
-    threading.Thread(target=wait_and_dispatch, name="dg-train-handoff", daemon=True).start()
+    """Compatibility entry point; implementation lives in workflows.digioi."""
+    from .workflows.digioi import _android_dg_train_handoff as implementation
+    return implementation(pidx, st, services=_workflow_services())
 
 
 def _dt_wait_all_digioi_done(pidx, username, label, stopped_fn):
@@ -2769,6 +2764,14 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         Hai member DA sang 45 dung lenh; leader ket trong vong moi nen van o 6, roi chinh no
         doi HO sang kenh cua no.
         """
+        # GUI channel commands own the safe rally; never switch behind that flow.
+        if (st.get("cmd") or (None,))[0] == "channel":
+            return
+        if st.get("ui_train_phase") == "farming":
+            return  # Coordinator must queue the safe team command, not switch this account.
+        if (st.get("train_channel_map") is not None
+                and st.get("train_channel_map") != c.current_map):
+            return
         _kd = st.get("kenh_dich")
         if not _kd:
             return
@@ -2853,6 +2856,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             ok = True
             log.info("[%s] CHUYEN PHA train - GIU NGUYEN ket noi (khong dang nhap lai)", label)
         while not ok and attempt < 6:
+            if c is not None and int(getattr(c, "disconnect_cause", 0) or 0):
+                return  # connect() may raise after receiving a kick; never retry that session.
             if _stopped():
                 log.info("[%s] STOP truoc khi login xong", label); return
             try:
@@ -2869,8 +2874,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 # gui ngay trong connect(). Doc thang config.PARTY_CONFIG chu khong dung bien pcfg
                 # (pcfg mai dong ~1153 moi co, tuc SAU connect). Mac dinh BAT = giong client that.
                 _pc0 = (getattr(config, "PARTY_CONFIG", {}) or {}).get(pidx, {}) or {}
-                c.death_return_town = bool(_pc0.get("death_return_town", True))
-                c.pet_death_return_town = bool(_pc0.get("pet_death_return_town", True))
+                death = (getattr(config, "ACCOUNT_DEATH", {}) or {}).get(username, {})
+                c.death_return_town = bool(death.get("character", _pc0.get("death_return_town", True)))
+                c.pet_death_return_town = bool(death.get("pet", _pc0.get("pet_death_return_town", True)))
                 # VAN TIEU per-acc (bang setting Hoi HP/SP cua acc). Mac dinh: BAT, KHONG tick con
                 # nao -> vantieu_candidates() tra ve TAT CA = y het hanh vi cu.
                 _vt0 = (getattr(config, "ACCOUNT_VANTIEU", {}) or {}).get(username, {}) or {}
@@ -2884,6 +2890,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     time.sleep(1)
                 if ok:
                     break
+                if int(getattr(c, "disconnect_cause", 0) or 0):
+                    log.warning("[%s] SERVER KICK ma %s khi login -> OFF, khong retry", label, c.disconnect_cause)
+                    return
                 # SERVER CHAN TOC DO (S:000-000 ma 90): thu lai sau ~20s van bi chan tiep -> ket
                 # vong. Log that (party 6, 23:15-23:17): taot001/taot003 lap lai deu dan moi ~22s,
                 # lan nao cung "DANG NHAP QUA THUONG XUYEN". Backoff o supervisor KHONG cuu duoc vi
@@ -2962,6 +2971,14 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         # chay ve safe TRUOC cac viec login chores (qua, van tieu, shop...) de khoi dung giua bai
         # quai lau roi bi keo tran.
         pcfg = getattr(config, "PARTY_CONFIG", {}).get(pidx, {})
+        _ui_pending_train = ((st.get("ui_train_dispatch_gen") == st.get("cmd_gen")
+                              and st.get("ui_train_phase") != "farming")
+                             or (is_reconnect and bool(st.get("ui_train_target"))))
+        if _ui_pending_train or st.get("daily_active"):
+            # Reconnect resumes the GUI command, NOT the old native DG/train startup route.
+            pcfg = dict(pcfg, mode="stand", start_city_id=0, train_pick="", do_daily=False,
+                        auto_world_boss=False, auto_team_dungeon=False, fight_legion_boss=False,
+                        do_van_tieu=False)
         # NHOM "TU DON TUI DO" phai gan NGAY O DAY (khong de xuong duoi cung voi cac config khac):
         # decompose_junk_scrolls() / discard_junk_items() / sell_noi_dat() duoc goi trong khoi
         # "viec hang ngay sau login" o TREN cho gan config cu -> luc do co van la mac dinh
@@ -3251,7 +3268,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         # Account reconnect vao session Android phai phuc hoi bai do AUTO BATTLE da chon,
         # khong khoi tao lai bang mode=stand/map 0 cua nut Login.
         _ui_target_setup = st.get("ui_train_target")
-        if _ui_target_setup:
+        if _ui_target_setup and not _ui_pending_train and not st.get("daily_active"):
             try:
                 sc = int(_ui_target_setup[0])
                 mode = "train"
@@ -6670,10 +6687,11 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # Neu acc reconnect/login dung luc GUI vua phat lenh DI MAP, thread moi khong duoc coi
             # cmd_gen hien tai la "da xu ly". Khong thi acc do khong report AAA, ca party cho thieu
             # nguoi roi tuong sai map -> teleport/relogin lung tung.
-            if ((_pending_cmd and _pending_cmd[0] in ("route", "train")
+            if (not st.get("ui_leader_recover") and username not in st.get("ui_member_recover", ())
+                    and ((_pending_cmd and _pending_cmd[0] in ("route", "train")
                     and not st["manual_route_done"].is_set())
                     or (_pending_cmd and _pending_cmd[0] == "daily"
-                        and st.get("daily_active"))):
+                        and st.get("daily_active")))):
                 cmd_gen_handled = max(0, cmd_gen_handled - 1)
         if st.get("ui_dg_transition_pending") and not c.in_di_gioi():
             c.stop_run_around()
@@ -6803,6 +6821,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 last_continue = 0.0
                 logged_continue = False
                 while not event.wait(0.5 if gate_follow else 1.0):
+                    if kind == "train" and (st.get("ui_leader_recover") or st.get("train_channel_regroup")):
+                        return False
                     if not c.running or _stopped():
                         return False
                     if int(st.get("cmd_gen", 0) or 0) != int(cmd_gen_handled):
@@ -6848,12 +6868,17 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 # can thiep, va vong co timeout huu han roi tra False - khong ket vinh vien duoc.
                 t0 = time.time()
                 while True:
+                    if kind == "train" and (st.get("ui_leader_recover") or st.get("train_channel_regroup")):
+                        return False
                     if not c.running or _stopped():
                         return False
                     if st.get("cmd_gen", 0) != cmd_gen_handled:
                         return False
                     with st["lock"]:
                         n = sum(bool(arrived) for arrived in st.get("manual_route_city_arrived", {}).values())
+                    if kind == "train":
+                        absent = set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ()))
+                        n += sum(1 for u in absent if not st.get("manual_route_city_arrived", {}).get(u))
                     if n >= expected:
                         return True
                     if time.time() - t0 > timeout:
@@ -6948,14 +6973,19 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 gather_flag = int(plan["flag"])
                 expected = max(1, int(plan.get("expected", 1)))
                 users = list(plan.get("users") or _running_party_usernames(pidx))
-                all_at_source = _manual_route_all_at_source(source, expected)
+                all_at_source = False if kind == "train" else _manual_route_all_at_source(source, expected)
                 if all_at_source is None:
                     return
                 if not all_at_source:
-                    c.flee_mode = True
+                    c.flee_mode = False
                     try:
-                        c.pre_route_town_hop()
-                        c.go_to_town(gather_city, gather_flag)
+                        if kind == "train":
+                            _workflow_leave_current_area(c, lambda: (
+                                _stopped() or st.get("cmd_gen") != cmd_gen_handled))
+                            c.go_to_town(gather_city, gather_flag, tries=5, wait=2.0, battle_grace=0.0)
+                        else:
+                            c.pre_route_town_hop()
+                            c.go_to_town(gather_city, gather_flag)
                     except Exception as e:
                         log.warning("[%s] manual route: loi ve thanh tap ket %s: %s",
                                     label, gather_city, e)
@@ -6968,7 +6998,40 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     log.info("[%s] manual route: ca party da o map AAA=%s -> lap party tai cho",
                              label, source)
 
-                do_channel_sync()
+                if kind == "train":
+                    if route_leader:
+                        channel = int(getattr(c, "current_channel", 0) or 0)
+                        if channel <= 0:
+                            raise RuntimeError("Chưa có phân khu live của leader tại thành")
+                        fallback = st.get("manual_train_fallback")
+                        if fallback and fallback[0] == gen and fallback[1] == c.current_map:
+                            channel = int(fallback[2])
+                        st["train_channel_map"] = c.current_map
+                        st["manual_train_channel"] = channel
+                        st["train_channel_manual"] = channel  # From leader's LIVE city channel, not stale UI choice.
+                        st["kenh_ghim"] = channel
+                        st["manual_train_channel_ready"].set()
+                    elif not _wait_event(st["manual_train_channel_ready"], "phan khu leader", timeout=120):
+                        return False
+                    c._train_capacity_fallback = (
+                        (lambda: _train_fallback_full_channel(c, st, users, cmd, gen, label))
+                        if route_leader else None)
+                    try:
+                        city_sync_ok = _train_retry_leader_channel(c, st, username, label, gen, _stopped)
+                    finally:
+                        c._train_capacity_fallback = None
+                    from .workflows.city_exit import gather as gather_outside_city
+                    if not gather_outside_city(c, st, username, users, gen, gather_city, dest,
+                                               city_sync_ok, route_leader, _stopped,
+                                               services=_workflow_services()):
+                        return False
+                    exterior = st.get("train_city_sync") or {}
+                    if exterior.get("generation") == gen and exterior.get("outside"):
+                        source = int(exterior["outside"])  # Do not drag the newly formed party back into town.
+                    c.flee_mode = False
+                    c.combat_ready()
+                else:
+                    do_channel_sync()
                 if route_leader:
                     log.info("[%s] manual route: xong sync kenh -> lap party tam de keo map",
                              label)
@@ -6986,16 +7049,20 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         # moi mai (dung benh da giet party 19).
                         _mr_g0 = st["reform_gen"]
                         _mr_t0 = time.time()
-                        while (joined_member_count(pidx) < expected - 1
-                               or (kind == "train" and _farm_party_missing(pidx, users, c))):
-                            _nghe_lenh_kenh()   # lenh dieu phoi phai nghe duoc o MOI vong cho
-                            if not c.running or _stopped():
+                        while (_farm_party_missing(pidx, users, c, skip=set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ()))) if kind == "train"
+                               else joined_member_count(pidx) < expected - 1):
+                            if (not c.running or _stopped() or st.get("cmd_gen") != gen
+                                    or (kind == "train" and st.get("train_channel_regroup"))):
                                 return
-                            _resync_ck(st, username)
-                            if st["reform_gen"] > _mr_g0:
+                            if kind == "train" and _train_fallback_full_channel(c, st, users, cmd, gen, label):
+                                return
+                            if kind != "train":
+                                _nghe_lenh_kenh()
+                                _resync_ck(st, username)
+                            if kind != "train" and st["reform_gen"] > _mr_g0:
                                 log.info("[%s] manual route: dieu phoi doi huong -> bo moi", label)
                                 return
-                            if time.time() - _mr_t0 > READY_WAIT_REFORM_SEC:
+                            if kind != "train" and time.time() - _mr_t0 > READY_WAIT_REFORM_SEC:
                                 log.warning("[%s] manual route: %ds chua du party (%d/%d) -> de DIEU PHOI ra lenh gom",
                                             label, int(READY_WAIT_REFORM_SEC),
                                             joined_member_count(pidx) + 1, expected)
@@ -7006,7 +7073,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                                 pass
                             if time.time() - last_inv_log > 10:
                                 log.info("[%s] manual route: CHO DU PARTY roi moi keo, joined=%d/%d",
-                                         label, joined_member_count(pidx), expected - 1)
+                                         label, (expected - 1 - len(_farm_party_missing(pidx, users, c, skip=set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ()))))) if kind == "train" else joined_member_count(pidx), expected - 1)
+                                if kind == "train":
+                                    log.info("[%s] FARM: con thieu party: %s", label, ", ".join(_farm_party_missing(pidx, users, c, skip=set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ())))))
                                 last_inv_log = time.time()
                             time.sleep(4)
                         _invite_whitelist_followers_if_bot_party_ready(c, st, pidx, label, force=True)
@@ -7016,7 +7085,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             pass
                         st["manual_route_party_ready"].set()
                         log.info("[%s] manual route: party joined=%d/%d",
-                                 label, joined_member_count(pidx), expected - 1)
+                                 label, len(c.party_members or []) if kind == "train" else joined_member_count(pidx), expected - 1)
                     else:
                         if not _wait_event(st["manual_route_party_ready"], "leader lap party", timeout=None):
                             return
@@ -7028,9 +7097,17 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     def _route_retry(reason):
                         route_restart["needed"] = True
                         route_restart["reason"] = reason
+                        if kind == "train" and st.get("train_channel_regroup"):
+                            return  # Safe regroup owns recovery; do not overwrite it with route retry.
                         with st["lock"]:
+                            if st.get("cmd_gen") != gen:
+                                return  # A new flow owns the team; never overwrite its command.
                             st["cmd"] = tuple(cmd)  # Retry TRAIN must retain TRAIN kind and farm coordinates.
                             st["cmd_gen"] += 1
+                            if kind == "train":
+                                st["ui_train_dispatch_gen"] = st["cmd_gen"]
+                                st["ui_train_phase"] = "gather"
+                                st["manual_train_channel_ready"].clear()
                         log.warning("[%s] manual route: %s -> keo lai tu dau (gen %d)",
                                     label, reason, st["cmd_gen"])
 
@@ -7042,6 +7119,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             return None
                         bad = []
                         for u in users:
+                            if kind == "train" and u in (set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ()))):
+                                continue
                             cc = account_clients.get(u)
                             if cc is None or not getattr(cc, "running", False):
                                 bad.append(f"{u}:off")
@@ -7054,7 +7133,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     bad_since = {}
 
                     def abort():
-                        if _stopped() or not c.running:
+                        if (_stopped() or not c.running or st.get("cmd_gen") != gen
+                                or getattr(c, "_individual_safe_logout", False)):
                             return True
                         bad = _party_maps_bad()
                         now = time.time()
@@ -7072,6 +7152,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             return True
                         t_wait = time.time()
                         while time.time() - t_wait < timeout:
+                            if abort():
+                                return False
                             bad = _party_maps_bad()
                             if not bad and c.current_map == target_map:
                                 return True
@@ -7129,6 +7211,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     except Exception as e:
                         log.warning("[%s] manual route: loi giai tan party tam: %s", label, e)
 
+                return route_completed
+
             # KET BATTLE: cho thoat tran TRUOC khi doi kenh/teleport (switch_channel/leave_party
             # giua battle de bi server bo qua/loi). cap 60s.
             #
@@ -7138,14 +7222,14 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # flee_mode du party van con DU. Log 31/08 09:56:12 (party 19): `-> LENH THU CONG
             # ('channel', 1)` roi NGAY dong sau la `Roi/giai tan party cu`, mai 09:56:13 moi toi
             # khoi doi kenh va bao "VAN dang trong tran".
-            if kind != "channel":
+            if kind not in ("channel", "train", "daily"):
                 c.flee_mode = True
             t0 = time.time()
             while c.in_combat(idle_secs=3.0):
                 if not c.running or _stopped() or time.time() - t0 > 60:
                     break
                 time.sleep(0.5)
-            if kind not in ("channel", "daily") and (is_leader or (kind == "route" and not has_leader)):
+            if kind not in ("channel", "daily", "train") and (is_leader or (kind == "route" and not has_leader)):
                 c.leave_party(); reset_party_joined(pidx)   # huy party cu
             if kind == "channel":
                 ch = cmd[1]
@@ -7154,6 +7238,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 # TU CHON "kenh it nguoi nhat" -> keo ca party sang kenh khac, phu dinh lenh tay
                 # (log 31/08 09:57 party 16: chon kenh 1 -> 09:58:22 picker tu sang kenh 2).
                 with st["lock"]:
+                    st["train_channel_map"] = c.current_map
                     st["kenh_ghim"] = int(ch) if ch else None
                 # DANG TRAIN thi party danh lien tuc: vong cho o tren cap 60s roi BREAK va van
                 # gui switch_channel GIUA TRAN -> server bo qua ma bot van bao "da doi kenh".
@@ -7312,156 +7397,46 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 else:
                     _do_manual_route()
             elif kind == "train":
-                # Snapshot chi gom account da online luc bam. Account con connecting khong
-                # duoc chen vao barrier route va lam leader cho vo han; online sau se rejoin
-                # bang luong dong bo/reconnect binh thuong.
                 if st.get("manual_train_users") and username not in st["manual_train_users"]:
-                    log.info("[%s] START FARM: online sau snapshot -> cho dong bo voi leader", label)
                     return
-                # AUTO BATTLE Android = MOT lenh cho CA TEAM: smart route tu thanh gan nhat,
-                # lap party, leader keo toi map dich roi keo tiep toi dung bai train.
-                # Bat chien dau NGAY truoc khi roi thanh: gap quai tren duong thi ca team danh
-                # xong roi tiep tuc route, khong doi toi khi da dung tai bai moi bat.
+                c.stop_run_around()
                 c._ui_auto_battle = True
                 c.flee_mode = False
                 c.combat_ready()
-                tx, ty = int(cmd[3]), int(cmd[4])
-                dest = int(cmd[2])
-                # Fast-path: neu TOAN BO account online da o dung map train thi khong ep
-                # teleport ve thanh nua. Lap PT ngay tai map hien tai roi leader keo ra bai.
-                _live_clients = []
-                for _u, _p, _l, _k in party_accounts(pidx):
-                    if is_account_running(_u):
-                        _cl = account_clients.get(_u)
-                        if _cl is not None and getattr(_cl, "running", False):
-                            _live_clients.append(_cl)
-                _all_on_train_map = bool(_live_clients) and all(
-                    int(getattr(_cl, "current_map", 0) or 0) == dest for _cl in _live_clients)
-                if _all_on_train_map:
-                    log.info("[%s] START TRAIN TEAM fast-path: %d account da o map %d -> bo qua phu ve thanh",
-                             label, len(_live_clients), dest)
-                else:
-                    _do_manual_route()
-                # Da ra toi map train moi danh gia do dong. Neu co khu khac vang hon va con du
-                # cho, ca team ve SAFE, tan PT, chuyen dong bo, leader moi lai DU PT.
-                if c.current_map == dest:
-                    # Nut BAT DAU FARM chot theo cac account DANG ONLINE luc bam; account cau
-                    # hinh nhung offline khong duoc lam ca team cho vo han.
-                    expected = max(1, int(st.get("manual_train_expected") or
-                                          len([u for u, _p, _l, _k in party_accounts(pidx)
-                                               if is_account_running(u)])))
-                    if is_leader:
-                        chosen = None
-                        with st["lock"]:
-                            _auto_channel = False
-                            _manual_channel = st.get("train_channel_manual")
-                        if not _auto_channel:
-                            if _manual_channel:
-                                chosen = int(_manual_channel)
-                                if chosen == int(getattr(c, "current_channel", 0) or 0):
-                                    chosen = None
-                                    log.info("[%s] START TRAIN TEAM: dang o dung phan khu user chon -> giu nguyen", label)
-                                else:
-                                    log.info("[%s] START TRAIN TEAM: user chon phan khu %s -> ve SAFE va chuyen team",
-                                             label, chosen)
-                            else:
-                                log.info("[%s] START TRAIN TEAM: chua chon phan khu manual -> giu nguyen khu hien tai", label)
-                        else:
-                          try:
-                            c.request_channel_list()
-                            c._chan_event.wait(3.0)
-                            rows = dict(getattr(c, "channels", None) or {})
-                            current = int(getattr(c, "current_channel", 0) or 0)
-                            current_people = rows.get(current, (None, None))[0]
-                            candidates = []
-                            for ch, values in rows.items():
-                                cur, cap = values
-                                if cur is None or cap is None or int(ch) == 1:
-                                    continue
-                                # Team dang o khu hien tai da chiem cho san; khu moi phai con du
-                                # cho cho ca team vao.
-                                free = int(cap) - int(cur)
-                                if int(ch) == current or free >= expected:
-                                    candidates.append((int(cur), -free, int(ch)))
-                            if candidates:
-                                best = min(candidates)[2]
-                                best_people = next(v[0] for k, v in rows.items() if int(k) == best)
-                                if best != current and (current_people is None or int(best_people) < int(current_people)):
-                                    chosen = best
-                                    log.info("[%s] START TRAIN TEAM: khu hien tai %s co %s nguoi, khu %s co %s "
-                                             "-> ve SAFE, tan PT, chuyen khu vang hon", label, current,
-                                             current_people, best, best_people)
-                                else:
-                                    log.info("[%s] START TRAIN TEAM: khu hien tai %s da la khu phu hop -> giu nguyen",
-                                             label, current)
-                          except Exception as e:
-                            log.warning("[%s] START TRAIN TEAM: khong danh gia duoc do dong phan khu -> giu nguyen: %s",
-                                        label, e)
-                        with st["lock"]:
-                            st["manual_train_channel"] = chosen
-                            st["manual_train_channel_ready"].set()
-                    else:
-                        st["manual_train_channel_ready"].wait(15.0)
-                    with st["lock"]:
-                        chosen = st.get("manual_train_channel")
-                        if chosen:
-                            st["auto_best_channel"] = True
-                            st["kenh_ghim"] = int(chosen)
-                            st["kenh_dich"] = None
-                    if chosen:
-                        do_channel_sync()
-                    # Lap/bo sung PT LUON LUON, ke ca khi khong can doi phan khu.
-                    # Truoc day khoi nay nam trong `if chosen`, nen team da o dung map/khu
-                    # co the bi leader keo di khi PT chua du.
-                    c.set_party_invite_ready(True)
-                    if has_leader:
-                        if is_leader:
-                            if chosen:
-                                reset_party_joined(pidx)
-                            invite_start = time.time()
-                            _farm_users = st.get("manual_train_users") or _active_party_usernames(pidx)
-                            while _farm_party_missing(pidx, _farm_users, c):
-                                if not c.running or _stopped() or st.get("cmd_gen", 0) != cmd_gen_handled:
-                                    return
-                                if time.time() - invite_start > 120:
-                                    log.warning("[%s] FARM: chua du roster server, DUNG CHO: %s", label,
-                                                ", ".join(_farm_party_missing(pidx, _farm_users, c)))
-                                    set_account_activity(username, "Farm: cho du party server", phase="wait")
-                                    return
-                                try:
-                                    c.invite_members(gap=1.0)
-                                except Exception:
-                                    pass
-                                time.sleep(3)
-                            try:
-                                c.set_party_strategist()
-                            except Exception:
-                                pass
-                        else:
-                            wait_start = time.time()
-                            while (not is_joined(pidx, c.self_entity) and c.running and not _stopped()
-                                   and time.time() - wait_start < 120):
-                                time.sleep(1)
-                if c.current_map == dest:
-                    if is_leader:
-                        c._wait_combat_clear(idle=2.0, cap=120.0)
-                        ground = c.get_ground_store()
-                        safe_target = (ground.nearest_walkable_world(dest, (tx, ty), c.pos)
-                                       if ground is not None and c.pos else None)
-                        if safe_target is not None:
-                            tx, ty = int(safe_target[0]), int(safe_target[1])
-                        log.info("[%s] (LEADER) START TRAIN TEAM: keo PT toi bai (%d,%d)",
-                                 label, tx, ty)
-                        c.navigate_to(tx, ty, flee=False,
-                                      abort=lambda: st.get("cmd_gen", 0) != cmd_gen_handled or _stopped(),
-                                      require_smart_path=True)
-                    elif has_leader:
-                        log.info("[%s] (member) START TRAIN TEAM: theo leader toi bai (%d,%d)",
-                                 label, tx, ty)
-                    c._ui_auto_battle = True
-                    c.flee_mode = False
-                    c.combat_ready()
+                tx, ty, dest = int(cmd[3]), int(cmd[4]), int(cmd[2])
+                set_account_activity(username, "Farm: phu ve thanh gan bai, cho du doi", phase="wait")
+                if not _do_manual_route():
+                    if is_leader and st.get("cmd_gen") == cmd_gen_handled:
+                        st["ui_train_phase"] = "blocked"
+                    return
+                if st.get("train_channel_regroup") or c.current_map != dest:
+                    return
+                if is_leader:
+                    users = st.get("manual_train_users") or _active_party_usernames(pidx)
+                    missing = _farm_party_missing(pidx, users, c, skip=set(st.get("ui_member_recover", ())) | set(st.get("ui_kicked_users", ())))
+                    if missing:
+                        st["ui_train_phase"] = "blocked"
+                        raise RuntimeError("Chưa đủ party server: " + ", ".join(missing))
+                    set_account_activity(username, "Farm: keo party toi (%s,%s)" % (tx, ty), phase="train")
+                    ok = c.navigate_to(tx, ty, flee=False,
+                                       abort=lambda: st.get("cmd_gen", 0) != cmd_gen_handled or _stopped(),
+                                       require_smart_path=True)
+                    if st.get("cmd_gen") == cmd_gen_handled:
+                        _train_adopt_map_channel(st, c.current_map, c.current_channel, cmd_gen_handled)
+                        log.info("[%s] FARM: bo ghim khu thanh; giu party tai map %s/k%s", label, c.current_map, c.current_channel)
+                        st["ui_train_phase"] = "farming" if ok else "blocked"
+                    training_started = bool(ok)
+                c._ui_auto_battle = True
+                c.flee_mode = False
+                c.combat_ready()
+                return
             elif kind == "daily":
+                mode = raw_mode = "stand"
+                is_digioi = dt_mode = digioi_solo = _solo_without_party = False
+                train_on_map = training_started = False
+                c.stop_run_around()
+                c._ui_auto_battle = False
+                c.set_party_invite_ready(False)
                 tasks = tuple(cmd[1] or ())
                 _daily_labels = {"legion_boss": "Boss quân đoàn", "world_boss": "Boss thế giới",
                                  "solo_dungeon": "Phụ bản đơn", "team_dungeon": "Phụ bản tổ đội",
@@ -7490,6 +7465,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     st["daily_active"] = True
                     st["daily_phase"] = "running"
                     st["daily_user"] = username
+                if not _daily_return_to_city(c, username, lambda: (
+                        _stopped() or st.get("daily_cancel", False) or st.get("cmd_gen") != cmd_gen_handled)):
+                    c._daily_instance_blocked = True
                 _resume_index = int(st.setdefault("daily_resume_indices", {}).get(username, 0))
                 team_done = any(str(t).startswith("team_dungeon") for t in tasks[:_resume_index])
                 for task_index, task in enumerate(tasks):
@@ -7594,6 +7572,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         st["daily_phase"] = "running"
                         st["daily_message"] = "Con %d account dang chay Daily" % len(pending)
                     else:
+                        st["daily_hold_after_stop"] = True  # Completed daily also stays idle until next explicit workflow.
                         st["daily_phase"] = "cancelled" if cancelled else "completed"
                         st["daily_message"] = ("Da dung Daily" if cancelled
                                                else "Da chay xong Daily da chon")
@@ -7616,6 +7595,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                              label)
                     return
                 c.flee_mode = False
+                c._daily_hold = True
+                c._ui_auto_battle = False
+                set_account_activity(username, "Daily: da xong, dung yen", phase="idle")
+                return
             # --- TIEP TUC che do da setup ---
             if mode in ("stand", "city"):
                 # stand: dung yen. city ('ve thanh dung yen'): KHONG teleport ve thanh setting nua,
@@ -7681,7 +7664,36 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             if st.get("leader_switch_pending"):
                 time.sleep(0.5)
                 continue
+            try:
+                _recovery_wait = _android_train_recovery_tick(c, st, username, pidx, _stopped)
+            except Exception as e:
+                log.warning("[%s] Reconnect route: %s; giu online, khong ep relogin", label, e)
+                _recovery_wait = True
+            if _recovery_wait:
+                time.sleep(0.5)
+                continue
+            if st["cmd_gen"] > cmd_gen_handled:
+                cmd_gen_handled = st["cmd_gen"]
+                cmd = st.get("cmd")
+                log.info("[%s] (%s) -> LENH THU CONG UU TIEN %s", label, role, cmd)
+                try:
+                    if cmd: _do_manual_cmd(cmd)
+                except Exception as e:
+                    log.warning("[%s] loi thuc thi lenh thu cong (bo qua): %s", label, e)
+                last_reform = time.time()
+                last_combat = time.time()
+                continue
+            if st.get("ui_train_target") and st.get("ui_train_phase") == "farming":
+                mode = raw_mode = "train"
+                sc = int(st["ui_train_target"][0])
+                tm = (getattr(config, "TRAIN_MAPS", {}) or {}).get(sc)
+                train_on_map = tm is not None
+                train_safes = list((tm or {}).get("safe") or [])
             # VE PET MAC DINH: vong lap nay chay GIUA cac hoat dong (boss/PB/quest goi tuan tu
+            if (st.get("ui_train_dispatch_gen") == st.get("cmd_gen")
+                    and st.get("ui_train_phase") != "farming"):
+                time.sleep(0.5)
+                continue  # The GUI train generation owns preparation; no legacy recovery/GOM in parallel.
             # trong cung thread) nen day la cho tra pet ve vai thuong. Mode event dung chung pet
             # voi quest/PB. ensure_pet_role khong gui goi nao neu dang dung dung pet -> gan nhu
             # mien phi, va switch_pet tu chan khi dang trong tran.
@@ -7913,7 +7925,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # ==== RECONNECT reaction: co dong doi ROT (dang login lai) -> TAM DUNG + cho tat ca ve
             # -> restart mode. CHI khi party co bot-leader (khong thi nick rot da chet). Di Gioi SOLO
             # bo qua (moi acc doc lap). Team dungeon xu o phase daily rieng (relogin ca party). ====
-            if (has_leader and not digioi_solo and
+            if (has_leader and not digioi_solo and not st.get("ui_train_target") and
                     (not event_mode or event_party_mode) and st["disc_gen"] > disc_gen_handled):
                 disc_gen_handled = st["disc_gen"]
                 if event_party_mode:
@@ -8334,17 +8346,6 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 reform_gen_handled = _rg_thoa
             # Lenh user bam tren UI phai co uu tien cao hon reform nen. Neu reform dang treo duoc
             # xu ly truoc, no co the tiep tuc bump/continue mai va nuot START TRAIN TEAM.
-            if st["cmd_gen"] > cmd_gen_handled:
-                cmd_gen_handled = st["cmd_gen"]
-                cmd = st.get("cmd")
-                log.info("[%s] (%s) -> LENH THU CONG UU TIEN %s", label, role, cmd)
-                try:
-                    if cmd: _do_manual_cmd(cmd)
-                except Exception as e:
-                    log.warning("[%s] loi thuc thi lenh thu cong (bo qua): %s", label, e)
-                last_reform = time.time()
-                last_combat = time.time()
-                continue
             if st["reform_gen"] > reform_gen_handled or _gather_wait_me:
                 reform_gen_handled = st["reform_gen"]
                 log.warning("[%s] (%s) -> REFORM party (gen %d%s)", label, role, reform_gen_handled,
@@ -8492,7 +8493,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # leader dang dung o diem quai nen quai cu vao, no danh MOT MINH (log 27/08
             # 14:36:09-14:37:57: party tan, 4 member dung o safe, leader danh 10 tran mot minh).
             # Cho 20s truoc khi coi la "mat party": lap lai party binh thuong chi mat vai giay.
-            if train_on_map and int(st.get("n_members") or 0) > 0:
+            if (_legacy_party_train_enabled(st) and train_on_map
+                    and int(st.get("n_members") or 0) > 0):
                 if joined_member_count(pidx) >= st["n_members"]:
                     _thieu_since = 0.0
                 else:
@@ -8516,7 +8518,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # --- RETRY KENH + RE-MOI moi 60s (ca DG lan map-train) ---
             # Kenh it nguoi nhat co the KHONG du cho ca party -> co dua ket lai kenh cu.
             # Leader cu train; dua chua join thi 1p chuyen lai kenh chung 1 lan; leader 1p moi lai.
-            if has_leader and time.time() - last_retry >= 60:
+            if (_legacy_party_train_enabled(st) and has_leader
+                    and time.time() - last_retry >= 60):
                 last_retry = time.time()
                 if is_leader:
                     nj = joined_member_count(pidx)
@@ -8857,8 +8860,18 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             _stop_all_accounts_for_maintenance(username)
             _reason("SERVER BAO TRI (ma 60) -> da OFF tat ca account, khong reconnect")
         _forced_reconnect = username in account_forced_reconnect
+        _server_kick = int(getattr(c, "disconnect_cause", 0) or 0) if c is not None else 0
+        if _server_kick and not _maintenance:
+            _reason("SERVER KICK ma %s -> OFF rieng account, khong reconnect" % _server_kick)
+            with st["lock"]:
+                st.setdefault("ui_kicked_users", set()).add(username)
+                if username in (st.get("manual_train_users") or []):
+                    st["manual_train_users"].remove(username)
+                if username == config.PARTY_LEADER_ACC.get(pidx) and st.get("ui_train_target"):
+                    st["ui_leader_recover"] = True
+                    st["ui_recovery_city_arrived"] = set()
         reconnectable = (not _stopped()
-                         and not _maintenance
+                         and not _maintenance and not _server_kick
                          and (_forced_reconnect or _login_failed or _dt["relogin_train"]
                               or _unexpected_error
                               or (c is not None and getattr(c, "server_closed", False))))
@@ -8872,7 +8885,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 and _dt["relogin_train"]):
             account_forced_reconnect_reason[username] = "chuyen pha TRAIN (relogin CO Y, khong phai rot)"
         if is_leader and not reconnectable and account_threads.get(username) is threading.current_thread():
-            if c is not None and getattr(c, "_individual_safe_logout", False):
+            if c is not None and (getattr(c, "_individual_safe_logout", False) or _server_kick):
                 # Nut OUT trong tab leader chi tat RIENG leader. Safe-logout worker da keo ca
                 # team ve safe + giai tan PT; member phai o lai cho leader Login lai, khong duoc
                 # doc nhu "party ket thuc" va thoat theo.
@@ -9839,6 +9852,12 @@ def _run_account_supervised(username, password, pidx, is_leader, is_picker=False
             st["reconnecting"].add(username)
             if not forced:
                 st["disc_gen"] += 1
+            if st.get("ui_train_target") and not forced:
+                if username == config.PARTY_LEADER_ACC.get(pidx):
+                    st["ui_leader_recover"] = True
+                    st["ui_recovery_city_arrived"] = set()
+                else:
+                    st.setdefault("ui_member_recover", set()).add(username)
             # (`train_reform` tinh o tren nhung KHONG con ai dung: acc mat ket noi roi login lai
             #  khong tu ra lenh cho ca party ve thanh nua - dieu phoi thay lech map/kenh va gom.)
             if event_reset:
@@ -9907,6 +9926,16 @@ def _run_account_supervised(username, password, pidx, is_leader, is_picker=False
         st["leader_gone"].set()   # thoat that su (het reconnect) -> member thoat theo
 
 
+def _legacy_party_train_enabled(st):
+    """GUI train owns routing/recovery, never native startup closures.
+
+    Stand-mode login does not define _start_training. Manual train and its
+    recovery workflow must retain ownership after switching modes at runtime.
+    """
+    return not (st.get("ui_train_target") or st.get("daily_active")
+                or st.get("train_channel_regroup"))
+
+
 def start_account(username, password, pidx, is_leader, is_picker):
     """Khoi dong 1 acc (thread). Neu thread cu con song (vd Stop xong Start LAI ngay de doi map/mode)
     -> BAO DUNG + CHO no chet han roi moi start thread MOI voi config MOI. Truoc day return False
@@ -9926,6 +9955,8 @@ def start_account(username, password, pidx, is_leader, is_picker):
             return False
     account_stop_reasons.pop(username, None)
     st = _pstate(pidx)
+    with st["lock"]:
+        st.setdefault("ui_kicked_users", set()).discard(username)
     if is_leader:
         # Start party da clear leader_gone o dau, nhung neu leader thread CU chet muon sau do
         # (do start_account vua set stop_ev + join) thi finally cua thread cu co the set lai
@@ -11516,9 +11547,12 @@ def _dieu_phoi_loop():
                     lech_tu.pop(pidx, None)
                     continue
                 st = _pstate(pidx)
-                if (st.get("leader_switch_pending") or st.get("ui_mode_restart_users")
+                if (st.get("train_channel_regroup") or st.get("ui_member_recover") or st.get("ui_leader_recover")
+                        or st.get("leader_switch_pending") or st.get("ui_mode_restart_users")
                         or st.get("ui_dg_transition_pending")
-                        or st.get("daily_active") or st.get("daily_hold_after_stop")):
+                        or st.get("daily_active") or st.get("daily_hold_after_stop")
+                        or (st.get("ui_train_dispatch_gen") == st.get("cmd_gen")
+                            and st.get("ui_train_phase") != "farming")):
                     continue
                 kh, ly_do, lech_tu[pidx] = _dieu_phoi_quyet(pidx, st, song, lech_tu.get(pidx))
                 doi = _ghi_ke_hoach(st, pidx, kh, ly_do)
@@ -11646,6 +11680,16 @@ def _dieu_phoi_thi_hanh_kenh(pidx, st, song, dich):
     """
     if not dich:
         return 0
+    # Explicit UI changes MUST go through the command's safe-before-leave flow.
+    if (st.get("cmd") or (None,))[0] == "channel":
+        return 0
+    if (st.get("train_channel_map") is not None
+            and any(c.current_map != st["train_channel_map"] for _u, c in song)):
+        return 0
+    if st.get("ui_train_phase") == "farming":
+        if any(int(getattr(c, "current_channel", 0) or 0) != int(dich) for _u, c in song):
+            party_switch_channel(pidx, dich)
+        return 0  # The queued flow reaches safe BEFORE anybody leaves party.
     # CON LECH MAP THI CHUA TOI LUOT KENH. Kenh la thu THEO TUNG MAP: kenh 2 co o map nay nhung
     # khong co o map kia, nen gui lenh doi kenh cho acc dang o map khac la chac chan hong.
     #
@@ -11836,6 +11880,10 @@ def _dieu_phoi_chot_kenh(pidx, st, song, kh=None):
     # PHAN KHU MANUAL la lenh cua user, uu tien tuyet doi. Truoc day command doi sang 3/7 xong
     # thi coordinator lap tuc tu chon "kenh it nguoi" va keo ca team nguoc ve 1/7, tao ping-pong
     # 30-180 giay. Khi da chon manual, bo hoan toan thuat toan auto cho toi khi user chon lai.
+    leader_user = config.PARTY_LEADER_ACC.get(pidx)
+    leader = next((c for u, c in song if u == leader_user), None)
+    if st.get("train_channel_map") is not None and st["train_channel_map"] != map_chung:
+        _train_adopt_map_channel(st, map_chung, getattr(leader, "current_channel", None))
     _manual = int(st.get("train_channel_manual") or 0)
     if _manual <= 0:
         leader_user = config.PARTY_LEADER_ACC.get(pidx)
@@ -12432,6 +12480,13 @@ def _party_watcher(pidx):
         accs = [u for u, _p, _l, _k in party_accounts(pidx)]
         if not accs or not any(is_account_running(u) for u in accs):
             return                                  # party da dung han -> thoat luong
+        # The Android train command owns gather/channel/party/path retries.
+        # Waiting for a full channel is not a deadlock and must not trigger reform.
+        if (st.get("train_channel_regroup") or st.get("ui_member_recover") or st.get("ui_leader_recover")
+                or (st.get("ui_train_dispatch_gen") == st.get("cmd_gen")
+                    and st.get("ui_train_phase") not in (None, "idle", "farming"))):
+            mismatch_t0 = allwait_t0 = thieu_t0 = None
+            continue
         with st["lock"]:
             recon = set(st["reconnecting"])
         rows = []
@@ -12670,6 +12725,8 @@ def party_switch_channel(pidx, channel):
     with st["lock"]:
         channel = int(channel)
         st["train_channel_auto"] = False
+        leader = account_clients.get(config.PARTY_LEADER_ACC.get(pidx))
+        st["train_channel_map"] = getattr(leader, "current_map", None)
         st["train_channel_manual"] = channel
         st["kenh_ghim"] = channel
         # Chot dich NGAY luc UI bam. Coordinator chay moi 2s se giup thi hanh cung dich nay,
@@ -12695,60 +12752,9 @@ def party_move_to(pidx, x, y):
 
 
 def party_daily_tasks(pidx, tasks):
-    """GUI Android: phat danh sach daily cho moi account loop tu xu ly dung vai leader/member."""
-    allowed = ("legion_boss", "world_boss", "solo_dungeon", "team_dungeon",
-               "team_dungeon_20", "team_dungeon_50", "team_dungeon_80", "team_dungeon_110")
-    raw = tuple(x for x in tasks if x in allowed)
-    chosen = tuple([x for x in raw if x == "team_dungeon" or x.startswith("team_dungeon_")] +
-                   [x for x in ("legion_boss", "solo_dungeon", "world_boss") if x in raw])
-    if not chosen:
-        raise ValueError("chua chon daily quest")
-    st = _pstate(pidx)
-    pending = {u for u, _p, _l, _k in party_accounts(pidx) if is_account_running(u)}
-    leader = account_clients.get(config.PARTY_LEADER_ACC.get(pidx))
-    if any(x == "team_dungeon" or x.startswith("team_dungeon_") for x in chosen):
-        if leader is None or not getattr(leader, "running", False):
-            raise ValueError("Leader phải online để lập phòng phó bản đội")
-        pending = {u for u in pending if getattr(account_clients.get(u), "running", False)}
-    with st["lock"]:
-        # Daily tay thu hoi ke hoach gom/reform cua train. Neu de co cu song them mot nhip,
-        # member se thay "DIEU PHOI dang gom" va bo qua ca PB20/50/80.
-        st["reform_gen_thoa"] = int(st.get("reform_gen", 0) or 0)
-        st["kenh_dich"] = None
-        st["gom_dich"] = {}
-        st["nhip_acc"] = {}
-        st["cmd"] = ("daily", chosen)
-        st["cmd_gen"] += 1
-        st["daily_active"] = True
-        st["daily_cancel"] = False
-        st["daily_hold_after_stop"] = False
-        st["daily_tasks"] = chosen
-        st["daily_task"] = None
-        st["daily_phase"] = "queued"
-        st["daily_user"] = None
-        st["daily_message"] = "Da xep hang Daily; dang cho account san sang"
-        st["daily_started_at"] = time.time()
-        st["daily_pending"] = pending
-        st["daily_participants"] = set(pending)
-        st["daily_step_done"] = {}
-        st["daily_resume_indices"] = {}
-        st["daily_error"] = None
-        st["daily_warnings"] = []
-        st["daily_team_failed"] = False
-        st["daily_team_rally_ready"] = set()
-        st["daily_team_rally_complete"] = False
-        st["daily_team_rally_error"] = None
-        # Moi lan bam Chay Daily la mot luot moi. Cache "done" cua PB doi tu luot truoc
-        # neu khong xoa se lam member thoat cho ngay va leader khong tao phong.
-        st["team_dungeon_state"] = {}
-        st["team_dungeon_broke"] = {}
-        st["team_dungeon_need_redo"] = False
-        st["team_dungeon_skip_all"] = False
-        st["team_dungeon_tries"] = {}
-        st["o5_state"] = "idle"
-        st["nhip_acc"] = {}
-    dat_party_dang_gom(pidx, False)
-    log.info(">>> PARTY %s: lenh DAILY QUEST -> %s", pidx + 1, chosen)
+    """Compatibility entry point; implementation lives in workflows.daily."""
+    from .workflows.daily import party_daily_tasks as implementation
+    return implementation(pidx, tasks, services=_workflow_services())
 
 
 def party_stop_daily(pidx):
@@ -12767,58 +12773,11 @@ def party_stop_daily(pidx):
     log.info(">>> PARTY %s: user yeu cau DUNG DAILY sau tran hien tai; KHONG logout", pidx + 1)
 
 
-def party_train_map(pidx, map_id, x, y):
-    """Android AUTO BATTLE: gom/lap PT/route ca team den map + diem train roi bat combat."""
-    map_id, x, y = int(map_id), int(x), int(y)
-    if map_id <= 0 or not (0 < x < 20000 and 0 < y < 20000):
-        raise ValueError("map/toa do train khong hop le")
-    st = _pstate(pidx)
-    with st["lock"]:
-        st["daily_hold_after_stop"] = False
-        config.PARTY_CONFIG[pidx].update(mode="train", start_city_id=map_id, mob_index=0,
-                                       train_pick="", do_daily=False, auto_world_boss=False,
-                                       auto_team_dungeon=False, fight_legion_boss=False,
-                                       do_van_tieu=False)
-        st["dt_phase"] = "train"
-        st["ui_dg_train_target"] = None
-        st["ui_dg_users"] = None
-        st["ui_dg_transition_pending"] = False
-        for u, _p, _l, _k in party_accounts(pidx):
-            _c = account_clients.get(u)
-            if _c is not None:
-                _c._daily_hold = False
-        # Mot nguon su that cho command handler lan coordinator/reconnect.
-        st["ui_train_target"] = (map_id, x, y)
-        _online_expected = max(1, len([u for u, _p, _l, _k in party_accounts(pidx)
-                                      if is_account_running(u)]))
-        st["manual_train_expected"] = len(st.get("manual_train_users") or []) or _online_expected
-        st["n_members"] = max(0, st["manual_train_expected"] - 1)
-        st["train_map_dich"] = map_id
-        st["mob_spot"] = (x, y)
-        st["rally_point"] = None
-        st["thanh_tap_ket_cache"] = None
-        new_gen = st["cmd_gen"] + 1
-        st["cmd"] = ("train", 0, map_id, x, y)
-        st["cmd_gen"] = new_gen
-        st["manual_route_gen"] = new_gen
-        st["manual_route_plan"] = None
-        st["manual_route_source_results"] = {}
-        st["manual_route_city_arrived"] = {}
-        st["manual_route_plan_ready"].clear()
-        st["manual_route_source_done"].clear()
-        st["manual_route_party_ready"].clear()
-        st["manual_route_done"].clear()
-        # Phan khu manual phai ap dung NGAY TAI THANH TAP KET, truoc khi leader moi party va
-        # keo ra bai. Danh dau la kenh dich ro rang de do_channel_sync khong bo qua chi vi team
-        # dang tinh co cung mot kenh khac.
-        _manual_channel = st.get("train_channel_manual")
-        st["auto_best_channel"] = bool(_manual_channel)
-        if _manual_channel:
-            st["kenh_ghim"] = int(_manual_channel)
-        st["manual_train_channel"] = None
-        st["manual_train_channel_ready"].clear()
-    log.info(">>> PARTY %s: START TRAIN TEAM -> map %d bai (%d,%d)",
-             pidx + 1, map_id, x, y)
+def party_train_map(pidx, map_id, x, y, *, expected_generation=None):
+    """Compatibility entry point; implementation lives in workflows.train."""
+    from .workflows.train import party_train_map as implementation
+    return implementation(pidx, map_id, x, y, services=_workflow_services(),
+                          expected_generation=expected_generation)
 
 
 def party_teleport_city(pidx, city_id, flag=0):

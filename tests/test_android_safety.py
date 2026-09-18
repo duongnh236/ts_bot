@@ -2,6 +2,7 @@
 import ast
 import json
 import logging
+import sys
 import threading
 import time
 import unittest
@@ -11,9 +12,12 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1] / "app/src/main/python"
+sys.path.insert(0, str(ROOT))
 
 
 def function(path, name, namespace):
+    namespace.setdefault("__package__", "train_bot")
+    namespace.setdefault("_workflow_services", lambda: SimpleNamespace(**namespace))
     tree = ast.parse((ROOT / path).read_text())
     node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
     exec(compile(ast.Module(body=[node], type_ignores=[]), str(path), "exec"), namespace)
@@ -21,6 +25,284 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_member_catches_up_at_safe_then_leader_picks_up_without_team_restart(self):
+        cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, TRAIN_MAPS={23803: {"safe": [(230, 310)]}})
+        st = {"lock": threading.RLock(), "cmd_gen": 8, "cmd": ("train",),
+              "ui_train_target": (23803, 550, 590), "ui_train_phase": "farming",
+              "ui_member_recover": {"member"}}
+        leader = SimpleNamespace(running=True, current_map=23803, current_channel=11,
+            pos=(550, 590), party_members=[], navigate_to=Mock(return_value=True),
+            set_party_strategist=Mock())
+        member = SimpleNamespace(running=True, current_map=23802, current_channel=11,
+            self_entity=b"member", combat_ready=Mock(), set_party_invite_ready=Mock(),
+            navigate_to=Mock(return_value=True))
+        def route(*a, **kw):
+            member.current_map = 23803
+            return True
+        member.follow_smart_route = Mock(side_effect=route)
+        leader.invite_members = Mock(side_effect=lambda **kw: leader.party_members.append(b"member"))
+        restart = Mock()
+        ns = {"config": cfg, "account_clients": {"leader": leader, "member": member},
+              "_workflow_leave_current_area": Mock(), "_nearest_safe": lambda p, points: points[0],
+              "set_account_activity": Mock(), "party_train_map": restart}
+        fn = function("train_bot/run_party_digioi.py", "_android_train_recovery_tick", ns)
+        self.assertTrue(fn(member, st, "member", 0, lambda: False))
+        member.follow_smart_route.assert_called_once()
+        member.navigate_to.assert_called_once()
+        leader.navigate_to.assert_not_called()
+        self.assertTrue(fn(leader, st, "leader", 0, lambda: False))
+        self.assertEqual([call.args for call in leader.navigate_to.call_args_list], [(230, 310), (550, 590)])
+        self.assertFalse(st["ui_member_recover"])
+        self.assertEqual(st["cmd_gen"], 8)
+        restart.assert_not_called()
+
+    def test_leader_loss_returns_members_to_city_before_restart(self):
+        st = {"lock": threading.RLock(), "cmd_gen": 8, "cmd": ("train",),
+              "ui_train_target": (23803, 550, 590), "ui_leader_recover": True,
+              "manual_train_users": ["leader", "member"]}
+        c = SimpleNamespace(running=True, current_map=23803,
+                            nearest_smart_city=Mock(return_value=(23001, 17)))
+        c.go_to_town = Mock(side_effect=lambda *a, **kw: setattr(c, "current_map", 23001))
+        leader = SimpleNamespace(running=True)
+        restart = Mock()
+        ns = {"config": SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}),
+              "account_clients": {"leader": leader, "member": c},
+              "_nearest_safe": Mock(),
+              "_workflow_leave_current_area": Mock(), "set_account_activity": Mock(),
+              "party_train_map": restart}
+        fn = function("train_bot/run_party_digioi.py", "_android_train_recovery_tick", ns)
+        self.assertTrue(fn(c, st, "member", 0, lambda: False))
+        restart.assert_not_called()
+        self.assertTrue(fn(leader, st, "leader", 0, lambda: False))
+        restart.assert_called_once_with(0, 23803, 550, 590)
+        self.assertFalse(st["ui_leader_recover"])
+
+    def test_farming_channel_change_queues_safe_flow_not_direct_switch(self):
+        safe = Mock()
+        fn = function("train_bot/run_party_digioi.py", "_dieu_phoi_thi_hanh_kenh",
+                      {"party_switch_channel": safe})
+        c = SimpleNamespace(current_map=23803, current_channel=11, switch_channel=Mock())
+        st = {"cmd": ("train",), "ui_train_phase": "farming", "train_channel_map": 23803}
+        self.assertEqual(fn(0, st, [("leader", c)], 2), 0)
+        safe.assert_called_once_with(0, 2)
+        c.switch_channel.assert_not_called()
+        safe.reset_mock()
+        st["cmd"] = ("channel", 2)
+        self.assertEqual(fn(0, st, [("leader", c)], 2), 0)
+        safe.assert_not_called()
+
+    def test_farm_map_replaces_city_pin_without_leaving_party(self):
+        fn = function("train_bot/run_party_digioi.py", "_train_adopt_map_channel", {})
+        st = {"lock": threading.RLock(), "cmd_gen": 3, "train_channel_map": 23001,
+              "train_channel_manual": 2, "kenh_ghim": 2, "kenh_dich": 2,
+              "manual_train_full": (3, 2)}
+        self.assertTrue(fn(st, 23803, 11, 3))
+        self.assertEqual(st["train_channel_manual"], 11)
+        self.assertEqual(st["train_channel_map"], 23803)
+        self.assertIsNone(st["kenh_ghim"])
+        self.assertIsNone(st["kenh_dich"])
+        self.assertFalse(fn(st, 23803, 2, 3))
+        self.assertEqual(st["train_channel_manual"], 11)
+        self.assertFalse(fn(st, 23001, 2, 2))
+        self.assertEqual(st["train_channel_map"], 23803)
+
+    def test_full_channel_fallback_requires_fresh_capacity_for_entire_team(self):
+        c = SimpleNamespace(current_map=23001, current_channel=2, running=True,
+            _ds_kenh_map=23001, _chan_event=Mock(), request_channel_list=Mock(),
+            channels={2: (100, 100), 3: (98, 100), 4: (94, 100)})
+        c._chan_event.wait.return_value = True
+        clients = {"leader": c}
+        for i in range(4):
+            clients[str(i)] = SimpleNamespace(running=True, current_map=23001, current_channel=2)
+        st = {"cmd_gen": 8, "lock": threading.RLock(), "manual_train_full": (8, 2),
+              "manual_train_channel_ready": threading.Event()}
+        ns = {"log": logging.getLogger("test"), "time": SimpleNamespace(time=lambda: 100),
+              "account_clients": clients}
+        fn = function("train_bot/run_party_digioi.py", "_train_fallback_full_channel", ns)
+        cmd = ("train", 23803, 550, 590)
+        self.assertTrue(fn(c, st, list(clients), cmd, 8, "leader"))
+        self.assertEqual(st["manual_train_fallback"], (9, 23001, 4))
+        self.assertEqual(st["cmd"], cmd)
+        self.assertEqual(st["ui_train_dispatch_gen"], 9)
+        self.assertTrue(c.running)
+        st.update(cmd_gen=10, manual_train_full=(10, 2), manual_train_capacity_scan=0)
+        c._chan_event.wait.return_value = False
+        self.assertFalse(fn(c, st, list(clients), cmd, 10, "leader"))
+        self.assertEqual(st["cmd_gen"], 10)
+
+    def test_watcher_does_not_reform_during_train_gather(self):
+        task = Mock(side_effect=AssertionError("Watcher must not inspect/reform owned train"))
+        ns = {"_pstate": lambda p: {"ui_train_dispatch_gen": 8, "cmd_gen": 8,
+                                    "ui_train_phase": "gather"},
+              "time": SimpleNamespace(sleep=Mock()), "WATCH_EVERY_SEC": 20,
+              "party_accounts": lambda p: [("member", None, None, None)],
+              "is_account_running": Mock(side_effect=[True, False]),
+              "get_account_task": task}
+        fn = function("train_bot/run_party_digioi.py", "_party_watcher", ns)
+        fn(0)
+        task.assert_not_called()
+
+    def test_train_channel_full_requests_safe_regroup_without_relogin(self):
+        ns = {"log": logging.getLogger("test"), "time": SimpleNamespace(sleep=Mock()),
+              "set_account_activity": Mock()}
+        fn = function("train_bot/run_party_digioi.py", "_train_retry_leader_channel", ns)
+        st = {"cmd_gen": 8, "manual_train_channel": 2, "lock": threading.RLock()}
+        c = SimpleNamespace(running=True, current_channel=1, _chan_switch_result=4)
+        attempts = []
+        def switch(channel, **kw):
+            attempts.append(channel)
+            if len(attempts) == 3:
+                c.current_channel = channel
+                return True
+            return False
+        c.switch_channel = switch
+        self.assertFalse(fn(c, st, "member", "member", 8, lambda: False))
+        self.assertEqual(attempts, [2])
+        self.assertEqual(st["train_channel_regroup"]["phase"], "safe")
+        self.assertTrue(c.running)
+        c.current_channel = 1
+        st["cmd_gen"] = 9
+        self.assertFalse(fn(c, st, "member", "member", 8, lambda: False))
+        self.assertEqual(len(attempts), 1)
+
+    def test_daily_city_preparation_is_independent_and_keeps_online_on_failure(self):
+        ns = {"log": logging.getLogger("test"), "set_account_activity": Mock(),
+              "_workflow_leave_current_area": Mock()}
+        fn = function("train_bot/run_party_digioi.py", "_daily_return_to_city", ns)
+        c = SimpleNamespace(running=True, current_map=23803, combat_ready=Mock())
+        c.go_to_town = Mock(side_effect=lambda *args, **kw: setattr(c, "current_map", 12001))
+        self.assertTrue(fn(c, "member", lambda: False))
+        c.go_to_town.assert_called_once()
+        c.combat_ready.assert_called_once()
+        c.current_map = 23803
+        c.go_to_town = Mock(return_value=False)
+        self.assertFalse(fn(c, "member", lambda: False))
+        self.assertTrue(c.running)
+
+    def test_selected_pet_wins_across_all_workflows_with_default_fallback(self):
+        tree = ast.parse((ROOT / "train_bot/client.py").read_text())
+        node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "ensure_pet_role")
+        ns = {}
+        exec(compile(ast.Module(body=[node], type_ignores=[]), "pet-role", "exec"), ns)
+        c = SimpleNamespace(_ui_selected_pet_id=123, state=SimpleNamespace(battle_config={"pet_roles": {"train": 456, "quest": 789}}), switch_pet=Mock(return_value=True))
+        for role in ("train", "quest", "boss"):
+            self.assertTrue(ns["ensure_pet_role"](c, role))
+        self.assertEqual([call.args[0] for call in c.switch_pet.call_args_list], [123, 123, 123])
+        c._ui_selected_pet_id = 0
+        self.assertTrue(ns["ensure_pet_role"](c, "train"))
+        c.switch_pet.assert_called_with(456)
+
+    def test_workflows_have_single_owner_and_commands_precede_legacy_recovery(self):
+        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
+        start = source.index("        while c.running:\n")
+        self.assertLess(source.index('            if st["cmd_gen"] > cmd_gen_handled:', start),
+                        source.index("            # VE PET MAC DINH:", start))
+        self.assertIn('all_at_source = False if kind == "train"', source)
+        self.assertNotIn('START TRAIN TEAM fast-path:', source)
+        self.assertTrue('st.get("ui_train_phase") != "farming"' in source)
+        self.assertIn('if st.get("cmd_gen") != gen:', source)
+        self.assertTrue('st["daily_participants"] = set(pending)' in (ROOT / "train_bot/workflows/daily.py").read_text())
+        self.assertIn('if not str(task).startswith("team_dungeon"):\n                        continue', source)
+        self.assertIn('Daily: da xong, dung yen', source)
+
+    def test_full_train_command_gathers_five_then_routes_only_leader(self):
+        tree = ast.parse((ROOT / "train_bot/run_party_digioi.py").read_text())
+        command = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "_do_manual_cmd")
+        names = sorted({v for n in command.body if isinstance(n, ast.Nonlocal) for v in n.names})
+        assignments = ast.parse("\n".join(n + " = initial.get(" + repr(n) + ")" for n in names)).body
+        factory = ast.FunctionDef(name="factory", args=ast.arguments(posonlyargs=[], args=[ast.arg(arg="initial")],
+                                  kwonlyargs=[], kw_defaults=[], defaults=[]),
+                                  body=assignments + [command, ast.Return(value=ast.Name(id="_do_manual_cmd", ctx=ast.Load()))],
+                                  decorator_list=[])
+        factory_code = compile(ast.fix_missing_locations(ast.Module(body=[factory], type_ignores=[])), "actual-command", "exec")
+        users = ["leader"] + ["member" + str(i) for i in range(1, 5)]
+        st = {"lock": threading.RLock(), "cmd_gen": 2, "manual_route_gen": 2,
+              "reform_gen": 0, "manual_train_users": users, "manual_route_city_arrived": {},
+              "manual_route_plan": None, "ui_train_phase": "gather"}
+        for key in ("manual_route_plan_ready", "manual_route_party_ready", "manual_route_source_done",
+                    "manual_route_done", "manual_train_channel_ready"):
+            st[key] = threading.Event()
+        clients = {}
+        for index, user in enumerate(users):
+            c = SimpleNamespace(running=True, current_map=23803, current_channel=1 if index == 0 else 2,
+                                self_entity=user.encode(), party_members=[], party_leader=None,
+                                pos=(550, 590), party_invite_ready=False, flee_mode=False,
+                                state=SimpleNamespace(in_battle=False), stop_run_around=Mock(),
+                                in_combat=lambda **kw: False, in_di_gioi=lambda: False,
+                                _wait_combat_clear=Mock(), combat_ready=Mock(), leave_party=Mock(),
+                                nearest_smart_city=lambda *args, **kw: {"city": 23001, "flag": 0},
+                                invite_members=Mock(), set_party_strategist=Mock(),
+                                pre_route_town_hop=Mock(side_effect=AssertionError("random hop forbidden")))
+            def town(city, flag, client=c, **kw):
+                client.current_map = city
+                return True
+            c.go_to_town = Mock(side_effect=town)
+            def switch(channel, client=c, **kw):
+                client.current_channel = channel
+                return True
+            c.switch_channel = Mock(side_effect=switch)
+            def ready(value, client=c, member=user):
+                client.party_invite_ready = value
+                if value and member != "leader":
+                    client.party_leader = b"leader"
+                    clients["leader"].party_members.append(client.self_entity)
+            c.set_party_invite_ready = Mock(side_effect=ready)
+            clients[user] = c
+        leader = clients["leader"]
+        def route(source, destination, safe, **kw):
+            self.assertEqual(source, 23001)
+            self.assertEqual(destination, 23803)
+            self.assertEqual(set(leader.party_members), {u.encode() for u in users[1:]})
+            self.assertTrue(all(c.current_channel == 1 for c in clients.values()))
+            self.assertFalse(kw["flee"])
+            for c in clients.values():
+                c.current_map = destination
+            return True
+        leader.follow_smart_scene_route = Mock(side_effect=route)
+        leader.navigate_to = Mock(return_value=True)
+        cfg = SimpleNamespace(TRAIN_MAPS={23803: {"safe": []}}, PARTY_LEADER_ACC={0: "leader"})
+        shared = {"config": cfg, "account_clients": clients, "time": SimpleNamespace(time=time.time, monotonic=time.monotonic, sleep=lambda _: time.sleep(0.003)),
+                  "log": logging.getLogger("test"), "_resolve_train_safe": lambda *args: None,
+                  "set_account_activity": Mock(), "joined_member_count": lambda _: 0,  # Simulate stale local ACK count.
+                  "reset_party_joined": Mock(), "_invite_whitelist_followers_if_bot_party_ready": Mock(),
+                  "_resync_ck": Mock(), "READY_WAIT_REFORM_SEC": 5,
+                  "_route_mismatch_timed_out": lambda *args, **kwargs: False}
+        for name in ("_workflow_leave_current_area", "_open_route_member_invites", "_train_retry_leader_channel", "_train_fallback_full_channel", "_train_adopt_map_channel", "_farm_party_missing"):
+            function("train_bot/run_party_digioi.py", name, shared)
+        errors = []
+        threads = []
+        for user in users:
+            ns = dict(shared, c=clients[user], st=st, username=user, label=user, pidx=0,
+                      cmd_gen_handled=2, is_leader=user == "leader", is_picker=user == "leader", has_leader=True,
+                      _stopped=lambda: False, _nghe_lenh_kenh=Mock(), do_channel_sync=Mock(),
+                      role="LEADER" if user == "leader" else "member")
+            exec(factory_code, ns)
+            initial = {"mode": "digioi", "raw_mode": "digioi_train", "sc": 23001,
+                       "is_digioi": True, "dt_mode": True, "digioi_solo": False,
+                       "_solo_without_party": False, "training_started": False}
+            fn = ns["factory"](initial)
+            def run(cmd=fn):
+                try:
+                    cmd(("train", 0, 23803, 550, 590))
+                except Exception as exc:
+                    errors.append(exc)
+            thread = threading.Thread(target=run, daemon=True)
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=8)
+        self.assertFalse(any(t.is_alive() for t in threads), "train deadlock")
+        self.assertEqual(errors, [])
+        self.assertEqual(st["ui_train_phase"], "farming")
+        for c in clients.values():
+            c.go_to_town.assert_called_once()
+            self.assertEqual(c.go_to_town.call_args.args[0], 23001)
+            c.pre_route_town_hop.assert_not_called()
+        leader.follow_smart_scene_route.assert_called_once()
+        leader.navigate_to.assert_called_once()
+        self.assertEqual(leader.navigate_to.call_args.args, (550, 590))
+        self.assertTrue(leader.navigate_to.call_args.kwargs["require_smart_path"])
+
     def test_route_members_open_invites_before_waiting_for_party(self):
         activity = Mock()
         client = SimpleNamespace(running=True, current_map=23001, current_channel=1,
@@ -66,12 +348,13 @@ class SafetyTests(unittest.TestCase):
         ns["c"].stop_run_around.assert_called_once()
 
     def test_map_train_config_and_no_idle_relogin(self):
-        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
+        source = (ROOT / "train_bot/workflows/train.py").read_text()
         a = source.index("def party_train_map(")
-        section = source[a:source.index("\ndef ", a + 5)]
+        section = source[a:]
         self.assertIn('config.PARTY_CONFIG[pidx].update(mode="train", start_city_id=map_id', section)
         self.assertIn('st["dt_phase"] = "train"', section)
         self.assertIn('st["ui_dg_train_target"] = None', section)
+        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
         a = source.index('            if (train_on_map and is_leader and should_fight')
         condition = source[a:source.index('last_relogin = time.time()', a)]
         self.assertIn('and not st.get("ui_train_target")', condition)
@@ -111,12 +394,16 @@ class SafetyTests(unittest.TestCase):
         self.assertEqual(fn(0, ["leader", "member"], leader), ["member"])
 
     def test_dg_handoff_waits_for_all_command_loops_and_dispatches_once(self):
-        st = {"lock": threading.RLock(), "cmd_gen": 7, "ui_dg_train_target": (21001, 100, 200)}
+        st = {"lock": threading.Lock(), "cmd_gen": 7, "ui_dg_train_target": (21001, 100, 200)}
         clients = {u: SimpleNamespace(running=True, in_di_gioi=lambda: False,
                                      _dg_train_ready_token=7 if u == "leader" else None,
                                      stop_run_around=Mock()) for u in ("leader", "member")}
         callbacks = []
-        dispatch = Mock(side_effect=lambda *args: st.update(cmd_gen=8))
+        def dispatch_train(*args, **kwargs):
+            self.assertTrue(st["lock"].acquire(blocking=False), "DG dispatch still holds party lock")
+            st["lock"].release()
+            st.update(cmd_gen=8)
+        dispatch = Mock(side_effect=dispatch_train)
         sleeps = []
         def sleep(_seconds):
             self.assertEqual(dispatch.call_count, 0)
@@ -133,7 +420,7 @@ class SafetyTests(unittest.TestCase):
         self.assertEqual(cfg.PARTY_CONFIG[0]["mode"], "stand")
         callbacks[0]()
         self.assertEqual(len(sleeps), 1)
-        dispatch.assert_called_once_with(0, 21001, 100, 200)
+        dispatch.assert_called_once_with(0, 21001, 100, 200, expected_generation=7)
         self.assertEqual(st["manual_train_users"], ["leader", "member"])
         self.assertFalse(st["ui_dg_transition_pending"])
         fn(0, st)

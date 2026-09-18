@@ -28,7 +28,7 @@ def team_debug_json():
         for key in ("dt_phase", "ui_dg_transition_pending", "ui_dg_users",
                     "ui_dg_train_target", "ui_train_target", "manual_train_users",
                     "train_channel_manual", "daily_active", "cmd_gen", "cmd",
-                    "reform_gen", "n_members", "manual_route_plan",
+                    "reform_gen", "n_members", "ui_train_phase", "ui_train_dispatch_gen", "manual_route_plan",
                     "manual_route_source_results", "manual_route_city_arrived"):
             value = st.get(key)
             coordination[key] = sorted(value) if isinstance(value, set) else value
@@ -274,7 +274,8 @@ def _load_account_settings():
 def _save_account_setting(username, value):
     with _account_settings_lock:
         data = _load_account_settings()
-        data[str(username)] = value
+        previous = data.get(str(username), {})
+        data[str(username)] = {**(previous if isinstance(previous, dict) else {}), **value}
         path = _account_settings_path()
         tmp = path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
@@ -297,7 +298,35 @@ def _restore_account_settings(username):
     config.ACCOUNT_SELECTED_PET[str(username)] = int(saved.get("pet_id", 0) or 0)
     config.ACCOUNT_PHUC_THAN[str(username)] = bool(saved.get("use_phuc_than", False))
     config.ACCOUNT_DAI_PHUC_THAN[str(username)] = bool(saved.get("use_dai_phuc_than", False))
+    if not isinstance(getattr(config, "ACCOUNT_DEATH", None), dict):
+        config.ACCOUNT_DEATH = {}
+    config.ACCOUNT_DEATH[str(username)] = dict(saved.get("death_return") or {"character": True, "pet": True})
     return saved
+
+
+def apply_death_settings_json(username, character=True, pet=True):
+    try:
+        username = str(username or "").strip()
+        if not username:
+            raise ValueError("Chưa có account")
+        from train_bot import config
+        death = {"character": bool(character), "pet": bool(pet)}
+        with _account_settings_lock:
+            saved = _load_account_settings().get(username, {})
+            saved["death_return"] = death
+            _save_account_setting(username, saved)
+        if not isinstance(getattr(config, "ACCOUNT_DEATH", None), dict):
+            config.ACCOUNT_DEATH = {}
+        config.ACCOUNT_DEATH[username] = death
+        client = _get_runner().account_clients.get(username)
+        if client is not None:
+            client.death_return_town = death["character"]
+            client.pet_death_return_town = death["pet"]
+            if client.running:
+                client.sync_machinebox_flags()
+        return json.dumps({"ok": True})
+    except Exception as e:
+        return json.dumps({"ok": False, "message": str(e)}, ensure_ascii=False)
 
 
 def _get_runner():
@@ -691,6 +720,8 @@ def start_farm_mode_json(mode, map_id, x, y):
         with st["lock"]:
             if st.get("daily_active") or st.get("leader_switch_pending") or st.get("ui_mode_restart_users"):
                 raise RuntimeError("Luồng team khác đang chạy; hãy chờ hoàn tất")
+            from train_bot.workflows.lifecycle import activate_locked
+            activate_locked(st, "digioi")
             entry = config.TRAIN_MAPS.setdefault(map_id, {"safe": [], "name": str(map_id)})
             entry["mobs"] = [(x, y)]
             config.PARTY_CONFIG[0].update(mode="digioi_train", start_city_id=map_id,
@@ -698,6 +729,9 @@ def start_farm_mode_json(mode, map_id, x, y):
                                          auto_world_boss=False, auto_team_dungeon=False,
                                          fight_legion_boss=False, do_van_tieu=False)
             st["dt_phase"] = "digioi"
+            st["daily_hold_after_stop"] = False
+            st["ui_train_phase"] = "idle"
+            st["ui_train_dispatch_gen"] = None
             st["dt_train_prepared"] = False
             st["ui_dg_users"] = {u for u, _ in live}
             st["ui_dg_train_target"] = (map_id, x, y)
@@ -710,6 +744,7 @@ def start_farm_mode_json(mode, map_id, x, y):
             st["cmd_gen"] += 1
             st["ui_mode_restart_users"] = {u for u, _ in live}
             for _, c in live:
+                c._daily_hold = False
                 c._ui_auto_battle = True
                 c._ui_mode_restart = True
         return json.dumps({"ok": True, "message": "Đã chạy Dị giới → farm: chờ hết trận, vào Dị giới; cả team hết giờ Dị giới sẽ ra bãi farm đã chọn"}, ensure_ascii=False)
@@ -763,7 +798,7 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
             st["manual_train_users"] = sorted(live_users)
         runner.party_train_map(0, map_id, x, y)
         return json.dumps({"ok": True, "message":
-                           "Da gui START TRAIN TEAM: %d account se ve thanh gan map %d, giu phan khu manual da chon, lap PT va leader keo toi X %d Y %d" %
+                           "Da gui START TRAIN TEAM: %d account se ve thanh gan map %d, theo phan khu live cua leader, lap du PT va leader keo toi X %d Y %d" %
                            (len(live), map_id, x, y)}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
@@ -1290,6 +1325,7 @@ def accounts_dashboard_json():
                 "skills": runner.account_skills(username),
                 "heal": dict(getattr(config, "ACCOUNT_HEAL", {}).get(username, {}) or {}),
                 "combat_settings": saved_settings,
+                "death_return": dict(saved_settings.get("death_return") or {"character": True, "pet": True}),
                 "use_phuc_than": bool(getattr(config, "ACCOUNT_PHUC_THAN", {}).get(username, False)),
                 "use_dai_phuc_than": bool(getattr(config, "ACCOUNT_DAI_PHUC_THAN", {}).get(username, False)),
                 "phuc_than_remaining": getattr(client, "god_mission", None),

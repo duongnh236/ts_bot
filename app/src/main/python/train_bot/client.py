@@ -10669,6 +10669,9 @@ class GameClient:
         pet_roles nam TRONG battle_config (cung dialog Kich ban Skill) nen khong phai them duong
         truyen config moi cho ca PC lan APK.
         """
+        selected = int(getattr(self, "_ui_selected_pet_id", 0) or 0)
+        if selected:
+            return self.switch_pet(selected)
         cfg = getattr(self.state, "battle_config", {}) or {}
         roles = cfg.get("pet_roles")
         if not isinstance(roles, dict):

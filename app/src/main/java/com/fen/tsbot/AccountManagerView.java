@@ -170,7 +170,28 @@ public void setData(JSONObject data){JSONArray a=data.optJSONArray("accounts");a
         LinearLayout money=new LinearLayout(getContext());money.setOrientation(HORIZONTAL);money.addView(stat("VÀNG",nullable(a,"gold"),Color.rgb(255,205,75)),new LayoutParams(0,dp(88),1));money.addView(stat("TIỀN ĐỒNG",nullable(a,"money"),Color.rgb(235,165,80)),new LayoutParams(0,dp(88),1));body.addView(money);
         renderExpRate(a,charName,petName);
         renderDailyProgress(a);
+        renderDeathSettings(a);
         TextView note=txt("EXP pet lấy trực tiếp từ packet pet login. Tổng EXP lên cấp chỉ hiện khi đã có mốc đối chiếu từ UI game.",12,Color.rgb(155,175,200));note.setPadding(0,dp(10),0,0);body.addView(note);
+    }
+    private void renderDeathSettings(JSONObject a){
+        final String user=a.optString("user",configuredUser(selected));
+        JSONObject death=a.optJSONObject("death_return");
+        final CheckBox character=new CheckBox(getContext()),pet=new CheckBox(getContext());
+        character.setText("Tướng chết về thành");pet.setText("Pet chết về thành");
+        character.setTextColor(Color.WHITE);pet.setTextColor(Color.WHITE);
+        character.setChecked(savedAccounts.getBoolean("death_char_"+user,death==null||death.optBoolean("character",true)));
+        pet.setChecked(savedAccounts.getBoolean("death_pet_"+user,death==null||death.optBoolean("pet",true)));
+        body.addView(character);body.addView(pet);
+        CompoundButton.OnCheckedChangeListener save=(button,checked)->{
+            final boolean ch=character.isChecked(),pe=pet.isChecked();
+            savedAccounts.edit().putBoolean("death_char_"+user,ch).putBoolean("death_pet_"+user,pe).apply();
+            new Thread(()->{try{
+                String result=com.chaquo.python.Python.getInstance().getModule("agent_bridge").callAttr("apply_death_settings_json",user,ch,pe).toString();
+                JSONObject response=new JSONObject(result);
+                if(!response.optBoolean("ok"))post(()->Toast.makeText(getContext(),response.optString("message","Không lưu được"),Toast.LENGTH_LONG).show());
+            }catch(Exception e){post(()->Toast.makeText(getContext(),"Lưu chết về thành thất bại: "+e.getMessage(),Toast.LENGTH_LONG).show());}},"save-death-settings").start();
+        };
+        character.setOnCheckedChangeListener(save);pet.setOnCheckedChangeListener(save);
     }
     private void renderExpRate(JSONObject a,String charName,String petName){
         JSONObject r=a.optJSONObject("exp_rate");if(r==null)r=new JSONObject();
