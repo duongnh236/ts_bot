@@ -7691,6 +7691,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # 2 co "chet ve thanh" cua HOP MAY doi theo PHA: BAT khi train, TAT khi PB/quest/event
             # (chet giua PB ma bi keo ve thanh = vo luot PB, ca party phai lam lai). Ham nay chi
             # GUI KHI THUC SU DOI va khong gui giua tran -> goi moi nhip cho re.
+            try:
+                c.sync_area_combat_mode(allow_pursuit=not (st.get("daily_active") or st.get("daily_hold_after_stop")))
+            except Exception as exc:
+                log.warning("[%s] Đồng bộ chế độ đánh lỗi: %s", label, exc)
             try: c.sync_machinebox_flags()
             except Exception: pass
             # Pha DI GIOI khac train thuong: acc trong DG va acc DA XONG DG deu chay vong nay,

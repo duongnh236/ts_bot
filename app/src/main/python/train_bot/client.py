@@ -2422,6 +2422,10 @@ class GameClient:
         self.party_idx = None        # chi so party cua bot (tu config.ACCOUNT_PARTY) - de nhan moi cung party
         self.entity_names = {}       # entity(bytes) -> set(str) - TAT CA strings tim duoc tu 0x03/0x27
         self.entity_meta = {}        # entity(bytes) -> last seen scene/channel; dung loc nguoi dung canh minh
+        self._run_around_lock = threading.RLock()
+        self._run_around_generation = 0
+        self._dg_pursuit_paused = False
+        self._area_combat_mode = None
         self._running_route = False   # dang chay auto run-around
         self.chuyen_map_luc = 0.0     # lan cuoi acc nay teleport (doi map) - xem `go_to_town`
         self._luot_da_gui = None      # (gen, turn, luc) - luot gan nhat DA gui lenh danh (moi acc)
@@ -14823,6 +14827,8 @@ class GameClient:
         `step_wait` 2.0s/buoc = 14 giay chi de di 1 doan ngan (user 01/09: "dang nhich 1 ty roi
         dung yen 1 luc roi nhich 1 ty").
         """
+        self._dg_pursuit_paused = True
+        self.stop_run_around()
         _cx, _cy = self.DIGIOI_CONG_RA
         # BAT FLEE SUOT DUONG RA: dang tren duong THOAT thi dung lai danh tung bay quai la vo
         # nghia - moi tran ~30s, DG quai day dac. Truoc day ham nay khong he dat `flee_mode`, chi
@@ -14891,16 +14897,62 @@ class GameClient:
         self._wait_combat_clear(idle=2.0, cap=120.0)
         self.move_to(*self.DIGIOI_CONG_RA);         time.sleep(step_wait)
 
-    def start_run_around(self, stay_in_di_gioi=True):
-        """Bat auto run-around: chay vong quanh DIEM DANG DUNG (anchor = vi tri hien tai)
-        + offset hinh so 8. Dung quanh quai -> battle -> het tran chay tiep. Chay nen."""
-        if self._running_route:
+    def sync_area_combat_mode(self, allow_pursuit=True):
+        """DG uses existing search movement; other maps use normal auto with no roaming."""
+        if not self.running or self.current_map is None:
             return
-        self._running_route = True
-        threading.Thread(target=self._run_around_loop, args=(stay_in_di_gioi,), daemon=True).start()
+        in_dg = self.in_di_gioi()
+        was_dg = bool(getattr(self, "_area_was_dg", False))
+        self._area_was_dg = in_dg
+        if not in_dg:
+            self._dg_pursuit_paused = False
+        blocked = (not allow_pursuit or self._dg_pursuit_paused
+                   or getattr(self, "_daily_use_selected_pet", False)
+                   or getattr(self, "_daily_hold", False)
+                   or getattr(self, "_individual_safe_logout", False))
+        # A party member follows its leader; never issue independent movement commands.
+        follower = bool(self.party_leader and self.party_leader != self.self_entity)
+        if was_dg and not in_dg and not blocked:
+            self.flee_mode = False
+            self._ui_auto_battle = True
+        mode = "pursuit" if in_dg and not blocked else "normal"
+        changed = mode != self._area_combat_mode
+        self._area_combat_mode = mode
+        if mode == "normal" or follower:
+            if self._running_route:
+                self.stop_run_around()
+        elif self.has_hp_and_sp_items():
+            self.flee_mode = False
+            self.start_run_around()
+        else:
+            self.stop_run_around()  # Preserve the existing no-potions safety guard.
+        if changed:
+            log.info("[%s] Chế độ đánh: %s", self._label,
+                     "Truy kích Dị giới" if mode == "pursuit" else "Auto bình thường")
+            if not blocked and not self.in_combat() and not self.flee_mode:
+                self.combat_ready()
+
+    def start_run_around(self, stay_in_di_gioi=True):
+        """Only search inside confirmed DG, never move a party follower independently."""
+        if (not self.in_di_gioi() or self._dg_pursuit_paused
+                or getattr(self, "_daily_use_selected_pet", False)
+                or getattr(self, "_daily_hold", False)
+                or getattr(self, "_individual_safe_logout", False)
+                or (self.party_leader and self.party_leader != self.self_entity)):
+            return
+        with self._run_around_lock:
+            if self._running_route:
+                return
+            self._run_around_generation += 1
+            generation = self._run_around_generation
+            self._running_route = True
+            threading.Thread(target=self._run_around_loop, args=(True, generation),
+                             name="dg-pursuit-%s" % self._username, daemon=True).start()
 
     def stop_run_around(self):
-        self._running_route = False
+        with self._run_around_lock:
+            self._running_route = False
+            self._run_around_generation += 1
 
     def _bam_o_di_duoc(self, diem, tu_diem):
         """Bam `diem` ve O DI DUOC gan nhat theo Ground.mmg (den duoc tu `tu_diem`).
@@ -14917,64 +14969,49 @@ class GameClient:
             log.debug("[%s] bam o di duoc loi (bo qua): %s", self._label, e)
             return None
 
-    def _run_around_loop(self, stay_in_di_gioi):
-        if not getattr(config, "RUN_AROUND_OFFSETS", []):
-            self._running_route = False
-            return
-        # Anchor = vi tri hien tai. `self.pos` gio duoc SERVER sua lai qua `S:006-001` (xem cho
-        # xu ly 0x06 sub01), khong con thuan dead-reckoning. Chua biet -> fallback spawn Di Gioi.
-        # DG (stay_in_di_gioi): DUNG TAM CO DINH = diem tele vao (_di_gioi_anchor). Ly do: disconnect
-        # -> relogin, 0x03 self-spawn co the keo self.pos ve RIA MAP -> neu anchor theo pos thi
-        # run-around chay xuyen tuong o rìa. Tam tele-vao luon o giua bai -> an toan.
-        if stay_in_di_gioi:
-            anchor = (self._di_gioi_anchor or self.pos
-                      or getattr(config, "RUN_FALLBACK_ANCHOR", (870, 740)))
-        else:
-            anchor = self.pos or getattr(config, "RUN_FALLBACK_ANCHOR", (870, 740))
-        # BAM ANCHOR VE O DI DUOC (Ground.mmg). `_di_gioi_anchor` chi duoc dat trong
-        # `enter_di_gioi()`; acc RELOGIN khi DA o trong DG thi khong ai dat -> roi ve `self.pos`,
-        # ma pos sau relogin lay tu `0x03` self-spawn CO THE nam ngoai vung di duoc (do duoc:
-        # co diem lech toi 970 don vi so voi o di duoc gan nhat). Anchor sai -> ca 8 diem chay
-        # vong deu sai theo (user 01/09: "acc o DG va dung o ngoai vung co the di").
-        anchor = self._bam_o_di_duoc(anchor, anchor) or anchor
-        ax, ay = anchor
-        log.info("[%s] Run-around quanh (%d,%d)", self._label, ax, ay)
-        i = 0
-        while self.running and self._running_route:
-            # neu (co ve) da roi DG -> TAM DUNG, KHONG break (phong doc nham map nguoi khac:
-            # map se flip lai DG -> chay tiep; neu roi that su -> pause vo hai). map=None -> cu chay.
-            if stay_in_di_gioi and self.current_map is not None and self.current_map != config.DIGIOI_MAP_ID:
-                time.sleep(1.0)
-                continue
-            if self.in_combat(getattr(config, "RUN_RESUME_IDLE", 2.0)):
-                # dang danh -> TAM DUNG di chuyen, GIU nguyen diem dang di.
-                # nguong 2.0s (thay 4.0) -> het tran resume nhanh hon; van an toan vi co logic
-                # "khong tang i khi bi gian doan" + move giua tran bi server bo qua.
-                self._soi_luot_cham()
-                time.sleep(0.3)
-                continue
-            self._luot_cham_da_bao = None
-            offsets = getattr(config, "RUN_AROUND_OFFSETS", []) or [(0, 0)]   # doc lai moi vong (tune live)
-            dx, dy = offsets[i % len(offsets)]
-            # BAM TUNG DIEM ve o di duoc: anchor dung giua bai khong bao dam ca 8 diem quanh no
-            # deu di duoc (bai sat tuong/ria). `move_to` gui thang, khong he kiem Ground.mmg.
-            _dich = self._bam_o_di_duoc((ax + dx, ay + dy), (ax, ay)) or (ax + dx, ay + dy)
-            self.move_to(*_dich)
-            # cho char di toi diem; neu GIUA CHUNG vao combat -> KHONG tang i (lan sau gui lai diem nay,
-            # tranh "bo diem/di tat"). Chi sang diem ke khi di tron 1 buoc khong bi gian doan.
-            wait = getattr(config, "RUN_STEP_WAIT", 0.8)
-            interrupted = False
-            slept = 0.0
-            while slept < wait:
-                step = min(0.1, wait - slept)
-                time.sleep(step); slept += step
-                if self.in_combat():
-                    interrupted = True
-                    break
-            if not interrupted:
-                i += 1
-        self._running_route = False
-        log.info("[%s] Dung run-around", self._label)
+    def _run_around_loop(self, stay_in_di_gioi=True, generation=None):
+        if generation is None:
+            generation = self._run_around_generation
+        map_id = self.current_map
+        def cancelled():
+            return (not self.running or not self._running_route
+                    or generation != self._run_around_generation
+                    or self.current_map != map_id or not self.in_di_gioi()
+                    or self._dg_pursuit_paused or self.flee_mode
+                    or getattr(self, "_daily_use_selected_pet", False)
+                    or getattr(self, "_daily_hold", False)
+                    or getattr(self, "_individual_safe_logout", False)
+                    or bool(self.party_leader and self.party_leader != self.self_entity))
+        try:
+            anchor = self._di_gioi_anchor or self.pos
+            if not anchor or not self.pos:
+                return  # No invented coordinates when server position is unknown.
+            anchor = self._bam_o_di_duoc(anchor, self.pos)
+            if anchor is None:
+                log.warning("[%s] Truy kích: chưa có Ground xác minh; đứng tự đánh", self._label)
+                return
+            i = 0
+            while not cancelled():
+                if self.in_combat(getattr(config, "RUN_RESUME_IDLE", 2.0)):
+                    self._soi_luot_cham();time.sleep(0.3);continue
+                offsets = getattr(config, "RUN_AROUND_OFFSETS", []) or []
+                if not offsets:
+                    return
+                dx, dy = offsets[i % len(offsets)]
+                target = self._bam_o_di_duoc((anchor[0]+dx, anchor[1]+dy), self.pos)
+                if target is None:
+                    time.sleep(1);continue
+                ok = self.navigate_to(int(target[0]), int(target[1]), flee=False,
+                                      abort=cancelled, require_smart_path=True)
+                if ok:
+                    i += 1
+                time.sleep(max(.3, float(getattr(config, "RUN_STEP_WAIT", .8))))
+        except Exception as exc:
+            log.warning("[%s] Truy kích dừng an toàn: %s", self._label, exc)
+        finally:
+            with self._run_around_lock:
+                if generation == self._run_around_generation:
+                    self._running_route = False
 
     # Cap quai Di Gioi: idx 1..15 -> [10,25,40,55,70,85,100,110,120,130,140,150,160,170,180].
     # Gói C2S 0x61 02 00 [idx] (capture digioi_level_select_20260721.pcap). Bot cu vao co dinh idx=2
@@ -15002,6 +15039,7 @@ class GameClient:
         # dang trong party" o tren da co tu lau ma khong ai lam - hau qua la ca party 17 (07/09)
         # ket cheo: chutam tuong minh "xong DG" nen dung cho, leader bat ca party ve Tuong Duong,
         # 3 acc con lai dang danh trong DG va con 1h20m -> leader EP RELOGIN ca party.
+        self._dg_pursuit_paused = False
         self._dg_enter_result = None
         self._dg_enter_event.clear()
         if self.party_members:

@@ -21,6 +21,45 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_dg_pursuit_stops_outside_and_during_daily(self):
+        tree = ast.parse((ROOT / "train_bot/client.py").read_text())
+        node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "sync_area_combat_mode")
+        ns = {"log": logging.getLogger("test")}
+        exec(compile(ast.Module(body=[node], type_ignores=[]), "client.py", "exec"), ns)
+        client = SimpleNamespace(_label="test", running=True, current_map=49942, _dg_pursuit_paused=False,
+                                 _area_combat_mode=None, _running_route=False, party_leader=None,
+                                 self_entity=b"self", flee_mode=True,
+                                 in_di_gioi=lambda: True, has_hp_and_sp_items=lambda: True,
+                                 in_combat=lambda: False, start_run_around=Mock(),
+                                 stop_run_around=Mock(), combat_ready=Mock())
+        fn = ns["sync_area_combat_mode"]
+        fn(client)
+        self.assertEqual(client._area_combat_mode, "pursuit")
+        self.assertFalse(client.flee_mode)
+        client.start_run_around.assert_called_once()
+        client._running_route = True
+        fn(client, allow_pursuit=False)
+        self.assertEqual(client._area_combat_mode, "normal")
+        client.stop_run_around.assert_called_once()
+        client.stop_run_around.reset_mock()
+        client.in_di_gioi = lambda: False
+        client.current_map = 12001
+        client.flee_mode = True
+        fn(client)
+        client.stop_run_around.assert_called_once()
+        self.assertEqual(client.start_run_around.call_count, 1)
+        self.assertFalse(client.flee_mode)
+        self.assertTrue(client._ui_auto_battle)
+
+    def test_dg_pursuit_requires_ground_and_generation(self):
+        source = (ROOT / "train_bot/client.py").read_text()
+        a = source.index('    def _run_around_loop(')
+        b = source.index('    # Cap quai Di Gioi:', a)
+        loop = source[a:b]
+        self.assertIn('generation != self._run_around_generation', loop)
+        self.assertIn('require_smart_path=True', loop)
+        self.assertNotIn('self.move_to(', loop)
+
     def test_ui_account_controls_follow_connection_state(self):
         java = ROOT.parents[1] / "main/java/com/fen/tsbot"
         account = (java / "AccountManagerView.java").read_text()
