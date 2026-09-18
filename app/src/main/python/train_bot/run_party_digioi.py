@@ -1064,6 +1064,8 @@ def _mode_can_lap_doi(pidx):
     """
     try:
         _pc = getattr(config, "PARTY_CONFIG", {}).get(pidx, {}) or {}
+        if _pc.get("mode") in ("stand", "city") and not _pstate(pidx).get("ui_train_target"):
+            return False  # Login/idle khong tu gom party, doi thanh hay phan khu.
         if _pc.get("mode") != "event":
             return True
         _ev = config.event_hom_nay(_pc.get("event_key") or "")
@@ -2946,6 +2948,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         c.log_bag_delayed()   # In tui khi snapshot ve + on dinh (adaptive, toi da 8s) -> dinh danh item
         next_vantieu = None
         next_phuc_than = 0.0   # 0.0 -> kiem tra NGAY lan dau (khong cho 30p roi moi dung lan dau)
+        # Khoi login chores ben duoi bi bo qua khi reconnect/reuse socket.
+        # Hai bien van phai ton tai cho keepalive cua MOI lan run_account.
+        _use_normal = bool(pcfg.get("use_phuc_than") or getattr(config, "ACCOUNT_PHUC_THAN", {}).get(username, False))
+        _use_dai = bool(pcfg.get("use_dai_phuc_than") or getattr(config, "ACCOUNT_DAI_PHUC_THAN", {}).get(username, False))
         next_ho_phu = 0.0      # Di Gioi Ho Phu: check login + moi 3p, chi khi mode Di Gioi
         c.fight_legion_boss = pcfg.get("fight_legion_boss", True)
         c.di_gioi_level = int(pcfg.get("di_gioi_level", 2))   # idx 1..15 cap quai DG (mac dinh 2=cap25)
@@ -3792,6 +3798,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 return False
 
         def do_channel_sync():
+            if (st.get("daily_active") or st.get("daily_hold_after_stop")
+                    or (mode in ("stand", "city") and not st.get("ui_train_target"))):
+                return True  # Daily dung phong PB; login idle khong dong bo phan khu.
             # Gen reform luc BAT DAU sync. Neu ca party BUMP reform_gen (chuyen sang reform moi) trong
             # luc acc nay dang cho channel_ready -> picker da bo gen cu -> channel_ready gen cu KHONG
             # BAO GIO set -> acc ket "cho picker chot kenh" VO HAN (online ma im, bug that: ton4005 qua
@@ -6017,6 +6026,11 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             log.info("[%s] (%s) DG+Train: co acc het gio DG -> chay DG SOLO den het gio (khong lap party)",
                      label, role)
         # --- Leader: CHO du member san sang roi MOI, roi CAY ---
+        elif (st.get("daily_active") or st.get("daily_hold_after_stop")
+              or (mode in ("stand", "city") and not st.get("ui_train_target"))):
+            c.flee_mode = False
+            c.set_party_invite_ready(False)
+            log.info("[%s] Daily/idle: bỏ lập party farm lúc startup; giữ nguyên thành/phân khu", label)
         elif is_leader:
             _dg_solo_bail = False   # True = DG+Train giveup giua chung -> bo lap party, chay DG solo
             # `via_route` = toi train map THEO PARTY (da lap party + cung kenh o thanh) -> binh
@@ -6957,7 +6971,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         )
                         return False
 
-                    route_flee = expected <= 1
+                    route_flee = expected <= 1 and kind != "train"
                     if not route_flee:
                         c.flee_mode = False
                         try:
@@ -7322,7 +7336,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             tx, ty = int(safe_target[0]), int(safe_target[1])
                         log.info("[%s] (LEADER) START TRAIN TEAM: keo PT toi bai (%d,%d)",
                                  label, tx, ty)
-                        c.navigate_to(tx, ty, flee=True,
+                        c.navigate_to(tx, ty, flee=False,
                                       abort=lambda: st.get("cmd_gen", 0) != cmd_gen_handled or _stopped(),
                                       require_smart_path=True)
                     elif has_leader:
@@ -7346,6 +7360,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 log.info("[%s] (%s) DAILY QUEST tay: %s", label, role, tasks)
                 c._daily_hold = False
                 c._daily_use_selected_pet = True
+                c._daily_instance_blocked = False
                 _selected_pet = int(getattr(c, "_ui_selected_pet_id", 0) or 0)
                 if _selected_pet:
                     try:
@@ -7359,11 +7374,25 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     st["daily_active"] = True
                     st["daily_phase"] = "running"
                     st["daily_user"] = username
+                _resume_index = int(st.setdefault("daily_resume_indices", {}).get(username, 0))
+                team_done = any(str(t).startswith("team_dungeon") for t in tasks[:_resume_index])
                 for task_index, task in enumerate(tasks):
+                    if task_index < _resume_index:
+                        continue
+                    with st["lock"]:
+                        st.setdefault("daily_resume_indices", {})[username] = task_index
+                    if getattr(c, "_daily_instance_blocked", False):
+                        set_account_activity(username, "Daily: chưa xác nhận thoát PB; giữ online", phase="daily")
+                        break
                     if (not c.running or _stopped() or st.get("cmd_gen", 0) != cmd_gen_handled
                             or st.get("daily_cancel", False)):
                         break
                     try:
+                        if not str(task).startswith("team_dungeon") and c.in_team_dungeon():
+                            c._wait_combat_clear(idle=2.0, cap=120.0)
+                            if not c.leave_team_dungeon(wait=20.0):
+                                c._daily_instance_blocked = True
+                                raise RuntimeError("Chưa xác nhận thoát phó bản đội; không gửi daily khác")
                         with st["lock"]:
                             st["daily_task"] = task
                             st["daily_message"] = "Đang chạy %s" % _daily_labels.get(str(task), str(task))
@@ -7398,6 +7427,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             _daily_stopped = lambda: (_stopped() or st.get("daily_cancel", False))
                             c._td_stop_requested = lambda: bool(st.get("daily_cancel", False))
                             try:
+                                if not _manual_team_dungeon_rally(c, st, username, pidx, _daily_stopped):
+                                    raise RuntimeError(st.get("daily_team_rally_error") or "Chưa tập trung đủ đội tại Trác Quận")
                                 _run_auto_team_dungeons_if_needed(
                                     c, st, username, label, pidx, is_leader,
                                     _daily_stopped, _daily_cfg)
@@ -7411,8 +7442,13 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     # rat som, trong khi member van dang danh boss/solo. Neu khong cho nhau o
                     # day, leader tao phong va moi account dang o instance khac -> PB doi dung.
                     _step_key = "%d:%s" % (task_index, task)
+                    if not c.running or username in account_forced_reconnect:
+                        break  # Mat ket noi khong co nghia task da xong; resume sau login.
                     with st["lock"]:
                         st.setdefault("daily_step_done", {}).setdefault(_step_key, set()).add(username)
+                        st.setdefault("daily_resume_indices", {})[username] = task_index + 1
+                    if not str(task).startswith("team_dungeon"):
+                        continue  # Daily riêng không chờ team.
                     _barrier_t0 = time.time()
                     while c.running and not _stopped() and not st.get("daily_cancel", False):
                         if st.get("cmd_gen", 0) != cmd_gen_handled:
@@ -7435,7 +7471,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 with st["lock"]:
                     cancelled = bool(st.get("daily_cancel", False))
                     pending = st.setdefault("daily_pending", set())
-                    pending.discard(username)
+                    if cancelled or (c.running and username not in account_forced_reconnect):
+                        pending.discard(username)
                     st["daily_active"] = bool(pending)
                     if pending:
                         st["daily_phase"] = "running"
@@ -7444,7 +7481,16 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         st["daily_phase"] = "cancelled" if cancelled else "completed"
                         st["daily_message"] = ("Da dung Daily" if cancelled
                                                else "Da chay xong Daily da chon")
+                        if st.get("daily_warnings"):
+                            st["daily_message"] += " • Có hoạt động lỗi/bỏ qua: " + "; ".join(st["daily_warnings"])
                 c._daily_use_selected_pet = False
+                with st["lock"]:
+                    if st.get("daily_error"):
+                        st["daily_phase"] = "failed"
+                        st["daily_message"] = st["daily_error"]
+                    if not st.get("daily_pending") and not cancelled and st.get("daily_team_rally_error"):
+                        st["daily_phase"] = "failed"
+                        st["daily_message"] = "PB đội chưa chạy: %s" % st["daily_team_rally_error"]
                 if cancelled:
                     c._daily_hold = True
                     c._ui_auto_battle = False
@@ -8200,6 +8246,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # -> client bat c.phuc_than_pending -> lam NGAY. Truoc day cho mu 30 phut: ngoc hong
             # phut thu 1 thi mat he so EXP toi 29 phut. Vong dinh ky chi con la LUOI AN TOAN cho
             # server khong gui goi (PHUC_THAN_CHECK_SEC).
+            _use_normal = bool(pcfg.get("use_phuc_than") or getattr(config, "ACCOUNT_PHUC_THAN", {}).get(username, False))
+            _use_dai = bool(pcfg.get("use_dai_phuc_than") or getattr(config, "ACCOUNT_DAI_PHUC_THAN", {}).get(username, False))
             if ((_use_normal or _use_dai) and mode != "event"
                     and (getattr(c, "phuc_than_pending", False) or time.time() >= next_phuc_than)
                     and not c.in_combat()):
@@ -8783,6 +8831,10 @@ def _team_dungeon_flags(pcfg):
 
 
 def _force_supervisor_reconnect(username, c, reason):
+    if getattr(c, "_daily_use_selected_pet", False) and getattr(c, "running", False):
+        c._daily_instance_blocked = True
+        log.warning("[%s] Daily yêu cầu phục hồi (%s): giữ online, không ép reconnect", username, reason)
+        return False
     account_forced_reconnect.add(username)
     account_forced_reconnect_reason[username] = reason
     try:
@@ -8845,6 +8897,23 @@ def _thoat_pb_ca_party(pidx, ly_do):
     return ra
 
 
+def _pause_manual_daily_failure(st, pidx, reason):
+    """Failed manual PB pauses daily; exit once at a battle boundary, never force relogin."""
+    with st["lock"]:
+        st["daily_warnings"] = st.get("daily_warnings", []) + [reason]
+        st["daily_team_failed"] = True
+        st["daily_message"] = "PB đội lỗi: %s; thoát để tiếp tục daily riêng" % reason
+        st["team_dungeon_skip_all"] = True
+    for u in tuple(st.get("daily_participants") or ()):
+        cli = account_clients.get(u)
+        if cli is None or not getattr(cli, "running", False):
+            continue
+        cli._wait_combat_clear(idle=2.0, cap=120.0)
+        if cli.in_team_dungeon() and not cli.leave_team_dungeon(wait=20.0):
+            cli._daily_instance_blocked = True
+            log.warning("[%s] Chưa thoát PB; giữ online, không gửi daily khác", u)
+
+
 def _exit_pb_or_reconnect(username, c, reason):
     """RA KHOI instance pho ban roi bao "da xu ly" (tra False y het _force_supervisor_reconnect).
 
@@ -8865,6 +8934,10 @@ def _exit_pb_or_reconnect(username, c, reason):
             return False
     except Exception as e:
         log.warning("[%s] loi thoat PB (%s) -> quay ve relogin: %s", username, reason, e)
+    if getattr(c, "_daily_use_selected_pet", False):
+        c._daily_instance_blocked = True
+        log.warning("[%s] Daily: chưa thoát PB, không ép reconnect", username)
+        return False
     return _force_supervisor_reconnect(username, c, reason)
 
 
@@ -8956,6 +9029,47 @@ def _thieu_level(st, members, level):
     return thieu
 
 
+def _manual_team_dungeon_rally(c, st, username, pidx, stopped_fn):
+    """Manual PB: Trac Quan on any channel; join through dungeon room invitations."""
+    city = 12001  # Trac Quan; khong dung thanh gan bai farm hay thanh random.
+    deadline = time.time() + 180
+    def cancelled():
+        return stopped_fn() or not c.running or bool(st.get("daily_team_rally_error"))
+    try:
+        set_account_activity(username, "PB đội: về Trác Quận • giữ phân khu server cho vào", phase="daily")
+        c._wait_combat_clear(idle=2.0, cap=120.0)
+        if cancelled() or c.in_combat(idle_secs=2.0):
+            raise RuntimeError("%s chưa hết trận/đã dừng" % username)
+        if c.party_leader or c.party_members:
+            c.leave_party()
+            leave_deadline = time.time() + 15
+            while c.party_leader or c.party_members:
+                if cancelled() or time.time() > leave_deadline:
+                    raise RuntimeError("%s chưa được server xác nhận rời party farm" % username)
+                time.sleep(0.5)
+        if c.current_map != city and not c.go_to_town(city, 0, tries=5, wait=2.0, battle_grace=0.0):
+            raise RuntimeError("%s không phù được về Trác Quận" % username)
+        if c.current_map != city:
+            raise RuntimeError("%s chưa tới Trác Quận" % username)
+        if cancelled() or c.current_map != city:
+            raise RuntimeError("%s chưa được server xác nhận tới Trác Quận" % username)
+        with st["lock"]:
+            ready = st.setdefault("daily_team_rally_ready", set())
+            ready.add(username)
+            if set(st.get("daily_participants") or ()).issubset(ready):
+                st["daily_team_rally_complete"] = True
+        while not st.get("daily_team_rally_complete"):
+            if cancelled() or time.time() > deadline:
+                raise RuntimeError("Hết thời gian chờ đội tập trung tại Trác Quận")
+            time.sleep(0.5)
+        return not cancelled()
+    except Exception as exc:
+        with st["lock"]:
+            st["daily_team_rally_error"] = str(exc)
+            st["daily_message"] = "PB đội: %s; chưa lập phòng" % exc
+        return False
+
+
 def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_fn, level):
     level = int(level)
     # Daily tay gom nhieu level trong MOT task ngoai. Vong ngoai chi dat `daily_task` theo muc
@@ -8989,6 +9103,8 @@ def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_f
         while True:
             if stopped_fn() or not c.running:
                 return False
+            if st.get("daily_team_failed"):
+                return True
             # KHONG dat _barrier_watchdog o day! Member cho leader chay HET pho ban la CHUYEN
             # BINH THUONG va lau 10-20 phut (5 tran + di duong + thoai). Watchdog 180s tuong la
             # "ket" -> ep dong bo -> DA CA 4 MEMBER RA relogin GIUA pho ban, pha nat luot PB
@@ -9059,7 +9175,8 @@ def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_f
                     pass
             time.sleep(2)
 
-    members = [t[0] for t in party_accounts(pidx)]
+    members = ([t[0] for t in party_accounts(pidx) if t[0] in st.get("daily_participants", ())]
+               if st.get("daily_active") else [t[0] for t in party_accounts(pidx)])
     if len(members) < 2:
         return True
     last_log = 0.0
@@ -9127,34 +9244,24 @@ def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_f
         with st["lock"]:
             st.setdefault("team_dungeon_state", {})[level] = "done"
         return True
-    # CHUA DU CAP -> bo qua PB nay luon, dung tao phong. Server khong cho acc duoi cap ready nen
-    # co co gang cung chi ra "member ready 0/4 sau 40s -> HUY phong, relogin ca party" moi chu ky.
-    with st["lock"]:
-        _thieu = _thieu_level(st, members, level)
-    if _thieu:
-        log.info("[%s] (LEADER) phó bản đội lv%d: BỎ QUA - %d acc chưa đủ cấp (%s)", label, level,
-                 len(_thieu), ", ".join("%s lv%d" % (m, lv) for m, lv in _thieu))
-        with st["lock"]:
-            st.setdefault("team_dungeon_state", {})[level] = "done"
-        return True
-    need = []
-    missing = []
-    done = []
+    eligible = []
     for m in members:
+        cli = account_clients.get(m)
+        lv = int(getattr(cli, "char_level", 0) or 0)
         rem = reports.get(m)
-        if rem is None:
-            missing.append(m)
-        elif int(rem) > 0:
-            need.append(m)
+        if cli is not None and cli.running and lv >= level and rem is not None and int(rem) > 0:
+            eligible.append(m)
         else:
-            done.append(m)
-    if missing:
-        log.warning("[%s] (LEADER) phó bản đội lv%d: thiếu status của %s -> bỏ qua",
-                    label, level, missing)
+            log.info("[%s] PB lv%d: không mời %s (cấp=%s, lượt=%s)", label, level, m, lv, rem)
+    if username not in eligible or len(eligible) < 2:
         with st["lock"]:
             st.setdefault("team_dungeon_state", {})[level] = "done"
+        log.info("[%s] PB lv%d: leader thiếu điều kiện hoặc chưa đủ 2 người hợp lệ", label, level)
         return True
-    if len(need) == len(members):
+    members = eligible
+    c._td_allowed_entities = {bytes(account_clients[m].self_entity) for m in members if account_clients[m].self_entity}
+    done = []
+    if members:
         log.info("[%s] (LEADER) CA party (%d người) còn lượt phó bản đội lv%d -> chạy",
                  label, len(members), level)
         with st["lock"]:
@@ -9166,15 +9273,20 @@ def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_f
         # LEADER phai biet dong doi ROT NGAY GIUA pho ban (truoc day chi biet SAU khi danh xong:
         # leader danh mot minh het 5 tran ~15 phut roi moi bao vo - log user 14:06). Cam callback
         # de client tu dung o ranh gioi tran / vong cho ket tran (xem client._td_party_gone).
-        c._td_party_broken = lambda: bool(st["reconnecting"]) or st["disc_gen"] > dg0
+        c._td_party_broken = lambda: any(
+            m in st["reconnecting"] or not getattr(account_clients.get(m), "running", False)
+            for m in members)
         try:
             ok = bool(c.do_team_dungeon(level))
             if not ok:
                 log.warning("[%s] (LEADER) phó bản đội lv%d trả FAIL", label, level)
+                if st.get("daily_active") and c.running and not stopped_fn():
+                    _pause_manual_daily_failure(st, pidx, "PB đội lv%d không hoàn tất" % level)
             if st["disc_gen"] > dg0 or st["reconnecting"]:
                 log.warning("[%s] (LEADER) đồng đội rớt trong phó bản đội lv%d -> relogin thoát instance",
                             label, level)
         finally:
+            c._td_allowed_entities = None
             c._td_party_broken = None   # het pho ban -> go callback (khong de ro ri sang viec khac)
             active = _clear_o5_client_flags(c)
             with st["lock"]:
@@ -9207,6 +9319,8 @@ def _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader, stopped_f
             log.info("[%s] (LEADER) Dung Daily sau tran PB lv%d -> dung yen, KHONG relogin",
                      label, level)
             return False
+        if broken and st.get("daily_active"):
+            return bool(c.running)
         if broken:
             # KEO CA PARTY ra khoi instance TRUOC. PB vo thi server khong gui `S:047-012` nen khong
             # acc nao tu biet duong ra; leader chi lo minh thi member ket lai trong 62xxx.
@@ -9291,7 +9405,8 @@ def _run_auto_team_dungeons_if_needed(c, st, username, label, pidx, is_leader, s
     # claim_daily_quests chay SAU va chi khi do_daily -> tung lam doi qua khong bao gio chay.
     # TRUOC ca check auto_team_dungeon: tat PB doi thi van phai doi qua.
     try:
-        c.run_event_pre_dungeon()
+        if not pcfg.get("manual_daily_barrier_done"):
+            c.run_event_pre_dungeon()
     except Exception as e:
         log.warning("[%s] loi doi qua/bang su kien truoc pho ban doi (bo qua): %s", label, e)
     if not pcfg.get("auto_team_dungeon", True):
@@ -9312,6 +9427,8 @@ def _run_auto_team_dungeons_if_needed(c, st, username, label, pidx, is_leader, s
                  "chuyển sang việc tiếp theo (lượt sau vẫn check bình thường)", label)
         return True
     for level in levels:
+        if st.get("daily_team_failed"):
+            return True
         if not flags.get(int(level), False):
             continue
         if not _handle_auto_team_dungeon(c, st, username, label, pidx, is_leader,
@@ -11271,7 +11388,8 @@ def _dieu_phoi_loop():
                     lech_tu.pop(pidx, None)
                     continue
                 st = _pstate(pidx)
-                if st.get("leader_switch_pending") or st.get("ui_mode_restart_users"):
+                if (st.get("leader_switch_pending") or st.get("ui_mode_restart_users")
+                        or st.get("daily_active") or st.get("daily_hold_after_stop")):
                     continue
                 kh, ly_do, lech_tu[pidx] = _dieu_phoi_quyet(pidx, st, song, lech_tu.get(pidx))
                 doi = _ghi_ke_hoach(st, pidx, kh, ly_do)
@@ -12566,6 +12684,11 @@ def party_daily_tasks(pidx, tasks):
         raise ValueError("chua chon daily quest")
     st = _pstate(pidx)
     pending = {u for u, _p, _l, _k in party_accounts(pidx) if is_account_running(u)}
+    leader = account_clients.get(config.PARTY_LEADER_ACC.get(pidx))
+    if any(x == "team_dungeon" or x.startswith("team_dungeon_") for x in chosen):
+        if leader is None or not getattr(leader, "running", False):
+            raise ValueError("Leader phải online để lập phòng phó bản đội")
+        pending = {u for u in pending if getattr(account_clients.get(u), "running", False)}
     with st["lock"]:
         # Daily tay thu hoi ke hoach gom/reform cua train. Neu de co cu song them mot nhip,
         # member se thay "DIEU PHOI dang gom" va bo qua ca PB20/50/80.
@@ -12587,6 +12710,13 @@ def party_daily_tasks(pidx, tasks):
         st["daily_pending"] = pending
         st["daily_participants"] = set(pending)
         st["daily_step_done"] = {}
+        st["daily_resume_indices"] = {}
+        st["daily_error"] = None
+        st["daily_warnings"] = []
+        st["daily_team_failed"] = False
+        st["daily_team_rally_ready"] = set()
+        st["daily_team_rally_complete"] = False
+        st["daily_team_rally_error"] = None
         # Moi lan bam Chay Daily la mot luot moi. Cache "done" cua PB doi tu luot truoc
         # neu khong xoa se lam member thoat cho ngay va leader khong tao phong.
         st["team_dungeon_state"] = {}

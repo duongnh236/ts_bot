@@ -46,7 +46,7 @@ def switch_leader_json(username):
             if st.get("daily_active") or st.get("leader_switch_pending") or st.get("cmd"):
                 return json.dumps({"ok": False, "message": "Hãy dừng/chờ luồng team hiện tại trước khi đổi leader"}, ensure_ascii=False)
             config.PARTY_LEADER_ACC[0] = username
-            _selected_leader_user = username
+            _save_leader(username)
             st["leader_manual_off"] = False
             st["leader_gone"].clear()
             st["reform_gen_thoa"] = st.get("reform_gen", 0)
@@ -118,7 +118,7 @@ def switch_leader_json(username):
             time.sleep(2)
         # Chot vai tro chi sau roster server xac nhan, khong doi vi tri cac slot UI.
         config.PARTY_LEADER_ACC[0] = username
-        _selected_leader_user = username
+        _save_leader(username)
         changed = True
         with st["lock"]:
             st["leader_manual_off"] = False
@@ -250,6 +250,12 @@ def _get_runner():
     return _runner
 
 
+def _save_leader(username):
+    global _selected_leader_user
+    _selected_leader_user = username
+    _save_account_setting("__team__", {"leader": username})
+
+
 def catalog_json():
     from train_bot import config
     maps = []
@@ -271,13 +277,16 @@ def skills_json(username):
 
 def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                                hp_percent=70, sp_percent=70, use_phuc_than=False,
-                               char_mob_min=4, pet_mob_min=4, use_dai_phuc_than=False):
+                               char_mob_min=4, pet_mob_min=4, use_dai_phuc_than=False,
+                               pet_hp_percent=None, pet_sp_percent=None):
     """Apply pet, skill va nguong dung item ngay cho account dang online."""
     try:
         username = str(username or "").strip()
         pet_id, char_skill, pet_skill = int(pet_id or 0), int(char_skill or 0), int(pet_skill or 0)
         hp = max(0, min(100, int(hp_percent))) / 100.0
         sp = max(0, min(100, int(sp_percent))) / 100.0
+        pet_hp = max(0, min(100, int(hp_percent if pet_hp_percent is None else pet_hp_percent))) / 100.0
+        pet_sp = max(0, min(100, int(sp_percent if pet_sp_percent is None else pet_sp_percent))) / 100.0
         char_mob_min = max(1, min(10, int(char_mob_min or 4)))
         pet_mob_min = max(1, min(10, int(pet_mob_min or 4)))
         runner = _get_runner()
@@ -306,7 +315,7 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                   "pets": {str(pet_id): pet_rules} if pet_id else {}}
         runner.apply_account_battle(username, battle)
         runner.apply_account_heal(username, {"hp_char": hp, "sp_char": sp,
-                                             "hp_pet": hp, "sp_pet": sp})
+                                             "hp_pet": pet_hp, "sp_pet": pet_sp})
         from train_bot import config
         config.ACCOUNT_PHUC_THAN[username] = bool(use_phuc_than)
         config.ACCOUNT_DAI_PHUC_THAN[username] = bool(use_dai_phuc_than)
@@ -317,7 +326,7 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
         _save_account_setting(username, {
             "pet_id": pet_id, "char_skill": char_skill, "pet_skill": pet_skill,
             "char_mob_min": char_mob_min, "pet_mob_min": pet_mob_min,
-            "heal": {"hp_char": hp, "sp_char": sp, "hp_pet": hp, "sp_pet": sp},
+            "heal": {"hp_char": hp, "sp_char": sp, "hp_pet": pet_hp, "sp_pet": pet_sp},
             "battle": battle, "use_phuc_than": bool(use_phuc_than),
             "use_dai_phuc_than": bool(use_dai_phuc_than),
         })
@@ -366,6 +375,24 @@ def start_json(payload):
         # roi dung im vi khong con route train. Giu nguyen toan bo runtime va chi cap nhat mat khau
         # + start dung account vua out.
         session_live = any(runner.is_account_running(row[0]) for row in runner.party_accounts(0))
+        if session_live and not only_user:
+            # LOGIN ALL chi bo sung acc offline; khong restart team hay reset bai farm.
+            results = []
+            skipped = 0
+            for a in data.get("accounts", []):
+                u = str(a.get("u", "")).strip()
+                if not u or not a.get("on", True):
+                    continue
+                if runner.is_account_running(u):
+                    skipped += 1
+                    continue
+                request = dict(data, only_user=u)
+                results.append(json.loads(start_json(json.dumps(request))))
+            failed = [r.get("message", "Lỗi khởi động") for r in results if not r.get("ok")]
+            return json.dumps({"ok": not failed, "message":
+                               "LOGIN ALL: khởi động %d account; giữ nguyên %d account đang chạy%s" %
+                               (sum(bool(r.get("ok")) for r in results), skipped,
+                                "; " + "; ".join(failed) if failed else "")}, ensure_ascii=False)
         if only_user and session_live:
             from train_bot import config
             requested = next((a for a in data.get("accounts", [])
@@ -431,6 +458,9 @@ def start_json(payload):
         configured_users = {a[0] for a in config.PARTIES[0]}
         default_leader = next((str(a.get("u", "")).strip() for a in data.get("accounts", [])
                                if int(a.get("slot", -1)) == 0 and str(a.get("u", "")).strip()), None)
+        global _selected_leader_user
+        if _selected_leader_user is None:
+            _selected_leader_user = (_load_account_settings().get("__team__") or {}).get("leader")
         config.PARTY_LEADER_ACC[0] = (_selected_leader_user if _selected_leader_user in configured_users
                                     else default_leader)
         channel = int(data.get("channel", 0) or 0)
@@ -477,11 +507,26 @@ def safe_logout_all_json():
             return json.dumps({"ok": True, "message": "Không có account online để logout"}, ensure_ascii=False)
         # Member ve SAFE truoc. Leader logout sau cung de party khong bi mat dau keo som.
         running.sort(key=lambda row: row[2])
-        for username, client, is_leader in running:
-            client._individual_safe_logout = True
-            client._wait_leader_on_stop = False
-            client._individual_safe_logout_is_leader = is_leader
-            runner.stop_account(username, reason="Android: LOGOUT ALL an toan")
+        def logout_in_order():
+            members = [row for row in running if not row[2]]
+            for username, client, _ in members:
+                client._individual_safe_logout = True
+                client._wait_leader_on_stop = False
+                client._individual_safe_logout_is_leader = False
+                runner.stop_account(username, reason="Android: LOGOUT ALL an toan")
+            deadline = time.monotonic() + 180
+            while any(runner.is_account_running(u) or getattr(c, "running", False) for u, c, _ in members):
+                if time.monotonic() >= deadline:
+                    log.warning("LOGOUT ALL: member chưa OUT; giữ leader online, hãy thử lại")
+                    return
+                time.sleep(0.5)
+            for username, client, is_leader in running:
+                if is_leader:
+                    client._individual_safe_logout = True
+                    client._wait_leader_on_stop = False
+                    client._individual_safe_logout_is_leader = True
+                    runner.stop_account(username, reason="Android: LOGOUT ALL member da OUT")
+        threading.Thread(target=logout_in_order, name="safe-logout-all", daemon=True).start()
         return json.dumps({"ok": True, "message": "Đã gửi LOGOUT ALL: %d account sẽ về SAFE rồi thoát" % len(running)}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
@@ -644,8 +689,9 @@ def auto_battle_team_json(map_id=0, x=0, y=0):
                                "Chua chon du map/toa do farm: ca team se phu ve thanh gan leader, lap PT va dung cho tai do"},
                               ensure_ascii=False)
         for _username, client in live:
-            client._ui_auto_battle = False
-            client.flee_mode = True
+            client._ui_auto_battle = True
+            client.flee_mode = False
+            client.combat_ready()
         st = runner._pstate(0)
         with st["lock"]:
             st["ui_train_target"] = (map_id, x, y)
@@ -797,7 +843,7 @@ def daily_status_json():
         st = runner._pstate(0)
         with st["lock"]:
             data = {key: st.get(key) for key in ("daily_active", "daily_tasks", "daily_task",
-                    "daily_phase", "daily_user", "daily_message", "daily_started_at")}
+                    "daily_phase", "daily_user", "daily_message", "daily_started_at", "daily_warnings")}
         accounts = []
         for user, client in _live_party(runner):
             try:
@@ -950,20 +996,41 @@ def map_snapshot_json(username=""):
         live = _live_party(runner)
         if not live:
             return json.dumps({"ok": True, "map": 0, "map_name": "Chua login", "team": [], "entities": []}, ensure_ascii=False)
-        focus = next((client for user, client in live if user == str(username or "")), live[0][1])
         configured_leader = next((user for user, _pw, lead, _pet in runner.party_accounts(0) if lead), live[0][0])
+        focus_user = str(username or configured_leader)
+        focus = next((client for user, client in live if user == focus_user), live[0][1])
         map_id = int(getattr(focus, "current_map", 0) or 0)
         channel = int(getattr(focus, "current_channel", 0) or 0)
         from train_bot import config
         from train_bot.client import party_int_for
+        # Vi tri entity do server broadcast co the moi hon pos socket cua member dang follow.
+        # Chi doc de ve UI; KHONG ghi de toa do dung cho navigate/combat.
+        now = time.monotonic()
+        observed = {}
+        for _u, observer in live:
+            if observer.current_map != map_id or observer.current_channel != channel:
+                continue
+            with observer._world_entity_lock:
+                for ent, row in list((observer.world_entities or {}).items()):
+                    if int(row[0]) != map_id or now - float(row[3]) > 15.0:
+                        continue
+                    if bytes(ent) not in observed or row[3] > observed[bytes(ent)][3]:
+                        observed[bytes(ent)] = row
         team = []
         for username, client in live:
             pos = getattr(client, "pos", None) or (0, 0)
             entity = getattr(client, "self_entity", None)
+            seen = observed.get(bytes(entity)) if entity else None
+            source = "account"
+            if (seen and client.current_map == map_id and client.current_channel == channel
+                    and username != configured_leader):
+                pos = (seen[1], seen[2])
+                source = "server_entity"
             team.append({"user": username, "name": str(getattr(client, "char_name", "") or username),
                          "map": int(getattr(client, "current_map", 0) or 0),
                          "channel": int(getattr(client, "current_channel", 0) or 0),
                          "x": int(pos[0] or 0), "y": int(pos[1] or 0),
+                         "position_source": source,
                          "leader": username == configured_leader,
                          "in_party": bool(runner.is_joined(0, entity)) if entity else False,
                          "strategist": bool(runner.is_strategist(0, entity)) if entity else False,
@@ -1004,6 +1071,7 @@ def map_snapshot_json(username=""):
                 collision = {}
             _ground_ui_cache[map_id] = collision
         return json.dumps({"ok": True, "map": map_id, "map_name": config.map_display_name(map_id),
+                           "focus_user": focus_user,
                            "channel": channel, "team": team, "entities": entities,
                            "target": list(target) if target else None,
                            "safe": [list(point) for point in safe[:20]],
