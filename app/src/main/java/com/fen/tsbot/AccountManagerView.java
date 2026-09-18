@@ -21,7 +21,9 @@ public class AccountManagerView extends LinearLayout {
     private final boolean[] rememberAccounts=new boolean[5];
     private final SharedPreferences savedAccounts;
     private final LinearLayout tabs,body; private final int gold=Color.rgb(213,168,78),card=Color.rgb(17,29,48);
-    private Button setupButton,teleportButton,mapButton;
+    private Button setupButton,teleportButton,mapButton,loginButton,outButton;
+    private EditText currentUserField,currentPassField;
+    private final boolean[] loginPending=new boolean[5];
     private JSONObject mapSnapshots=new JSONObject();
     private TeamMapView liveAccountMap;
     private JSONArray mapRoute=new JSONArray(),mapTarget=new JSONArray();
@@ -35,6 +37,24 @@ public class AccountManagerView extends LinearLayout {
     private AccountActionListener actionListener;
     public AccountManagerView(Context c){super(c);savedAccounts=c.getSharedPreferences("tsbot_saved_accounts",Context.MODE_PRIVATE);for(int i=0;i<5;i++){rememberAccounts[i]=savedAccounts.getBoolean("remember_"+i,false);if(rememberAccounts[i]){usernames[i]=savedAccounts.getString("user_"+i,"");passwords[i]=savedAccounts.getString("pass_"+i,"");}}setOrientation(VERTICAL);setPadding(dp(12),dp(10),dp(12),dp(12));setBackgroundColor(Color.rgb(8,17,31));TextView title=txt("QUẢN LÝ ACCOUNT",21,gold);title.setTypeface(Typeface.DEFAULT_BOLD);addView(title);HorizontalScrollView hs=new HorizontalScrollView(c);tabs=new LinearLayout(c);tabs.setOrientation(HORIZONTAL);hs.addView(tabs);hs.setVisibility(GONE);addView(hs,new LayoutParams(-1,0));ScrollView scroll=new ScrollView(c);body=new LinearLayout(c);body.setOrientation(VERTICAL);scroll.addView(body);addView(scroll,new LayoutParams(-1,0,1));renderBody();}
     public void setAccountActionListener(AccountActionListener listener){actionListener=listener;updateLoginRequiredButtons();}
+    public String configuredUser(int slot){return usernames[slot]==null?"":usernames[slot].trim();}
+    public boolean hasPendingLogin(){for(boolean pending:loginPending)if(pending)return true;return false;}
+    public void markLoginPending(int slot){loginPending[slot]=true;updateAccountControls();}
+    public void clearLoginPending(String user){for(int i=0;i<5;i++)if(user==null||user.isEmpty()||user.equals(configuredUser(i)))loginPending[i]=false;updateAccountControls();}
+    private void updateAccountControls(){
+        JSONObject a=selected<accounts.length()?accounts.optJSONObject(selected):null;
+        boolean online=a!=null&&a.optBoolean("online"),connecting=a!=null&&a.optBoolean("logging_in");
+        boolean busy=online||connecting||loginPending[selected];
+        if(loginButton!=null)loginButton.setEnabled(!busy);
+        if(outButton!=null)outButton.setEnabled(online||connecting);
+        if(currentUserField!=null){currentUserField.setEnabled(!busy);currentUserField.setAlpha(busy?.65f:1f);}
+        if(currentPassField!=null){currentPassField.setEnabled(!busy);currentPassField.setAlpha(busy?.65f:1f);}
+    }
+    private void styleCredentialField(EditText field){
+        field.setHintTextColor(Color.rgb(145,163,186));field.setPadding(dp(14),dp(10),dp(14),dp(10));
+        android.graphics.drawable.GradientDrawable bg=new android.graphics.drawable.GradientDrawable();
+        bg.setColor(Color.rgb(17,29,48));bg.setCornerRadius(dp(12));bg.setStroke(dp(1),Color.rgb(49,68,91));field.setBackground(bg);
+    }
     public JSONArray getConfiguredCredentials(){JSONArray rows=new JSONArray();for(int i=0;i<5;i++){String u=usernames[i]==null?"":usernames[i].trim();if(u.isEmpty())continue;try{rows.put(new JSONObject().put("slot",i).put("u",u).put("p",passwords[i]==null?"":passwords[i]));if(rememberAccounts[i])saveAccount(i,u,passwords[i]==null?"":passwords[i]);}catch(JSONException ignored){}}return rows;}
     public void setActionMessage(String message,boolean error){actionMessage=message==null?"":message;actionError=error;if(sectionMode!=4)renderBody();}
     public void setChannelPolicyResult(boolean ok,boolean autoMode,int channel,String message){actionMessage=message==null?"":message;actionError=!ok;if(ok){JSONObject a=selected<accounts.length()?accounts.optJSONObject(selected):null;if(a!=null){try{a.put("channel_auto",false);a.put("channel_manual",channel);}catch(Exception ignored){}}channelDraft=channel;channelDraftReady=true;}channelEditing=false;renderBody();}
@@ -43,27 +63,28 @@ public class AccountManagerView extends LinearLayout {
     public boolean isMapSection(){return sectionMode==5;}
     public String getSelectedUser(){JSONObject a=selected<accounts.length()?accounts.optJSONObject(selected):null;return a==null?"":a.optString("user","");}
     public void selectAccount(int slot){selected=Math.max(0,Math.min(4,slot));sectionMode=0;combatEditorLocked=false;channelEditing=false;channelDraftReady=false;updateLoginRequiredButtons();renderBody();}
-public void setData(JSONObject data){JSONArray a=data.optJSONArray("accounts");accounts=a==null?new JSONArray():a;for(int i=0;i<Math.min(5,accounts.length());i++){JSONObject x=accounts.optJSONObject(i);if(x!=null&&usernames[i]==null&&!x.optString("user").isEmpty())usernames[i]=x.optString("user");}if(combatEditorLocked||sectionMode==4||sectionMode==5)return;updateLoginRequiredButtons();renderTabs();JSONObject current=selected<accounts.length()?accounts.optJSONObject(selected):null;boolean selectedOnline=current!=null&&current.optBoolean("online");if(!channelEditing&&(sectionMode==2||sectionMode==3||sectionMode==5||(sectionMode==0&&selectedOnline)||!hasFocus()))renderBody();}
+public void setData(JSONObject data){JSONArray a=data.optJSONArray("accounts");accounts=a==null?new JSONArray():a;for(int i=0;i<Math.min(5,accounts.length());i++){JSONObject x=accounts.optJSONObject(i);if(x!=null&&usernames[i]==null&&!x.optString("user").isEmpty())usernames[i]=x.optString("user");}for(int i=0;i<Math.min(5,accounts.length());i++){JSONObject x=accounts.optJSONObject(i);if(x!=null&&(x.optBoolean("online")||x.optBoolean("logging_in")))loginPending[i]=false;}updateAccountControls();if(combatEditorLocked||sectionMode==4||sectionMode==5)return;updateLoginRequiredButtons();renderTabs();JSONObject current=selected<accounts.length()?accounts.optJSONObject(selected):null;boolean selectedOnline=current!=null&&current.optBoolean("online");if(!channelEditing&&(sectionMode==2||sectionMode==3||sectionMode==5||(sectionMode==0&&selectedOnline)||!hasFocus()))renderBody();}
     private void updateLoginRequiredButtons(){JSONObject a=selected<accounts.length()?accounts.optJSONObject(selected):null;boolean online=a!=null&&a.optBoolean("online");if(setupButton!=null)setupButton.setEnabled(online);if(teleportButton!=null)teleportButton.setEnabled(online);if(mapButton!=null)mapButton.setEnabled(online);}
     private void renderTabs(){tabs.removeAllViews();for(int i=0;i<accounts.length();i++){JSONObject a=accounts.optJSONObject(i);Button b=btn((a!=null&&a.optBoolean("online")?"● ":"○ ")+(a==null?"Slot "+(i+1):a.optString("name",a.optString("user"))));final int index=i;b.setTextColor(i==selected?Color.BLACK:Color.WHITE);b.setBackgroundColor(i==selected?gold:card);b.setOnClickListener(v->{selected=index;renderTabs();renderBody();});tabs.addView(b,new LayoutParams(dp(150),-2));}}
     private void renderBody(){
-        body.removeAllViews();
+        body.removeAllViews();loginButton=null;outButton=null;currentUserField=null;currentPassField=null;
         JSONObject a=selected<accounts.length()?accounts.optJSONObject(selected):null;
         if(a==null)a=new JSONObject();
         boolean on=a.optBoolean("online"),logging=a.optBoolean("logging_in");
         // Bản đồ leader là màn hình toàn khung; không chen form login/thông tin phía trên.
-        if(sectionMode==5&&a.optBoolean("leader")){renderAccountMap(a);return;}
+        if(sectionMode==5&&a.optBoolean("leader")){renderSectionGrid(on,true);renderAccountMap(a);return;}
         TextView state=txt((on?"● ONLINE":(logging?"◌ ĐANG ĐĂNG NHẬP":"○ OFFLINE"))+"  •  ACCOUNT "+(selected+1)+(a.optString("user").isEmpty()?"":"  •  "+a.optString("name")),16,on?Color.rgb(75,225,140):Color.rgb(255,110,100));
         state.setPadding(0,dp(12),0,dp(8));body.addView(state);
         EditText user=new EditText(getContext()),pass=new EditText(getContext());
         user.setHint("Username account "+(selected+1));pass.setHint("Password");
         user.setText(usernames[selected]==null?a.optString("user"):usernames[selected]);pass.setText(passwords[selected]==null?"":passwords[selected]);
         user.setTextColor(Color.WHITE);pass.setTextColor(Color.WHITE);user.setSingleLine();pass.setSingleLine();pass.setInputType(0x00000081);
-        body.addView(user,new LayoutParams(-1,-2));body.addView(pass,new LayoutParams(-1,-2));
+        currentUserField=user;currentPassField=pass;styleCredentialField(user);styleCredentialField(pass);
+        LayoutParams userLp=new LayoutParams(-1,dp(54)),passLp=new LayoutParams(-1,dp(54));userLp.setMargins(0,dp(6),0,dp(4));passLp.setMargins(0,dp(4),0,dp(6));body.addView(user,userLp);body.addView(pass,passLp);
         CheckBox remember=new CheckBox(getContext());remember.setText("🔒 Lưu tài khoản và mật khẩu trên thiết bị này");remember.setTextColor(Color.WHITE);remember.setChecked(rememberAccounts[selected]);body.addView(remember,new LayoutParams(-1,dp(48)));
         LinearLayout actions=new LinearLayout(getContext());actions.setOrientation(HORIZONTAL);
         Button login=btn("🔑 LOGIN"),logout=btn("⏻ OUT");
-        login.setEnabled(!on&&!logging);logout.setEnabled(on||logging);
+        loginButton=login;outButton=logout;updateAccountControls();
         final int slot=selected;
         TextWatcher credentialsWatcher=new TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){usernames[slot]=user.getText().toString().trim();passwords[slot]=pass.getText().toString();}public void afterTextChanged(Editable e){}};
         user.addTextChangedListener(credentialsWatcher);pass.addTextChangedListener(credentialsWatcher);
@@ -97,7 +118,7 @@ public void setData(JSONObject data){JSONArray a=data.optJSONArray("accounts");a
         body.addView(grid,new LayoutParams(-1,-2));
     }
 
-    private void addGridButton(GridLayout grid,Button button,boolean active){button.setTextSize(10);button.setGravity(Gravity.CENTER);if(active&&button.isEnabled())button.setTextColor(gold);GridLayout.LayoutParams lp=new GridLayout.LayoutParams();lp.width=0;lp.height=dp(62);lp.columnSpec=GridLayout.spec(GridLayout.UNDEFINED,1f);lp.setMargins(dp(3),dp(3),dp(3),dp(3));grid.addView(button,lp);}
+    private void addGridButton(GridLayout grid,Button button,boolean active){button.setTextSize(10);button.setGravity(Gravity.CENTER);button.setSelected(active);int selectedFill=Color.rgb(36,105,145);button.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(38,43,52),active?selectedFill:card}));button.setTextColor(button.isEnabled()?Color.WHITE:Color.rgb(112,120,132));GridLayout.LayoutParams lp=new GridLayout.LayoutParams();lp.width=0;lp.height=dp(62);lp.columnSpec=GridLayout.spec(GridLayout.UNDEFINED,1f);lp.setMargins(dp(3),dp(3),dp(3),dp(3));grid.addView(button,lp);}
 
     private void renderAccountMap(JSONObject a){String user=a.optString("user");JSONObject own=mapSnapshots.optJSONObject(user);if(own==null)own=new JSONObject();LinearLayout head=new LinearLayout(getContext());head.setGravity(Gravity.CENTER_VERTICAL);Button back=btn("← THÔNG TIN");back.setOnClickListener(v->{sectionMode=0;renderBody();});head.addView(back,new LayoutParams(dp(128),dp(52)));TextView title=txt("🗺  BẢN ĐỒ TEAM LIVE • "+a.optString("name",user),16,gold);title.setTypeface(Typeface.DEFAULT_BOLD);head.addView(title,new LayoutParams(0,-2,1));body.addView(head,new LayoutParams(-1,-2));if(liveAccountMap==null)liveAccountMap=new TeamMapView(getContext());TeamMapView map=liveAccountMap;if(map.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)map.getParent()).removeView(map);map.setSnapshot(own);map.setRoute(mapRoute,mapTarget);map.setOnMapTapListener((x,y)->{if(actionListener!=null)actionListener.onMapTap(x,y);});int fullHeight=Math.max(dp(620),getResources().getDisplayMetrics().heightPixels-dp(150));LayoutParams lp=new LayoutParams(-1,fullHeight);lp.setMargins(0,dp(6),0,0);body.addView(map,lp);}
     private void renderTeleport(JSONObject a){body.addView(txt("✦ THÀNH ACCOUNT ĐÃ MỞ",16,gold));if(!a.optBoolean("online")){body.addView(txt("Account cần ONLINE để đọc và dùng danh sách teleport.",14,Color.LTGRAY));return;}JSONArray cities=a.optJSONArray("cities");if(!a.optBoolean("cities_loaded")){body.addView(txt("Đang chờ server trả cờ nhiệm vụ / danh sách thành đã mở…",14,Color.LTGRAY));return;}if(cities==null||cities.length()==0){body.addView(txt("Server chưa xác nhận account đã mở thành teleport nào.",14,Color.LTGRAY));return;}final int slot=selected;final String user=a.optString("user");for(int i=0;i<cities.length();i++){JSONObject city=cities.optJSONObject(i);if(city==null)continue;int cityId=city.optInt("id");Button b=btn("✦  "+city.optString("name","Thành "+cityId)+"   •   Map "+cityId);b.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);b.setPadding(dp(16),0,dp(12),0);b.setOnClickListener(v->{actionMessage="Đang gửi "+user+" dịch chuyển…";actionError=false;if(actionListener!=null)actionListener.onTeleport(slot,user,cityId);renderBody();});LayoutParams lp=new LayoutParams(-1,dp(58));lp.setMargins(0,dp(5),0,dp(5));body.addView(b,lp);}body.addView(txt("Chỉ account đang chọn dịch chuyển. Teleport giữa chừng có thể làm account rời PT.",12,Color.rgb(155,175,200)));}
@@ -170,7 +191,23 @@ public void setData(JSONObject data){JSONArray a=data.optJSONArray("accounts");a
     }
     private String formatDuration(long seconds){long h=seconds/3600,m=(seconds%3600)/60,s=seconds%60;return h>0?h+"g "+m+"p":m>0?m+"p "+s+"g":s+" giây";}
     private void gameStatusPanel(String name,String sub,long hp,long hpMax,long sp,long spMax,long exp,long expMax,boolean hasExp,boolean hasExpMax){LinearLayout box=new LinearLayout(getContext());box.setOrientation(VERTICAL);box.setPadding(dp(12),dp(11),dp(12),dp(12));box.setBackgroundColor(Color.rgb(14,31,51));TextView title=txt(name,17,Color.WHITE);title.setTypeface(Typeface.DEFAULT_BOLD);box.addView(title);box.addView(txt(sub,12,Color.rgb(175,200,225)));gameBar(box,"HP",hp,hpMax,true,Color.rgb(225,53,64));gameBar(box,"SP",sp,spMax,true,Color.rgb(44,139,232));gameBar(box,"EXP",exp,expMax,hasExp&&hasExpMax,Color.rgb(77,196,64));LayoutParams lp=new LayoutParams(-1,-2);lp.setMargins(0,dp(6),0,dp(8));body.addView(box,lp);}
-    private void gameBar(LinearLayout box,String label,long value,long max,boolean known,int color){LinearLayout line=new LinearLayout(getContext());line.setGravity(Gravity.CENTER_VERTICAL);TextView key=txt(label,12,Color.WHITE);key.setTypeface(Typeface.DEFAULT_BOLD);line.addView(key,new LayoutParams(dp(38),-2));ProgressBar bar=new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);bar.setMax(1000);int progress=known&&max>0?(int)Math.max(0,Math.min(1000,value*1000L/max)):0;bar.setProgress(progress);bar.setProgressTintList(ColorStateList.valueOf(color));bar.setProgressBackgroundTintList(ColorStateList.valueOf(Color.rgb(48,57,70)));line.addView(bar,new LayoutParams(0,dp(19),1));String valueText=known&&max>0?num(value)+" / "+num(max)+"   "+Math.max(0,Math.min(100,(value*100L/max)))+"%":"Chưa có dữ liệu";TextView amount=txt(valueText,11,Color.WHITE);amount.setGravity(Gravity.RIGHT);line.addView(amount,new LayoutParams(dp(178),-2));LayoutParams lp=new LayoutParams(-1,dp(34));lp.setMargins(0,dp(2),0,0);box.addView(line,lp);}
+    private void gameBar(LinearLayout box,String label,long value,long max,boolean known,int color){
+        boolean available=known&&max>0;
+        double ratio=available?Math.max(0,Math.min(1,(double)value/(double)max)):0;
+        LinearLayout header=new LinearLayout(getContext());header.setGravity(Gravity.CENTER_VERTICAL);
+        TextView key=txt(label,12,Color.WHITE);key.setTypeface(Typeface.DEFAULT_BOLD);
+        header.addView(key,new LayoutParams(0,-2,1));
+        String valueText=available?num(value)+" / "+num(max)+"   "+(int)(ratio*100)+"%":"Chưa có dữ liệu";
+        TextView amount=txt(valueText,12,Color.WHITE);amount.setGravity(Gravity.RIGHT);
+        header.addView(amount,new LayoutParams(-2,-2));box.addView(header,new LayoutParams(-1,-2));
+        ProgressBar bar=new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
+        bar.setIndeterminate(false);bar.setMax(1000);bar.setProgress((int)Math.round(ratio*1000));
+        bar.setProgressTintList(ColorStateList.valueOf(color));
+        bar.setProgressBackgroundTintList(ColorStateList.valueOf(Color.rgb(48,57,70)));
+        bar.setPadding(0,0,0,0);
+        LayoutParams barParams=new LayoutParams(-1,dp(20));barParams.setMargins(0,dp(3),0,dp(8));
+        box.addView(bar,barParams);
+    }
     private void renderDailyProgress(JSONObject a){LinearLayout box=new LinearLayout(getContext());box.setOrientation(VERTICAL);box.setPadding(dp(12),dp(12),dp(12),dp(12));box.setBackgroundColor(Color.rgb(13,31,51));TextView title=txt("📅 TIẾN ĐỘ HOẠT ĐỘNG HÔM NAY",15,gold);title.setTypeface(Typeface.DEFAULT_BOLD);box.addView(title);box.addView(txt(progressLine("Boss quân đoàn",a,"legion_boss_current","legion_boss_max"),14,Color.WHITE));box.addView(txt(progressLine("Boss thế giới",a,"world_boss_current","world_boss_max"),14,Color.WHITE));box.addView(txt(remainingLine("Khiêu Chiến Đậu Đậu • Phụ bản đơn",a,"solo_dungeon_remaining"),14,Color.WHITE));JSONObject team=a.optJSONObject("team_dungeon_remaining");int[] levels={20,50,80,110};String[] names={"Thảo Phạt Thiên Sư","Ngày Tàn Hoạn Quan","Đại Chiến Lữ Bố","Hỏa Thiêu Bộc Dương"};for(int i=0;i<levels.length;i++){int level=levels[i];String value="Chưa đồng bộ từ server";if(team!=null&&!team.isNull(String.valueOf(level)))value=team.optInt(String.valueOf(level))==0?"Đã đi":"Chưa đi • còn "+team.optInt(String.valueOf(level))+" lượt";box.addView(txt("• "+names[i]+" • Cấp "+level+": "+value,13,Color.rgb(195,215,238)));}if(!a.optBoolean("daily_progress_synced")){TextView wait=txt("ⓘ Server chưa gửi bảng nhiệm vụ 0x18 trong phiên này; Boss quân đoàn vẫn dùng bộ đếm riêng 0x55.",12,Color.rgb(255,185,90));wait.setPadding(0,dp(8),0,0);box.addView(wait);}LayoutParams lp=new LayoutParams(-1,-2);lp.setMargins(0,dp(10),0,dp(4));body.addView(box,lp);}
     private String progressLine(String label,JSONObject a,String current,String max){if(a.isNull(current)||!a.has(current))return "• "+label+": Chưa có dữ liệu server";int used=a.optInt(current),limit=a.optInt(max);return "• "+label+": đã đánh "+used+" / "+(limit>0?limit:"?")+" • còn "+(limit>0?Math.max(0,limit-used):"?");}
     private String remainingLine(String label,JSONObject a,String key){if(a.isNull(key)||!a.has(key))return "• "+label+": Chưa có dữ liệu server";int remaining=a.optInt(key);return "• "+label+": "+(remaining==0?"Đã đi hết lượt":"Chưa đi • còn "+remaining+" lượt");}

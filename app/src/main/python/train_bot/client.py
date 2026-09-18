@@ -12891,105 +12891,10 @@ class GameClient:
         self._ds_kenh_hoi_luc = time.time()   # dieu phoi doc de biet BANG DANG CU, cho goi ve da
         self.send(0x07, b"\x01\x00")
 
-    def pick_best_channel(self, wait: float = 2.0, exclude=(1,), tries: int = 4, need: int = 1):
-        """Hoi danh sach kenh -> chuyen sang kenh IT NGUOI nhat MA CON DU CHO cho CA PARTY.
-        need = so acc cua party (kenh phai con >= need cho trong, neu khong ca party khong gom
-        ve duoc 1 kenh -> 1 so acc bi ket o instance khac).
-        exclude: bo qua kenh nao (vd kenh 1 thuong dong/mac dinh).
-        Tra ve:
-          0    = chi 1 kenh (khong co list / chi co kenh mac dinh) -> ca party DA cung kenh, GIU NGUYEN.
-          None = co nhieu kenh NHUNG khong kenh nao du cho ca party -> caller nen RETRY (cho kenh trong).
-          int  = da chuyen sang kenh it nguoi MA con du cho ca party."""
-        # ==== DANG ON THI DUNG DUNG VAO ====
-        # Ca party (con song, CUNG MAP) da chung mot kenh -> GIU NGUYEN. Truoc day khong he co
-        # nhanh nay: ba nhanh "giu nguyen" ben duoi deu la truong hop HONG (khong lay duoc list /
-        # het kenh de tach / khong kenh nao du cho), khong co nhanh nao cho "dang tot".
-        # Hau qua that (party 53, 06/09):
-        #     02:09:01 sync kenh/map OK: 5/5 acc o map 12001        (ca 5 o kenh 4)
-        #     02:09:08 -> LENH THU CONG ('route', ...) -> goi lai do_channel_sync
-        #     02:09:12 Kenh it nguoi MA DU CHO ca party (5): kenh 2 -> chuyen sang
-        #     02:09:22 sync kenh: 3/5 da sang kenh 2, CHUA sang: {qv813: 4, qv816: 4}
-        # Kenh 4 "dong" chinh vi party minh dang dung trong do -> picker thay kenh 2 "vang hon"
-        # roi doi ca party sang, lam vo party.
-        # KHONG kiem "kenh do con du cho": party dang dung trong do roi, cho la chuyen da roi.
-        _chung = self._kenh_chung_cua_party()
-        if _chung:
-            log.info("[%s] Ca party DA cung kenh %d -> GIU NGUYEN (khong doi kenh vo ich)",
-                     self._label, _chung)
-            return 0
-        for i in range(tries):
-            if not self.running:
-                return None
-            self.request_channel_list()
-            if self._chan_event.wait(wait):
-                break
-            log.info("[%s] Chua nhan duoc danh sach kenh, hoi lai (%d/%d)...",
-                     self._label, i + 1, tries)
-        else:
-            # KHONG lay duoc list -> server chi co 1 kenh -> ca party DA o cung kenh (kenh 1).
-            log.info("[%s] Khong co danh sach kenh -> chi 1 kenh, ca party da cung kenh -> giu nguyen",
-                     self._label)
-            return 0
-        # `(None, None)` = kenh minh DANG O ma server khong liet ke (client tu them vao danh sach,
-        # xem `_on_channel_list`). No CO THAT nhung KHONG BIET suc chua -> khong the dem "con may
-        # cho", nen khong duoc lam ung vien chuyen den.
-        cand = [(ch, cur, cap) for ch, (cur, cap) in self.channels.items()
-                if ch not in exclude and cur is not None and cap is not None]
-        if not cand:
-            # `cand` rong = KHONG CON KENH NAO DE CHUYEN SANG (kenh da full nen server khong con
-            # liet ke), CHU KHONG PHAI "ca party dang cung kenh". Truoc day tra 0 (= giu nguyen)
-            # nen leader o kenh 2 con member o kenh 1 van bi coi la cung kenh -> leader moi VO HAN
-            # ma khong ai thay loi moi (log 17:25).
-            #
-            # Het cho de tach ra thi gom NGUOC LAI: ca party ve KENH CUA LEADER. Leader dang o do
-            # san nen chac chan vao duoc; member chuyen sang la thay nhau ngay.
-            cur = getattr(self, "current_channel", None)
-            if cur:
-                log.info("[%s] Khong con kenh trong de tach -> GOM ca party ve kenh cua leader (%s)",
-                         self._label, cur)
-                return int(cur)
-            log.info("[%s] Chua biet kenh hien tai -> giu nguyen", self._label)
-            return 0
-        # CHI chon kenh con DU CHO cho ca party (cap - cur >= need) - NHUNG phai TRU RA so acc
-        # CUA CHINH PARTY dang dung trong kenh do: chung da chiem cho san, doi kenh vao day thi
-        # khong ton them cho nao. Khong tru la doi kenh phai con du 5 cho TRONG khi party da an
-        # het 5 cho o do -> khong kenh nao "du", RETRY vo han.
-        # Log 31/08 party 2 (20:39, map su kien 40NPC 10991, 39 kenh): leader gamo lap
-        # "KHONG kenh nao du 5 cho trong cho ca party -> RETRY" moi 3s, trong khi ca 5 acc DA o
-        # tren map do roi (nasau kenh 34, so con lai kenh 39) -> party khong bao gio lap duoc.
-        fit = [c for c in cand if (c[2] - c[1] + self._so_acc_party_o_kenh(c[0])) >= need]
-        if not fit:
-            # Khong tach ra duoc thi GOM NGUOC LAI ve kenh cua leader - y het nhanh `cand` rong o
-            # tren. Leader dang dung trong kenh do nen chac chan co cho cho no; member chuyen sang
-            # neu day thi server tra ma 4 va vong sau thu lai. Van hon la RETRY vo han.
-            _cur = getattr(self, "current_channel", None)
-            if _cur and any(c[0] == int(_cur) for c in cand):
-                log.warning("[%s] KHONG kenh nao du %d cho -> GOM ca party ve kenh cua leader (%s)",
-                            self._label, need, _cur)
-                return int(_cur)
-            log.warning("[%s] KHONG kenh nao du %d cho trong cho ca party -> RETRY (cho kenh trong)",
-                        self._label, need)
-            return None
-        tried = set()
-        for best in sorted(fit, key=lambda c: (c[1], c[0])):   # it nguoi nhat trong cac kenh du cho
-            tried.add(best[0])
-            log.info("[%s] Kenh it nguoi MA DU CHO ca party (%d): kenh %d (%d/%d) -> chuyen sang",
-                     self._label, need, best[0], best[1], best[2])
-            if self.switch_channel(best[0]):
-                return best[0]
-            if getattr(self, "_chan_switch_result", None) == 3:
-                # Ma 3 <組隊不可換分區> la loi PARTY, khong dinh dang gi toi kenh: kenh nao cung se
-                # tra dung ma 3. Quet tiep = dot het danh sach kenh mot cach vo ich, moi kenh 2
-                # luot ack (log 31/08 party 7, 14:45-14:55: 67 luot, khong bao gio thoat).
-                # Dung han, tra None de caller cho roi dong bo lai - luc do `leave_party` da gui
-                # 013-004 nen vong sau nhieu kha nang da roi duoc party.
-                log.warning("[%s] Doi kenh bi chan vi DANG TO DOI (ma 3) -> DUNG quet kenh "
-                            "(kenh nao cung the), cho vong sau", self._label)
-                return None
-            log.warning("[%s] Khong doi duoc kenh %d -> thu kenh khac neu co", self._label, best[0])
-        log.warning("[%s] Da thu %d kenh du cho (%s) nhung khong doi duoc -> RETRY",
-                    self._label, len(tried), sorted(tried))
-        return None
+    def pick_best_channel(self, wait=2.0, exclude=(1,), tries=4, need=1):
+        """Legacy entry point: automatic channel selection is disabled globally."""
+        log.info("[%s] Auto chọn phân khu đã tắt; giữ phân khu hiện tại", self._label)
+        return 0
 
     def party_peers(self):
         """Cac client CUNG PARTY dang song trong tien trinh nay (ke ca chinh minh).

@@ -13,7 +13,6 @@ import android.provider.Settings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -83,9 +82,13 @@ final class UpdateManager {
                 PackageInstaller.SessionParams params=new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 params.setAppPackageName(activity.getPackageName());
                 int sessionId=installer.createSession(params);session=installer.openSession(sessionId);
-                try(InputStream input=new BufferedInputStream(connection.getInputStream());OutputStream output=new BufferedOutputStream(session.openWrite("update.apk",0,total))){
+                // PackageInstaller.fsync must receive the exact stream returned by openWrite.
+                // Wrapping it in BufferedOutputStream causes Android's "Unrecognized stream".
+                try(InputStream input=new BufferedInputStream(connection.getInputStream());OutputStream output=session.openWrite("update.apk",0,total)){
                     byte[] buffer=new byte[65536];long done=0,lastPercent=-1;int count;
                     while((count=input.read(buffer))!=-1){output.write(buffer,0,count);done+=count;if(total>0){long percent=done*100/total;if(percent>=lastPercent+5){lastPercent=percent;listener.onStatus("Đang tải "+release.versionName+": "+percent+"%");}}}
+                    if(done==0)throw new Exception("File APK tải về rỗng");
+                    if(total>0&&done!=total)throw new Exception("APK tải chưa đủ dung lượng ("+done+" / "+total+" bytes); hãy thử lại");
                     output.flush();session.fsync(output);
                 }
                 BroadcastReceiver receiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
@@ -99,7 +102,7 @@ final class UpdateManager {
                 Intent callback=new Intent(INSTALL_ACTION).setPackage(activity.getPackageName());
                 PendingIntent pending=PendingIntent.getBroadcast(activity,sessionId,callback,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_MUTABLE);
                 listener.onStatus("Đã tải xong • chờ Android xác nhận cài đặt");
-                session.commit(pending.getIntentSender());session=null;
+                session.commit(pending.getIntentSender());session.close();session=null;
             }catch(Exception e){listener.onError(safeMessage(e));if(session!=null)try{session.abandon();}catch(Exception ignored){}}
             finally{if(session!=null)try{session.close();}catch(Exception ignored){}if(connection!=null)connection.disconnect();}
         });

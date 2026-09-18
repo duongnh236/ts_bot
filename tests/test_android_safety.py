@@ -2,6 +2,8 @@
 import ast
 import json
 import logging
+import threading
+import time
 import unittest
 from collections import deque
 from pathlib import Path
@@ -19,6 +21,46 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_ui_account_controls_follow_connection_state(self):
+        java = ROOT.parents[1] / "main/java/com/fen/tsbot"
+        account = (java / "AccountManagerView.java").read_text()
+        main = (java / "MainActivity.java").read_text()
+        self.assertIn('boolean busy=online||connecting||loginPending[selected]', account)
+        self.assertIn('outButton.setEnabled(online||connecting)', account)
+        self.assertIn('currentUserField.setEnabled(!busy)', account)
+        self.assertIn('currentPassField.setEnabled(!busy)', account)
+        self.assertIn('dailyStop.setVisibility(active?View.VISIBLE:View.GONE)', main)
+        self.assertIn('logoutAllButton.setVisibility(anyOnline?View.VISIBLE:View.GONE)', main)
+        self.assertIn('accountManagerView.hasPendingLogin()||allConfiguredAccountsOnline()', main)
+        self.assertNotIn('XEM PACKET SERVER JSON', main)
+
+    def test_channel_policy_never_ranks_population(self):
+        config = SimpleNamespace(PARTY_CONFIG={0: {}}, PARTY_LEADER_ACC={0: "leader"})
+        ns = {"config": config, "_mode_can_lap_doi": lambda _: True,
+              "_party_40npc_ngoai_gio": lambda *args: False,
+              "time": time, "log": logging.getLogger("test")}
+        fn = function("train_bot/run_party_digioi.py", "_dieu_phoi_chot_kenh", ns)
+        clients = [("leader", SimpleNamespace(current_map=12001, current_channel=3)),
+                   ("member", SimpleNamespace(current_map=12001, current_channel=7))]
+        state = {"lock": threading.RLock(), "train_channel_manual": 7}
+        self.assertEqual(fn(0, state, clients), 7)
+        state = {"lock": threading.RLock()}
+        self.assertEqual(fn(0, state, clients), 3)
+
+    def test_no_empty_channel_fallback(self):
+        fn = function("train_bot/run_party_digioi.py", "_kenh_trong_cho_ca_party", {})
+        self.assertIsNone(fn(0, {}, [], {7}))
+        ns = {"json": json}
+        fn = function("agent_bridge.py", "switch_best_channel_json", ns)
+        self.assertFalse(json.loads(fn())["ok"])
+
+    def test_installer_fsync_uses_original_stream(self):
+        source = (ROOT.parents[1] / "main/java/com/fen/tsbot/UpdateManager.java").read_text()
+        self.assertIn('OutputStream output=session.openWrite("update.apk",0,total)', source)
+        self.assertNotIn('new BufferedOutputStream', source)
+        self.assertIn('session.fsync(output)', source)
+        self.assertIn('done!=total', source)
+
     def test_leader_saved(self):
         save = Mock()
         ns = {"_save_account_setting": save}

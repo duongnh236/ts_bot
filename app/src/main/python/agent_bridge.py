@@ -756,23 +756,15 @@ def channels_json():
         best = min(candidates, key=lambda item: (item["current"], -item["free"], item["id"])) if candidates else None
         from train_bot import config
         return json.dumps({"ok": True, "map": map_id, "map_name": config.map_display_name(map_id),
-                           "team_size": need, "recommended": best["id"] if best else 0,
+                           "team_size": need, "recommended": 0,
                            "channels": channels}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": "%s: %s" % (type(exc).__name__, exc)}, ensure_ascii=False)
 
 
 def switch_best_channel_json():
-    """Chon kenh vang nhat con du cho ca team, sau do dung luong safe-switch-reform."""
-    data = json.loads(channels_json())
-    if not data.get("ok"):
-        return json.dumps(data, ensure_ascii=False)
-    channel = int(data.get("recommended", 0) or 0)
-    if channel < 1:
-        return json.dumps({"ok": False, "message": "Khong co phan khu nao con du cho ca team"}, ensure_ascii=False)
-    result = json.loads(switch_channel_json(channel))
-    result.update({"channel": channel, "map": data.get("map", 0), "map_name": data.get("map_name", "")})
-    return json.dumps(result, ensure_ascii=False)
+    """Legacy UI entry point cannot initiate automatic switching."""
+    return json.dumps({"ok": False, "message": "Đã bỏ tự chọn phân khu. Hãy chọn phân khu manual trong tab leader."}, ensure_ascii=False)
 
 
 def set_train_channel_policy_json(auto_mode=False, channel=0):

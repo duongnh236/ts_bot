@@ -11,8 +11,8 @@ android {
         applicationId 'com.fen.tsbot'
         minSdk 26
         targetSdk 35
-        versionCode 110
-        versionName '0.110-farm-daily-safety'
+        versionCode 114
+        versionName '0.114-ui-account-state'
 
         python {
             version '3.8'
