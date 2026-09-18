@@ -6263,6 +6263,11 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 60s khi party DA DU va ca party cung map+kenh: luc do thu duy nhat con thieu la
                 leader dang dung o safe chu khong phai diem quai -> cu di ra, KHONG ve thanh.
                 """
+                if st.get("ui_train_target"):
+                    missing = _farm_party_missing(pidx, st.get("manual_train_users") or _active_party_usernames(pidx), c)
+                    if missing:
+                        log.info("[%s] TRAIN: chua ra bai, cho roster server: %s", label, ", ".join(missing))
+                        return False
                 c.set_party_strategist()    # set member INT cao nhat lam quan su (hoi SP)
                 if event_party_mode and _event_battle_kind(mode, has_leader, ev) == "floor_crawl":
                     # 2K (Nhi Kieu): DU PARTY roi moi bat dau leo thap. Moi acc tu di 12921->12922
@@ -6733,7 +6738,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         def _do_manual_cmd(cmd):
             """Thuc thi LENH THU CONG tu GUI (doi kenh / teleport thanh) -> roi TIEP TUC che do da
             setup. Huy party cu truoc, lam hanh dong, roi resume theo mode."""
-            nonlocal mode, sc, tm, train_on_map, train_safes
+            nonlocal mode, raw_mode, sc, tm, train_on_map, train_safes
+            nonlocal is_digioi, dt_mode, digioi_solo, _solo_without_party, training_started
             kind = cmd[0]
 
             if kind == "train":
@@ -6742,6 +6748,16 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 # reconnect ke tiep lai dung im o thanh.
                 sc = int(cmd[2])
                 mode = "train"
+                raw_mode = "train"
+                is_digioi = False
+                dt_mode = False
+                digioi_solo = False
+                _solo_without_party = False
+                training_started = False
+                c._dg_pursuit_paused = True
+                c.stop_run_around()
+                log.info("[%s] TRAIN runtime: bo luong Di Gioi cu -> map %s, toa do (%s,%s)",
+                         label, sc, cmd[3], cmd[4])
                 tm = (getattr(config, "TRAIN_MAPS", {}) or {}).get(sc)
                 train_on_map = tm is not None
                 train_safes = []
@@ -8157,6 +8173,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             # -> tu safe (pos chuan) di lai toi spot. KHONG gioi han so lan (theo yeu cau Anh).
             # CHI leader (leader dieu huong; member theo tran leader + duoc moi lai qua vong 60s).
             if (train_on_map and is_leader and should_fight and not getattr(c, "flee_mode", False)
+                    and not st.get("ui_train_target")
                     and time.time() - last_combat > 60 and time.time() - last_relogin > 60):
                 last_relogin = time.time()
                 relogin_cnt += 1
@@ -8185,6 +8202,13 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                             time.sleep(3)
                             if joined_member_count(pidx) >= st["n_members"]:
                                 break
+                        _recovery_users = st.get("manual_train_users") or _active_party_usernames(pidx)
+                        _missing_after_login = _farm_party_missing(pidx, _recovery_users, c)
+                        if _missing_after_login:
+                            log.warning("[%s] sau relogin: GIU TAI SAFE, cho roster server: %s",
+                                        label, ", ".join(_missing_after_login))
+                            training_started = False
+                            continue
                         log.info("[%s] (LEADER) sau relogin: %d/%d member join lai -> keo ra spot",
                                  label, joined_member_count(pidx), st["n_members"])
                         path = st.get("mob_path")
@@ -12730,6 +12754,14 @@ def party_train_map(pidx, map_id, x, y):
     st = _pstate(pidx)
     with st["lock"]:
         st["daily_hold_after_stop"] = False
+        config.PARTY_CONFIG[pidx].update(mode="train", start_city_id=map_id, mob_index=0,
+                                       train_pick="", do_daily=False, auto_world_boss=False,
+                                       auto_team_dungeon=False, fight_legion_boss=False,
+                                       do_van_tieu=False)
+        st["dt_phase"] = "train"
+        st["ui_dg_train_target"] = None
+        st["ui_dg_users"] = None
+        st["ui_dg_transition_pending"] = False
         for u, _p, _l, _k in party_accounts(pidx):
             _c = account_clients.get(u)
             if _c is not None:

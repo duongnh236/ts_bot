@@ -21,6 +21,36 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_map_train_clears_all_dg_runtime_flags(self):
+        tree = ast.parse((ROOT / "train_bot/run_party_digioi.py").read_text())
+        cmd = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "_do_manual_cmd")
+        block = next(n for n in cmd.body if isinstance(n, ast.If))
+        nonlocals = {v for n in cmd.body if isinstance(n, ast.Nonlocal) for v in n.names}
+        flags = {"is_digioi", "dt_mode", "digioi_solo", "_solo_without_party"}
+        self.assertTrue(flags <= nonlocals)
+        ns = {"cmd": ("train", 0, 23803, 550, 590), "mode": "digioi", "raw_mode": "digioi_train",
+              "config": SimpleNamespace(TRAIN_MAPS={23803: {"safe": []}}), "c": SimpleNamespace(stop_run_around=Mock()),
+              "_resolve_train_safe": lambda *args: None, "label": "leader", "log": logging.getLogger("test")}
+        ns.update({f: True for f in flags})
+        exec(compile(ast.Module(body=block.body, type_ignores=[]), "train-runtime", "exec"), ns)
+        self.assertEqual(ns["sc"], 23803)
+        self.assertEqual(ns["mode"], "train")
+        self.assertEqual(ns["raw_mode"], "train")
+        for f in flags:
+            self.assertFalse(ns[f], f)
+        ns["c"].stop_run_around.assert_called_once()
+
+    def test_map_train_config_and_no_idle_relogin(self):
+        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
+        a = source.index("def party_train_map(")
+        section = source[a:source.index("\ndef ", a + 5)]
+        self.assertIn('config.PARTY_CONFIG[pidx].update(mode="train", start_city_id=map_id', section)
+        self.assertIn('st["dt_phase"] = "train"', section)
+        self.assertIn('st["ui_dg_train_target"] = None', section)
+        a = source.index('            if (train_on_map and is_leader and should_fight')
+        condition = source[a:source.index('last_relogin = time.time()', a)]
+        self.assertIn('and not st.get("ui_train_target")', condition)
+
     def test_team_json_is_bounded_and_omits_credentials(self):
         import io
         cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, map_display_name=lambda _: "Trác Quận")
