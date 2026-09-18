@@ -2455,6 +2455,19 @@ def _party_khong_thay_nhau(c, pidx, grace=30.0):
     return out
 
 
+def _open_route_member_invites(client, st, username, label, generation):
+    """Open invitation gate BEFORE waiting for the leader's party-ready event."""
+    if (not client.running or st.get("cmd_gen", 0) != generation
+            or getattr(client, "_individual_safe_logout", False)
+            or getattr(client, "_daily_hold", False)):
+        return False
+    client.set_party_invite_ready(True)
+    set_account_activity(username, "Farm: da tap ket, cho leader moi party", phase="wait")
+    log.info("[%s] FARM: da mo nhan loi moi party tai map %s/k%s", label,
+             client.current_map, getattr(client, "current_channel", None))
+    return True
+
+
 def _farm_party_missing(pidx, users, leader):
     """Verify exact participants against the leader's SERVER roster, not local ACK count."""
     roster = {bytes(e) for e in (getattr(leader, "party_members", None) or [])}
@@ -6837,8 +6850,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                 while True:
                     if not c.running or _stopped():
                         return False
+                    if st.get("cmd_gen", 0) != cmd_gen_handled:
+                        return False
                     with st["lock"]:
-                        n = len(st.get("manual_route_city_arrived", {}))
+                        n = sum(bool(arrived) for arrived in st.get("manual_route_city_arrived", {}).values())
                     if n >= expected:
                         return True
                     if time.time() - t0 > timeout:
@@ -6945,8 +6960,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         log.warning("[%s] manual route: loi ve thanh tap ket %s: %s",
                                     label, gather_city, e)
                     with st["lock"]:
-                        st.setdefault("manual_route_city_arrived", {})[username] = True
-                    _wait_manual_city_arrived(expected)
+                        st.setdefault("manual_route_city_arrived", {})[username] = (c.current_map == gather_city)
+                    if not _wait_manual_city_arrived(expected):
+                        set_account_activity(username, "Farm: chua du account ve thanh tap ket", phase="wait")
+                        return
                 else:
                     log.info("[%s] manual route: ca party da o map AAA=%s -> lap party tai cho",
                              label, source)
@@ -6956,6 +6973,9 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     log.info("[%s] manual route: xong sync kenh -> lap party tam de keo map",
                              label)
                 if expected > 1:
+                    if not route_leader:
+                        if not _open_route_member_invites(c, st, username, label, gen):
+                            return
                     if route_leader:
                         reset_party_joined(pidx)
                         log.info("[%s] manual route: bat dau moi party tam, can %d member join",
@@ -6998,7 +7018,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         log.info("[%s] manual route: party joined=%d/%d",
                                  label, joined_member_count(pidx), expected - 1)
                     else:
-                        _wait_event(st["manual_route_party_ready"], "leader lap party", timeout=None)
+                        if not _wait_event(st["manual_route_party_ready"], "leader lap party", timeout=None):
+                            return
 
                 route_completed = False
                 if route_leader:
@@ -7008,7 +7029,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                         route_restart["needed"] = True
                         route_restart["reason"] = reason
                         with st["lock"]:
-                            st["cmd"] = ("route", source_req, dest)
+                            st["cmd"] = tuple(cmd)  # Retry TRAIN must retain TRAIN kind and farm coordinates.
                             st["cmd_gen"] += 1
                         log.warning("[%s] manual route: %s -> keo lai tu dau (gen %d)",
                                     label, reason, st["cmd_gen"])

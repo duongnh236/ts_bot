@@ -28,9 +28,14 @@ def team_debug_json():
         for key in ("dt_phase", "ui_dg_transition_pending", "ui_dg_users",
                     "ui_dg_train_target", "ui_train_target", "manual_train_users",
                     "train_channel_manual", "daily_active", "cmd_gen", "cmd",
-                    "reform_gen", "n_members"):
+                    "reform_gen", "n_members", "manual_route_plan",
+                    "manual_route_source_results", "manual_route_city_arrived"):
             value = st.get(key)
             coordination[key] = sorted(value) if isinstance(value, set) else value
+        coordination["configured_mode"] = config.PARTY_CONFIG.get(0, {}).get("mode")
+        for key in ("manual_route_plan_ready", "manual_route_party_ready", "manual_route_done"):
+            event = st.get(key)
+            coordination[key] = bool(event and event.is_set())
     accounts = []
     for user, _password, _leader, _pet in runner.party_accounts(0):
         c = runner.account_clients.get(user)
@@ -45,7 +50,8 @@ def team_debug_json():
                          "activity": str(task.get("task", "")),
                          "phase": str(task.get("phase", "")),
                          "waiting_seconds": task.get("elapsed", 0),
-                         "party_members": len(getattr(c, "party_members", None) or [])})
+                         "party_members": len(getattr(c, "party_members", None) or []),
+                         "party_invite_ready": bool(getattr(c, "party_invite_ready", False))})
     lines = []
     error = ""
     try:
@@ -57,7 +63,8 @@ def team_debug_json():
         if offset:
             raw = raw.partition("\n")[2]
         sensitive = re.compile(r"password|passwd|access.?token|refresh.?token|authorization|bearer|credential|login.?packet|session.?key|0x(?:01|02)\b", re.I)
-        lines = [line[:1500] for line in raw.splitlines() if not sensitive.search(line)][-300:]
+        lines = [line[:1500] for line in raw.splitlines()
+                 if not sensitive.search(line) and "PET EXP probe" not in line][-300:]
     except FileNotFoundError:
         pass
     except Exception:

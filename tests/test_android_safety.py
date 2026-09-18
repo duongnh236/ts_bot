@@ -21,6 +21,31 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_route_members_open_invites_before_waiting_for_party(self):
+        activity = Mock()
+        client = SimpleNamespace(running=True, current_map=23001, current_channel=1,
+                                 set_party_invite_ready=Mock())
+        ns = {"set_account_activity": activity, "log": logging.getLogger("test")}
+        fn = function("train_bot/run_party_digioi.py", "_open_route_member_invites", ns)
+        self.assertTrue(fn(client, {"cmd_gen": 2}, "member", "XeTai", 2))
+        client.set_party_invite_ready.assert_called_once_with(True)
+        activity.assert_called_once()
+        client.set_party_invite_ready.reset_mock()
+        self.assertFalse(fn(client, {"cmd_gen": 3}, "member", "XeTai", 2))
+        client.set_party_invite_ready.assert_not_called()
+        client._individual_safe_logout = True
+        self.assertFalse(fn(client, {"cmd_gen": 2}, "member", "XeTai", 2))
+        client.set_party_invite_ready.assert_not_called()
+        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
+        a = source.index("            def _do_manual_route():")
+        b = source.index("            # KET BATTLE:", a)
+        route = source[a:b]
+        self.assertLess(route.index("_open_route_member_invites(c, st, username, label, gen)"),
+                        route.index('_wait_event(st["manual_route_party_ready"]'))
+        self.assertIn('st["cmd"] = tuple(cmd)', route)
+        self.assertNotIn('st["cmd"] = ("route", source_req, dest)', route)
+        self.assertIn('if not _wait_manual_city_arrived(expected):', route)
+
     def test_map_train_clears_all_dg_runtime_flags(self):
         tree = ast.parse((ROOT / "train_bot/run_party_digioi.py").read_text())
         cmd = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "_do_manual_cmd")
@@ -53,7 +78,7 @@ class SafetyTests(unittest.TestCase):
 
     def test_team_json_is_bounded_and_omits_credentials(self):
         import io
-        cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, map_display_name=lambda _: "Trác Quận")
+        cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, PARTY_CONFIG={0: {"mode": "train"}}, map_display_name=lambda _: "Trác Quận")
         st = {"lock": threading.RLock(), "ui_dg_users": {"leader"}}
         client = SimpleNamespace(running=True, current_map=12001, pos=(100, 200), current_channel=2, party_members=[])
         runner = SimpleNamespace(_pstate=lambda _: st, _log_path="fake.log",
