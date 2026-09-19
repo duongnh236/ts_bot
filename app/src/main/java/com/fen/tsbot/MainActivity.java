@@ -100,10 +100,22 @@ public class MainActivity extends Activity {
         TextView accountHint=text("LOGIN/OUT riêng nằm trong từng tab ACC. LOGIN ALL và LOGOUT ALL thao tác một lần cho toàn bộ account đã cấu hình.",13,Color.rgb(170,195,220));accountHint.setPadding(dp(10),dp(12),dp(10),dp(12));accountHint.setBackgroundColor(CARD);root.addView(accountHint,matchWrap());
         root.addView(section("NHẬT KÝ TEAM"));
         status = text("Đang nạp dữ liệu server và bản đồ…", 13, Color.rgb(162,220,255));
-        status.setTypeface(Typeface.MONOSPACE); status.setPadding(dp(12),dp(12),dp(12),dp(12)); status.setBackgroundColor(Color.rgb(5,12,22));
-        ScrollView teamLogScroll=new ScrollView(this);teamLogScroll.addView(status,matchWrap());root.addView(teamLogScroll,new LinearLayout.LayoutParams(-1,dp(300)));
+        status.setTypeface(Typeface.MONOSPACE);status.setSingleLine(false);status.setHorizontallyScrolling(false);status.setMaxLines(Integer.MAX_VALUE);status.setPadding(dp(12),dp(12),dp(12),dp(12));status.setBackgroundColor(Color.rgb(5,12,22));
+        if(Build.VERSION.SDK_INT>=23)status.setBreakStrategy(android.text.Layout.BREAK_STRATEGY_SIMPLE);
+        status.setOnClickListener(v->showFullTeamLog());
+        ScrollView teamLogScroll=new ScrollView(this);teamLogScroll.setFillViewport(true);teamLogScroll.setNestedScrollingEnabled(true);teamLogScroll.setVerticalScrollBarEnabled(true);teamLogScroll.addView(status,new ScrollView.LayoutParams(-1,-2));root.addView(teamLogScroll,new LinearLayout.LayoutParams(-1,dp(420)));
+        TextView logHint=text("Chạm vào khung log để xem toàn màn hình • vuốt ngay trong khung để xem phần cuối",12,Color.rgb(145,170,195));logHint.setPadding(dp(8),dp(6),dp(8),dp(8));root.addView(logHint,matchWrap());
         Button exportTeam=button("⬇  XUẤT LOG TEAM JSON",Color.rgb(38,100,160),Color.WHITE);exportTeam.setOnClickListener(v->{Intent pick=new Intent(Intent.ACTION_CREATE_DOCUMENT);pick.addCategory(Intent.CATEGORY_OPENABLE);pick.setType("application/json");pick.putExtra(Intent.EXTRA_TITLE,"tsbot-team-debug-"+System.currentTimeMillis()+".json");startActivityForResult(pick,716);});root.addView(exportTeam,matchWrap());
         return scroll;
+    }
+
+    private void showFullTeamLog(){
+        TextView content=text(status==null?"Chưa có log":status.getText().toString(),12,Color.WHITE);
+        content.setTypeface(Typeface.MONOSPACE);content.setSingleLine(false);content.setHorizontallyScrolling(false);content.setTextIsSelectable(true);content.setPadding(dp(14),dp(14),dp(14),dp(20));
+        if(Build.VERSION.SDK_INT>=23)content.setBreakStrategy(android.text.Layout.BREAK_STRATEGY_SIMPLE);
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(Color.rgb(5,12,22));scroll.addView(content,new ScrollView.LayoutParams(-1,-2));
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("NHẬT KÝ TEAM • TOÀN BỘ DỮ LIỆU").setView(scroll).setPositiveButton("ĐÓNG",null).create();
+        dialog.setOnShowListener(x->{Window window=dialog.getWindow();if(window!=null)window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);});dialog.show();
     }
 
     private void checkForUpdate(){
