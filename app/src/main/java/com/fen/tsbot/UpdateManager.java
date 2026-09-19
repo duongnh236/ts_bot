@@ -7,12 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInstaller;
+import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -72,23 +76,36 @@ final class UpdateManager {
         }
         listener.onStatus("Đang tải "+release.versionName+"…");
         IO.execute(()->{
-            HttpURLConnection connection=null;PackageInstaller.Session session=null;
+            HttpURLConnection connection=null;PackageInstaller.Session session=null;File downloaded=null;
             try{
                 connection=open(release.apkUrl);connection.setInstanceFollowRedirects(true);
                 int status=connection.getResponseCode();
                 if(status<200||status>=300)throw new Exception("Tải APK thất bại, mã "+status);
                 long total=connection.getContentLengthLong();
+                downloaded=File.createTempFile("tsbot-update-",".apk",activity.getCacheDir());
+                long done=0,lastPercent=-1;
+                try(InputStream input=new BufferedInputStream(connection.getInputStream());OutputStream output=new FileOutputStream(downloaded)){
+                    byte[] buffer=new byte[65536];int count;
+                    while((count=input.read(buffer))!=-1){output.write(buffer,0,count);done+=count;if(total>0){long percent=done*100/total;if(percent>=lastPercent+5){lastPercent=percent;listener.onStatus("Đang tải "+release.versionName+": "+percent+"%");}}}
+                    output.flush();
+                }
+                if(done==0)throw new Exception("File APK tải về rỗng");
+                if(total>0&&done!=total)throw new Exception("APK tải chưa đủ dung lượng ("+done+" / "+total+" bytes); hãy thử lại");
+                PackageInfo archive=activity.getPackageManager().getPackageArchiveInfo(downloaded.getAbsolutePath(),0);
+                if(archive==null)throw new Exception("File Release không phải APK hợp lệ");
+                long archiveCode=Build.VERSION.SDK_INT>=28?archive.getLongVersionCode():archive.versionCode;
+                if(!activity.getPackageName().equals(archive.packageName))throw new Exception("APK Release sai package: "+archive.packageName);
+                if(archiveCode!=release.versionCode)throw new Exception("Release "+release.versionName+" nhưng APK bên trong là versionCode "+archiveCode+". Hãy đính kèm đúng APK v"+release.versionCode);
                 PackageInstaller installer=activity.getPackageManager().getPackageInstaller();
                 PackageInstaller.SessionParams params=new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 params.setAppPackageName(activity.getPackageName());
                 int sessionId=installer.createSession(params);session=installer.openSession(sessionId);
                 // PackageInstaller.fsync must receive the exact stream returned by openWrite.
                 // Wrapping it in BufferedOutputStream causes Android's "Unrecognized stream".
-                try(InputStream input=new BufferedInputStream(connection.getInputStream());OutputStream output=session.openWrite("update.apk",0,total)){
-                    byte[] buffer=new byte[65536];long done=0,lastPercent=-1;int count;
-                    while((count=input.read(buffer))!=-1){output.write(buffer,0,count);done+=count;if(total>0){long percent=done*100/total;if(percent>=lastPercent+5){lastPercent=percent;listener.onStatus("Đang tải "+release.versionName+": "+percent+"%");}}}
-                    if(done==0)throw new Exception("File APK tải về rỗng");
-                    if(total>0&&done!=total)throw new Exception("APK tải chưa đủ dung lượng ("+done+" / "+total+" bytes); hãy thử lại");
+                total=downloaded.length();
+                try(InputStream input=new BufferedInputStream(new FileInputStream(downloaded));OutputStream output=session.openWrite("update.apk",0,total)){
+                    byte[] buffer=new byte[65536];int count;
+                    while((count=input.read(buffer))!=-1)output.write(buffer,0,count);
                     output.flush();session.fsync(output);
                 }
                 BroadcastReceiver receiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
@@ -104,7 +121,7 @@ final class UpdateManager {
                 listener.onStatus("Đã tải xong • chờ Android xác nhận cài đặt");
                 session.commit(pending.getIntentSender());session.close();session=null;
             }catch(Exception e){listener.onError(safeMessage(e));if(session!=null)try{session.abandon();}catch(Exception ignored){}}
-            finally{if(session!=null)try{session.close();}catch(Exception ignored){}if(connection!=null)connection.disconnect();}
+            finally{if(session!=null)try{session.close();}catch(Exception ignored){}if(connection!=null)connection.disconnect();if(downloaded!=null&&!downloaded.delete())downloaded.deleteOnExit();}
         });
     }
 
