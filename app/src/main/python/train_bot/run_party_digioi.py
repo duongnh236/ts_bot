@@ -13557,7 +13557,9 @@ def _bag_info_slots(slots, c):
             # Day la co DUY NHAT con dung o ban cache: nut "Tu cat vao Tien trang" ghi thang
             # accounts.json, khong can client song (user chot 06/09).
             "bank": not (int(d.get("restrict", 0) or 0) & _BANK_RESTRICT_CAM),
-            "locked": bool((getattr(c, "bag_items", {}) or {}).get(int(slot), {}).get("lock", False)) if c is not None else False,
+            "locked": bool(c.item_locked(int(slot))) if c is not None else False,
+            "server_locked": bool(c.item_lock_state(int(slot))[0]) if c is not None else False,
+            "bot_locked": bool(c.item_lock_state(int(slot))[1]) if c is not None else False,
         })
     return {"slots": o}
 

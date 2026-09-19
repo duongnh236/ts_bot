@@ -2336,6 +2336,7 @@ class GameClient:
         self._metrics_battle_char_exp = 0
         self._metrics_battle_pet_exp = 0
         self._metrics_battle_char_exp_start = None
+        self._metrics_battle_end_at = 0.0
         self.last_battle_seconds = None
         self.last_battle_char_exp = 0
         self.last_battle_pet_exp = 0
@@ -2476,6 +2477,8 @@ class GameClient:
         # slot -> du lieu MON CU THE (cuong hoa / da / dong phu / he...). Xem thing_data_info().
         # bag_slots chi co [id, so luong]; may thu nay nam trong 29 byte ma truoc day bot vut di.
         self.bag_items = {}
+        # Khoa bao ve cua bot cho UI Android. Luu kem tid de khong khoa nham item moi neu slot doi.
+        self._ui_bag_locks = {}
         # Lenh tui do bam TAY luc dang trong tran -> xep hang, het tran moi gui (xem queue_bag_cmd)
         self._bag_queue = []
         self._bag_flush_running = False   # dang co thread xa hang doi -> khong xa chong len
@@ -4007,6 +4010,7 @@ class GameClient:
         if self.exp_stats_started_at is None:
             self.exp_stats_started_at = now
         if self._metrics_battle_started_at is None:
+            self._metrics_battle_end_at = 0.0
             self._metrics_battle_started_at = now
             self._metrics_battle_char_exp = 0
             self._metrics_battle_pet_exp = 0
@@ -4018,12 +4022,35 @@ class GameClient:
             return
         if self.exp_stats_started_at is None:
             self.exp_stats_started_at = time.time()
+        active_battle = self._metrics_battle_started_at is not None
+        late_for_last_battle = (not active_battle and self._metrics_battle_end_at > 0
+                                and time.time() - self._metrics_battle_end_at <= 5.0)
         if who == "character":
             self.exp_stats_char_total += amount
-            self._metrics_battle_char_exp += amount
+            if active_battle:
+                self._metrics_battle_char_exp += amount
+            elif late_for_last_battle:
+                self.last_battle_char_exp += amount
         else:
             self.exp_stats_pet_total += amount
-            self._metrics_battle_pet_exp += amount
+            if active_battle:
+                self._metrics_battle_pet_exp += amount
+            elif late_for_last_battle:
+                self.last_battle_pet_exp += amount
+        # Mot so server gui 0x08/attr36 ngay SAU packet ket tran. Cap nhat dong
+        # tong ket vua ghi thay vi de UI bao "chua xac nhan" du packet da toi.
+        if late_for_last_battle:
+            for row in self.activity_log:
+                if row.get("type") != "battle_summary":
+                    continue
+                row["char_exp"] = int(self.last_battle_char_exp)
+                row["pet_exp"] = int(self.last_battle_pet_exp)
+                row["message"] = "Trận %.1fs • %s: %s EXP • %s: %s EXP" % (
+                    float(self.last_battle_seconds or 0.0), self.char_name or self._username,
+                    ("+%d" % self.last_battle_char_exp) if self.last_battle_char_exp else "chưa xác nhận",
+                    getattr(self, "pet_name", "") or "Pet đang ra trận",
+                    ("+%d" % self.last_battle_pet_exp) if self.last_battle_pet_exp else "chưa xác nhận")
+                break
 
     def _metrics_battle_end(self):
         started = self._metrics_battle_started_at
@@ -4059,6 +4086,7 @@ class GameClient:
         self.exp_stats_battles += 1
         self._metrics_battle_started_at = None
         self._metrics_battle_char_exp_start = None
+        self._metrics_battle_end_at = time.time()
         log.info("[%s] THONG KE TRAN: %.1fs, nhan vat +%d EXP, pet +%d EXP",
                  self._label, self.last_battle_seconds, self.last_battle_char_exp,
                  self.last_battle_pet_exp)
@@ -7600,7 +7628,7 @@ class GameClient:
             raise RuntimeError("Cùng một slot cần ít nhất 2 vật phẩm")
         items = _load_gamedata_items()
         for slot, rec in ((first, a), (second, b)):
-            if bool((self.bag_items.get(slot) or {}).get("lock")):
+            if self.item_locked(slot):
                 raise RuntimeError("Vật phẩm slot %d đang khóa" % slot)
             info = items.get(int(rec[0])) or {}
             if int(info.get("restrict", 0) or 0) & self.RESTRICT_NOT_COMBINE_MATERIAL:
@@ -7610,6 +7638,38 @@ class GameClient:
         self.send(0x17, payload)
         log.info("[%s] Hợp vật UI: slot %d + slot %d", self._label, first, second)
         return True
+
+    def item_lock_state(self, slot: int):
+        """Return (server_lock, bot_lock) for a live bag slot without inventing a game packet."""
+        slot = int(slot)
+        rec = (self.bag_slots or {}).get(slot)
+        if not rec:
+            return False, False
+        tid = int(rec[0])
+        server_locked = bool(((self.bag_items or {}).get(slot) or {}).get("lock"))
+        bot_locked = int((self._ui_bag_locks or {}).get(slot, -1)) == tid
+        if slot in self._ui_bag_locks and not bot_locked:
+            self._ui_bag_locks.pop(slot, None)
+        return server_locked, bot_locked
+
+    def item_locked(self, slot: int) -> bool:
+        server_locked, bot_locked = self.item_lock_state(slot)
+        return server_locked or bot_locked
+
+    def set_item_lock(self, slot: int, locked: bool) -> bool:
+        """Toggle the bot-side safety lock. Native server locks are never bypassed."""
+        slot = int(slot)
+        rec = (self.bag_slots or {}).get(slot)
+        if not rec:
+            raise RuntimeError("Vật phẩm đã đổi slot hoặc không còn trong túi")
+        server_locked, _ = self.item_lock_state(slot)
+        if locked:
+            self._ui_bag_locks[slot] = int(rec[0])
+        else:
+            if server_locked:
+                raise RuntimeError("Vật phẩm đang khóa từ game; hãy mở khóa trong game")
+            self._ui_bag_locks.pop(slot, None)
+        return self.item_locked(slot)
 
     def _world_boss_event_open(self) -> bool:
         import datetime
@@ -9829,7 +9889,7 @@ class GameClient:
         server ack 0x17 sub=0900 (echo slot+qty) + 0x17 sub=1a00 [tid 2B LE][01] (bao tid da vut)."""
         if not self.running:
             return False
-        if bool((self.bag_items.get(int(slot)) or {}).get("lock")):
+        if self.item_locked(int(slot)):
             log.warning("[%s] Khong vut slot %s: vat pham dang KHOA", self._label, slot)
             return False
         self.send(0x17, b"\x03\x00" + bytes([slot & 0xFF]) + int(qty).to_bytes(4, "little"))
@@ -11523,7 +11583,7 @@ class GameClient:
             return True
         if not info:
             return True
-        return bool(info.get("lock"))
+        return self.item_locked(slot)
 
     def _xu_ly_do_ruong(self, slots, gd, kq):
         """Phan giai / donate / VUT cac o trong `slots` (do thuoc ruong da tick).

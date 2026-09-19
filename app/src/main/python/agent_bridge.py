@@ -5,6 +5,7 @@ import time
 import base64
 import os
 import logging
+import math
 
 log = logging.getLogger(__name__)
 
@@ -207,16 +208,117 @@ def switch_leader_json(username):
             auto_battle_team_json(*train)
     return json.dumps({"ok": changed, "message": message}, ensure_ascii=False)
 
-# Moc EXP da doi chieu truc tiep voi UI game cua account YeuQuai.
-# level -> (tong EXP tich luy tai dau cap, EXP can tu dau cap de len cap ke)
-_CHAR_EXP_LEVELS = {155: (236222752, 6290520)}
+# EXP tuong server mobile: source PC xac nhan cong thuc
+#   floor((level + 1) ** exp_power + 5)
+# va moc UI YeuQuai lv155 xac nhan exp_power=3.1, required=6,290,520.
+# Dung moc tong dau cap lv155 da do truc tiep lam neo, sau do tinh tien/lui de
+# tranh lam mat offset lich su 10,440 EXP cua server mobile so voi bang PC.
+_CHAR_EXP_ANCHOR_LEVEL = 155
+_CHAR_EXP_ANCHOR_BASE = 236222752
+_CHAR_EXP_POWER = 3.1
 
-# EXP pet UI hien theo EXP trong cap, packet pet login 0x0f/sub0008.
-# Moc level -> tong EXP can de len cap ke, doi chieu truc tiep tu UI game.
-_PET_EXP_LEVELS = {
+
+def _build_char_exp_levels(max_level=200):
+    required = {
+        level: int(math.pow(level + 1, _CHAR_EXP_POWER) + 5)
+        for level in range(1, max_level + 1)
+    }
+    base = {_CHAR_EXP_ANCHOR_LEVEL: _CHAR_EXP_ANCHOR_BASE}
+    for level in range(_CHAR_EXP_ANCHOR_LEVEL - 1, 0, -1):
+        base[level] = base[level + 1] - required[level]
+    for level in range(_CHAR_EXP_ANCHOR_LEVEL + 1, max_level + 1):
+        base[level] = base[level - 1] + required[level - 1]
+    return {level: (base[level], required[level]) for level in range(1, max_level + 1)}
+
+
+_CHAR_EXP_LEVELS = _build_char_exp_levels()
+
+# EXP pet thuong cua TrueBot PC (ModExp.SetExpNormal), du cap 0..201.
+# Moi phan tu la EXP can trong cap do; tong tich luy dau cap duoc tinh mot lan
+# ben duoi. Packet 0x0f/sub0008 tra tong EXP pet, vi vay UI can tru moc dau cap.
+_PET_NORMAL_EXP_REQUIRED = (
+    -6, 12, 29, 61, 111, 186, 287, 421,
+    590, 799, 1052, 1353, 1705, 2113, 2579, 3109,
+    3706, 4373, 5115, 5934, 6835, 7822, 8897, 10065,
+    11330, 12694, 14161, 15736, 17421, 19220, 21137, 23175,
+    25338, 27629, 30052, 32609, 35306, 38144, 41128, 44261,
+    47547, 50988, 54588, 58351, 62280, 66379, 70650, 75098,
+    79725, 84535, 89532, 94718, 100097, 105673, 111448, 117426,
+    123610, 130004, 136611, 143435, 150477, 157743, 165235, 172956,
+    180909, 189099, 197528, 206199, 215116, 224282, 233700, 243373,
+    253306, 263500, 273959, 284687, 295686, 306960, 318512, 330345,
+    342462, 354868, 367563, 380553, 393841, 407428, 421319, 435517,
+    450024, 464845, 479982, 495438, 511216, 527321, 543754, 560519,
+    577619, 595058, 612838, 630962, 649434, 668257, 687434, 706968,
+    726862, 747119, 767743, 788736, 810102, 831843, 853963, 876465,
+    899352, 922628, 946294, 970354, 994812, 1019671, 1044933, 1070601,
+    1096679, 1123170, 1150076, 1177402, 1205149, 1233322, 1261922, 1290953,
+    1320419, 1350322, 1380665, 1411451, 1442684, 1474366, 1506501, 1539091,
+    1572139, 1605649, 1639624, 1674066, 1708979, 1744365, 1780228, 1816571,
+    1853397, 1890708, 1928508, 1966799, 2005586, 2044870, 2084655, 2124944,
+    2165739, 2207044, 2248862, 2291196, 2334049, 2377423, 2421322, 2465749,
+    2510706, 2556197, 2602225, 2648793, 2695903, 2743559, 2791763, 2840519,
+    2889829, 2939697, 2990126, 3041118, 3092676, 3144803, 3197503, 3250779,
+    3304632, 3359067, 3414086, 3469692, 3525888, 3582677, 3640062, 3698046,
+    3756631, 3815822, 3875620, 3936029, 3997052, 4058691, 4120949, 4183831,
+    4247337, 4311472, 4376237, 4441637, 4507674, 4574351, 4641671, 4709637,
+    4778252, 4847518,
+)
+
+# Pet chuyen sinh trong TrueBot: ID 45000..45999 dung bang Exp2.
+_PET_REBORN_EXP_REQUIRED = (
+    -6, 13, 32, 69, 130, 221, 348, 517,
+    734, 1005, 1336, 1733, 2202, 2749, 3380, 4101,
+    4918, 5837, 6864, 8005, 9266, 10653, 12172, 13829,
+    15630, 17581, 19688, 21957, 24394, 27005, 29796, 32773,
+    35942, 39309, 42880, 46661, 50658, 54877, 59324, 64005,
+    68926, 74093, 79512, 85189, 91130, 97341, 103828, 110597,
+    117654, 125005, 132656, 140613, 148882, 157469, 166380, 175621,
+    185198, 195117, 205384, 216005, 226986, 238333, 250052, 262149,
+    274630, 287501, 300768, 314437, 328514, 343005, 357916, 373253,
+    389022, 405229, 421880, 438981, 456538, 474557, 493044, 512005,
+    531446, 551373, 571792, 592709, 614130, 636061, 658508, 681477,
+    704974, 729005, 753576, 778693, 804362, 830589, 857380, 884741,
+    912678, 941197, 970304, 1000005, 1030306, 1061213, 1092732, 1124869,
+    1157630, 1191021, 1225048, 1259717, 1295034, 1331005, 1367636, 1404933,
+    1442902, 1481549, 1520880, 1560901, 1601618, 1643037, 1685164, 1728005,
+    1771566, 1815853, 1860872, 1906629, 1953130, 2000381, 2048388, 2097157,
+    2146694, 2197005, 2248096, 2299973, 2352642, 2406109, 2460380, 2515461,
+    2571358, 2628077, 2685624, 2744005, 2803226, 2863293, 2924212, 2985989,
+    3048630, 3112141, 3176528, 3241797, 3307954, 3375005, 3442956, 3511813,
+    3581582, 3652269, 3723880, 3796421, 3869898, 3944317, 4019684, 4096005,
+    4173286, 4251533, 4330752, 4410949, 4492130, 4574301, 4657468, 4741637,
+    4826814, 4913005, 5000216, 5088453, 5177722, 5268029, 5359380, 5451781,
+    5545238, 5639757, 5735344, 5832005, 5929746, 6028573, 6128492, 6229509,
+    6331630, 6434861, 6539208, 6644677, 6751274, 6859005, 6967876, 7077893,
+    7189062, 7301389, 7414880, 7529541, 7645378, 7762397, 7880604, 8000005,
+    8120606, 8242413,
+)
+
+
+def _build_pet_exp_levels(required_by_level):
+    levels = {}
+    cumulative = 0
+    for level, required in enumerate(required_by_level):
+        if level == 0:
+            levels[level] = (0, required)
+            continue
+        # TrueBot Getexp: required - (cumulative_end - raw_total) - 6.
+        # Do do moc tru tong EXP o dau cap la cumulative + 6.
+        levels[level] = (cumulative + 6, required)
+        cumulative += required
+    return levels
+
+
+_PET_EXP_LEVELS = _build_pet_exp_levels(_PET_NORMAL_EXP_REQUIRED)
+_PET_REBORN_EXP_LEVELS = _build_pet_exp_levels(_PET_REBORN_EXP_REQUIRED)
+
+# Hai moc server mobile da doi chieu truc tiep voi UI game. Giu lai base cua
+# server mobile de EXP hien tai tai cap 174/184 khong bi lech voi ban PC cu.
+_PET_EXP_LEVELS.update({
     174: (141883942, 3197503),
     184: (176326366, 3756631),
-}
+})
 
 _TEAM_DUNGEON_NAMES = {20: "Thảo Phạt Thiên Sư", 50: "Ngày Tàn Hoạn Quan",
                        80: "Đại Chiến Lữ Bố", 110: "Hỏa Thiêu Bộc Dương"}
@@ -227,13 +329,18 @@ def _pet_level_exp_values(client):
     if client is None:
         return None, None, None, None, None
     state = getattr(client, "state", None)
-    pid = int(getattr(state, "active_pet_id", 0) or 0)
+    # UI phai bam theo pet dang chon, ke ca trong khoang ngan server chua tra
+    # packet doi pet; fallback ve pet dang xuat chien neu chua co lua chon.
+    pid = int(getattr(client, "_ui_selected_pet_id", 0)
+              or getattr(state, "active_pet_id", 0) or 0)
     slot = int(getattr(client, "active_pet_slot", 0) or 0)
     levels = getattr(client, "pet_levels", {}) or {}
     values = getattr(client, "pet_exp_values", {}) or {}
     level = int(levels.get(pid, 0) or 0)
     current = values.get(pid, values.get(slot))
-    row = _PET_EXP_LEVELS.get(level)
+    # TrueBot dung Exp2 cho pet ID 45000..45999, pet con lai dung Exp thuong.
+    exp_levels = _PET_REBORN_EXP_LEVELS if 45000 <= pid <= 45999 else _PET_EXP_LEVELS
+    row = exp_levels.get(level)
     base, required = row if row is not None else (None, None)
     if current is None:
         return pid or None, level or None, None, required, None
@@ -486,6 +593,10 @@ def account_action_json(username, action, payload="{}"):
             slot = int(data.get("slot", 0)); qty = max(1, int(data.get("qty", 1)))
             if not client.discard_item(slot, qty): raise RuntimeError("Vật phẩm đang khóa hoặc server không nhận")
             message = "Đã gửi vứt vật phẩm"
+        elif action == "toggle_lock":
+            slot, locked = int(data.get("slot", 0)), bool(data.get("locked", True))
+            client.set_item_lock(slot, locked)
+            message = "Đã khóa bảo vệ vật phẩm" if locked else "Đã mở khóa bảo vệ vật phẩm"
         elif action == "furnace_scan":
             if not client.scan_furnace(): raise RuntimeError("Server chưa trả dữ liệu lò")
             message = "Đã tải dữ liệu lò"
