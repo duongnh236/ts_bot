@@ -11,6 +11,7 @@ from unittest.mock import Mock
 ROOT = Path(__file__).resolve().parents[1] / "app/src/main/python"
 sys.path.insert(0, str(ROOT))
 from train_bot.workflows.lifecycle import WorkflowCoordinator, activate, activate_locked
+from train_bot.diagnostic_lock import WorkflowLock
 
 
 def bounded(fn):
@@ -35,7 +36,8 @@ class ArchitectureTests(unittest.TestCase):
     @bounded
     def test_real_entry_points_cancel_previous_flow_and_keep_old_commands(self):
         from train_bot.workflows import train, daily
-        st = {"lock": threading.Lock(), "cmd_gen": 0, "manual_train_users": ["leader"]}
+        st = {"lock": WorkflowLock("test-party", max_wait=.2), "cmd_gen": 0,
+              "manual_train_users": ["leader"]}
         for name in ("manual_route_plan_ready", "manual_route_source_done", "manual_route_party_ready",
                      "manual_route_done", "manual_train_channel_ready"):
             st[name] = threading.Event()
@@ -69,7 +71,7 @@ class ArchitectureTests(unittest.TestCase):
 
     @bounded
     def test_activation_with_real_lock_supports_both_entry_contracts(self):
-        st = {"lock": threading.Lock()}
+        st = {"lock": WorkflowLock("test-party", max_wait=.2)}
         first = activate(st, "train")
         with st["lock"]:
             second = activate_locked(st, "digioi")
@@ -119,6 +121,44 @@ class ArchitectureTests(unittest.TestCase):
                 if isinstance(node, ast.Import):
                     self.assertTrue(all("run_party_digioi" not in a.name for a in node.names))
                 self.assertNotIsInstance(node, ast.Global)
+
+    def test_party_lock_never_wraps_dispatch_or_wait_operations(self):
+        """Static tripwire for the deadlock pattern found in v127."""
+        paths = [ROOT / "train_bot/run_party_digioi.py", ROOT / "train_bot/workflows/digioi.py",
+                 ROOT / "train_bot/workflows/train.py", ROOT / "train_bot/workflows/channel_regroup.py"]
+        forbidden = ("party_train_map", "_android_dg_train_handoff", "wait", "join", "sleep",
+                     "navigate_to", "follow_smart_route", "follow_smart_scene_route",
+                     "switch_channel", "go_to_town")
+        failures = []
+        for path in paths:
+            tree = ast.parse(path.read_text())
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.With):
+                    continue
+                if not any("st[\"lock\"]" in ast.unparse(item.context_expr) or
+                           "st['lock']" in ast.unparse(item.context_expr) for item in node.items):
+                    continue
+                for statement in node.body:
+                    for call in (x for x in ast.walk(statement) if isinstance(x, ast.Call)):
+                        name = ast.unparse(call.func)
+                        terminal = name.rsplit(".", 1)[-1]
+                        if (terminal == "join" and isinstance(call.func, ast.Attribute)
+                                and isinstance(call.func.value, ast.Constant)
+                                and isinstance(call.func.value.value, str)):
+                            continue  # String formatting, not Thread.join().
+                        if terminal in forbidden:
+                            failures.append(f"{path.name}:{node.lineno}:{name}")
+        self.assertEqual(failures, [])
+
+    def test_digioi_wait_barrier_excludes_dead_workers_and_is_not_resynced(self):
+        """Regression for v128 log: 3 live accounts waited forever for 2 kicked accounts."""
+        source = (ROOT / "train_bot/run_party_digioi.py").read_text()
+        start = source.index("def _dt_party_usernames")
+        end = source.index("\ndef _login_error_code", start)
+        selector = source[start:end]
+        self.assertIn("if not is_account_running(u):", selector)
+        self.assertIn("_dg_wait_barrier", source)
+        self.assertIn('d.get("task") == "xong Di Gioi - cho ca party xong"', source)
 
 
 if __name__ == "__main__":

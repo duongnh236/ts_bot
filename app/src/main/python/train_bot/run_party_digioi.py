@@ -21,6 +21,7 @@ from . import loandau
 from . import npc40
 from . import train_pick as train_pick_mod   # alias: trong setup_party_runtime co tham so ten train_pick
 from .mob_scanner import MobScanSession, compute_regions, scan_full_map
+from .diagnostic_lock import WorkflowLock
 from .scene_fight import get_scene_fight_seed
 from .train_maps_store import save_learned_regions
 from .login import login
@@ -33,7 +34,7 @@ from .client import (ATTR_KEY_TO_CODE, ATTR_CODE_TO_TEN, ATTR_KINDS,
                         set_account_activity, get_account_activity, get_account_task,
                         in_instance_map, dat_pha_pho_ban, dang_pha_pho_ban,
                         dat_party_dang_gom, party_dang_gom, dat_nguoi_keo,
-                        DISCONNECT_RATE_LIMIT, TEAM_DUNGEON_MAPS)
+                        DISCONNECT_RATE_LIMIT, DISCONNECT_RECONNECTABLE, TEAM_DUNGEON_MAPS)
 
 _lvl = logging.DEBUG if os.environ.get("DEBUG") else logging.INFO
 try:
@@ -861,9 +862,16 @@ def _active_party_usernames(pidx):
 
 def _dt_party_usernames(pidx):
     users = []
-    selected = _pstate(pidx).get("ui_dg_users")
+    st = _pstate(pidx)
+    selected = st.get("ui_dg_users")
     for u, _p, _l, _pk in party_accounts(pidx):
         if selected is not None and u not in selected:
+            continue
+        # Chỉ chờ worker còn sống. Account bị server kick và đã OFF hẳn trước đây vẫn nằm
+        # trong ui_dg_users, khiến các account còn lại kẹt vĩnh viễn ở 3/5 và leader không bao
+        # giờ được chuyển sang flow gom team ra bãi. Supervisor reconnect vẫn giữ thread sống,
+        # nên mất mạng tạm thời không bị loại oan khỏi hàng rào này.
+        if not is_account_running(u):
             continue
         ev = account_stops.get(u)
         if ev is not None and ev.is_set():
@@ -2167,7 +2175,7 @@ def _pstate(pidx):
                               "channel_expected_map": None,
                               "channel_sync_gen": 0,
                               "invited": threading.Event(),
-                              "lock": threading.Lock(),
+                              "lock": WorkflowLock("party-%s" % (pidx + 1)),
                               "n_members": 0,            # tong so member can cho
                               "started_train": 0,        # so acc da qua check map -> vao train (de barrier dungeon)
                               "dungeon_done": 0,         # so acc da danh xong dungeon (barrier)
@@ -2650,8 +2658,7 @@ def _dt_wait_all_digioi_done(pidx, username, label, stopped_fn):
             if _prepare_train_phase_once():
                 log.info("[%s] DG+Train: CA PARTY (%d acc) da xong Di Gioi -> reset state DG, "
                          "CHUYEN PHA TRAIN", label, n_users or len(users))
-            with st["lock"]:
-                _android_dg_train_handoff(pidx, st)
+            _android_dg_train_handoff(pidx, st)
             return True
         if time.time() - last_log > 60:
             last_log = time.time()
@@ -2991,6 +2998,10 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
         # viec-hang-ngay o TREN cho gan config cu -> gan muon thi material_modes con RONG -> bot
         # DONG GOP LUON nguyen lieu user danh dau "Giu lai" (mat do). sell_noi_dat() cung doc
         # auto_donate_materials de ban nguyen lieu khi acc chua co quan doan.
+        c.use_digioi_ho_phu = bool(pcfg.get("use_digioi_ho_phu") or
+                                     getattr(config, "ACCOUNT_DG_HO_PHU", {}).get(username, False))
+        c.auto_buy_bao_hop = bool(pcfg.get("buy_bao_hop") or
+                                  getattr(config, "ACCOUNT_AUTO_BAO_HOP", {}).get(username, False))
         c.auto_donate_materials = bool(pcfg.get("auto_donate_materials", True))
         c.material_modes = _scroll_modes_map(pcfg.get("material_modes"))   # {tid:'keep'} - nguyen lieu GIU
         # DOI QUA SU KIEN (config CHUNG CA PARTY, o Cai dat nang cao). Gan SOM cung ly do tren:
@@ -3164,7 +3175,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             next_vantieu = c.do_van_tieu()
             # MUA SHOP (Cai dat nang cao, mac dinh TAT): master auto_buy_shop + list shop.
             # Dua theo RoleCount server 0x55 neu biet counter; item chua ro counter thi server tu reject.
-            if pcfg.get("auto_buy_shop"):
+            if pcfg.get("auto_buy_shop") or c.auto_buy_bao_hop:
                 _shop_items = pcfg.get("shop_items") or {}
                 if pcfg.get("buy_ho_phu") or _shop_items.get("ho_phu"):
                     try:
@@ -3175,7 +3186,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     try:
                         c.buy_hop_thien_chau()
                     except Exception as e: log.warning("[%s] loi mua Hop Thien Chau: %s", label, e)
-                if pcfg.get("buy_bao_hop") or _shop_items.get("bao_hop"):
+                if pcfg.get("buy_bao_hop") or _shop_items.get("bao_hop") or c.auto_buy_bao_hop:
                     try: c.buy_trieu_goi_bao_hop(int(pcfg.get("bao_hop_xu_threshold", 10000000)))
                     except Exception as e: log.warning("[%s] loi mua Bao Hop: %s", label, e)
             # MUA HP/SP (Cai dat nang cao, mac dinh TAT): neu du tru HP/SP < nguong -> di Trac Quan
@@ -3322,7 +3333,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             return max(0, int(DIGIOI_LIMIT - c.digioi_minutes_live()))
 
         def _maybe_use_di_gioi_ho_phu(reason: str) -> bool:
-            if not (is_digioi and pcfg.get("use_digioi_ho_phu")):
+            if not (is_digioi and (pcfg.get("use_digioi_ho_phu") or c.use_digioi_ho_phu)):
                 return False
             remain = _dg_remain_minutes()
             if remain >= 15:
@@ -8417,7 +8428,7 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     log.warning("[%s] loi mua HP/SP giua phien (bo qua): %s", label, e)
             # Di Gioi Ho Phu: chi mode Di Gioi, tick rieng, check moi 3p va chi dung khi con <15p.
             # Server se tu gui 0x55/id=0x1b sau khi dung; khong cong timer thu cong.
-            if is_digioi and pcfg.get("use_digioi_ho_phu") and time.time() >= next_ho_phu:
+            if is_digioi and (pcfg.get("use_digioi_ho_phu") or c.use_digioi_ho_phu) and time.time() >= next_ho_phu:
                 if not c.in_combat():
                     try:
                         _maybe_use_di_gioi_ho_phu("3p")
@@ -8861,7 +8872,11 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
             _reason("SERVER BAO TRI (ma 60) -> da OFF tat ca account, khong reconnect")
         _forced_reconnect = username in account_forced_reconnect
         _server_kick = int(getattr(c, "disconnect_cause", 0) or 0) if c is not None else 0
-        if _server_kick and not _maintenance:
+        _retryable_kick = _server_kick in DISCONNECT_RECONNECTABLE
+        if _retryable_kick:
+            _reason("SERVER KICK ma %s -> loi phien tam thoi, se reconnect" % _server_kick)
+            log.warning("[%s] SERVER KICK ma %s -> RECONNECT theo rule", label, _server_kick)
+        elif _server_kick and not _maintenance:
             _reason("SERVER KICK ma %s -> OFF rieng account, khong reconnect" % _server_kick)
             with st["lock"]:
                 st.setdefault("ui_kicked_users", set()).add(username)
@@ -8871,8 +8886,8 @@ def run_account(username, password, pidx, is_leader, is_picker=False, is_reconne
                     st["ui_leader_recover"] = True
                     st["ui_recovery_city_arrived"] = set()
         reconnectable = (not _stopped()
-                         and not _maintenance and not _server_kick
-                         and (_forced_reconnect or _login_failed or _dt["relogin_train"]
+                         and not _maintenance and (not _server_kick or _retryable_kick)
+                         and (_retryable_kick or _forced_reconnect or _login_failed or _dt["relogin_train"]
                               or _unexpected_error
                               or (c is not None and getattr(c, "server_closed", False))))
         account_reconnect[username] = reconnectable
@@ -12536,6 +12551,16 @@ def _party_watcher(pidx):
         # thanh. Log: 10:05:16 leader bao "sync kenh/map OK 5/5", 10:05:24 "KEO qua cong ra train
         # map", 10:05:40 dang danh - the ma 10:07:12 watcher van tuyen bo DEADLOCK.
         if waiting_tuoi and len(waiting_tuoi) == len(live):
+            # DG+Train cho phép account hết giờ đứng yên hàng giờ để chờ đồng đội. Đây là hàng
+            # rào hợp lệ, không phải deadlock. Resync ở đây từng bump reform_gen mỗi 120 giây,
+            # đánh thức cả đội rồi đưa họ quay lại đầu pha DG thay vì handoff sang train.
+            _dg_wait_barrier = (config.PARTY_CONFIG.get(pidx, {}).get("mode") == "digioi_train"
+                                and st.get("dt_phase", "digioi") == "digioi"
+                                and all(d.get("task") == "xong Di Gioi - cho ca party xong"
+                                        for _u, d in waiting_tuoi))
+            if _dg_wait_barrier:
+                allwait_t0 = None
+                continue
             if allwait_t0 is None:
                 allwait_t0 = time.time()
                 log.warning("[party %d] WATCH: CA PARTY DEU DANG CHO -> %s", pidx + 1,
@@ -13532,6 +13557,7 @@ def _bag_info_slots(slots, c):
             # Day la co DUY NHAT con dung o ban cache: nut "Tu cat vao Tien trang" ghi thang
             # accounts.json, khong can client song (user chot 06/09).
             "bank": not (int(d.get("restrict", 0) or 0) & _BANK_RESTRICT_CAM),
+            "locked": bool((getattr(c, "bag_items", {}) or {}).get(int(slot), {}).get("lock", False)) if c is not None else False,
         })
     return {"slots": o}
 

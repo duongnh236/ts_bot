@@ -25,6 +25,13 @@ def function(path, name, namespace):
 
 
 class SafetyTests(unittest.TestCase):
+    def test_kick_42_and_47_are_reconnectable_but_maintenance_is_not(self):
+        source = (ROOT / "train_bot/client.py").read_text()
+        self.assertIn("DISCONNECT_RECONNECTABLE = frozenset((42, 47))", source)
+        self.assertIn('42: "sua goi chien dau"', source)
+        self.assertIn('47: "ket thuc su kien khi tran chua ket thuc"', source)
+        self.assertNotIn("frozenset((42, 47, 60))", source)
+
     def test_member_catches_up_at_safe_then_leader_picks_up_without_team_restart(self):
         cfg = SimpleNamespace(PARTY_LEADER_ACC={0: "leader"}, TRAIN_MAPS={23803: {"safe": [(230, 310)]}})
         st = {"lock": threading.RLock(), "cmd_gen": 8, "cmd": ("train",),
@@ -394,7 +401,9 @@ class SafetyTests(unittest.TestCase):
         self.assertEqual(fn(0, ["leader", "member"], leader), ["member"])
 
     def test_dg_handoff_waits_for_all_command_loops_and_dispatches_once(self):
-        st = {"lock": threading.Lock(), "cmd_gen": 7, "ui_dg_train_target": (21001, 100, 200)}
+        from train_bot.diagnostic_lock import WorkflowLock
+        st = {"lock": WorkflowLock("test-party", max_wait=.2), "cmd_gen": 7,
+              "ui_dg_train_target": (21001, 100, 200)}
         clients = {u: SimpleNamespace(running=True, in_di_gioi=lambda: False,
                                      _dg_train_ready_token=7 if u == "leader" else None,
                                      stop_run_around=Mock()) for u in ("leader", "member")}
@@ -427,8 +436,9 @@ class SafetyTests(unittest.TestCase):
         self.assertEqual(len(callbacks), 1)
 
     def test_dg_snapshot_excludes_offline_configured_accounts(self):
-        ns = {"_pstate": lambda _: {"ui_dg_users": {"leader", "member"}},
+        ns = {"_pstate": lambda _: {"ui_dg_users": {"leader", "member", "offline"}},
               "party_accounts": lambda _: [(u, "", False, 0) for u in ("leader", "member", "offline")],
+              "is_account_running": lambda u: u != "offline",
               "account_stops": {}}
         fn = function("train_bot/run_party_digioi.py", "_dt_party_usernames", ns)
         self.assertEqual(fn(0), ["leader", "member"])

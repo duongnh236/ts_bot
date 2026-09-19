@@ -8,6 +8,7 @@ from unittest.mock import Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app/src/main/python"))
 from train_bot.workflows.channel_regroup import request, tick
+from train_bot.diagnostic_lock import WorkflowLock
 
 
 class ChannelRegroupTests(unittest.TestCase):
@@ -23,7 +24,7 @@ class ChannelRegroupTests(unittest.TestCase):
 
     def fixture(self, safe_ok=True):
         actions = []
-        st = {"lock": threading.Lock(), "cmd_gen": 8, "cmd": ("train",),
+        st = {"lock": WorkflowLock("test-party", max_wait=.2), "cmd_gen": 8, "cmd": ("train",),
               "ui_train_target": (23803, 550, 590), "manual_train_users": ["leader", "member"]}
         leader = SimpleNamespace(running=True, current_map=23803, current_channel=11,
             pos=(550, 590), nearest_smart_city=Mock(return_value={"city": 23001, "flag": 17}))

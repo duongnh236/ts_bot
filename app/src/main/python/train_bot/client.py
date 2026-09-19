@@ -194,10 +194,12 @@ DISCONNECT_CAUSE = {
     32: "chien dau lien scene", 33: "scene khong khop moc", 34: "trung lap lien server",
     35: "gui goi dang nhap lien tuc", 36: "ID ngoai pham vi", 37: "khac scene",
     38: "scene dich khong khop", 40: "sua goi hop thanh",
+    42: "sua goi chien dau", 47: "ket thuc su kien khi tran chua ket thuc",
     60: "SERVER TAT MAY BAO TRI", 61: "thong bao rieng cua server",
     90: "DANG NHAP QUA THUONG XUYEN (server chan toc do)",
 }
 DISCONNECT_RATE_LIMIT = 90     # ma 90: login lai ngay lap tuc chi lam server chan tiep
+DISCONNECT_RECONNECTABLE = frozenset((42, 47))  # loi phien tam thoi: relogin, khong OFF account
 # Cho them toi da bao lau cho moc KET TRAN THAT (`0x14 sub0700`) truoc khi cho caller di chuyen.
 # Xem `_wait_combat_clear`: di khi server con dang giai tran = `di chuyen QUA XA (ma 14)`.
 WAIT_END_THAT_SEC = 8.0
@@ -7586,6 +7588,29 @@ class GameClient:
         log.info("[%s] Hop vat pham: %s(slot%d) + %s(slot%d)", self._label,
                  items.get(t1, {}).get("name", hex(t1)), i1, items.get(t2, {}).get("name", hex(t2)), i2)
 
+    def combine_slots(self, first: int, second: int) -> bool:
+        """Combine exactly two live bag slots selected by Android UI."""
+        if self.state.in_battle or self.in_combat(idle_secs=1.0):
+            raise RuntimeError("Đang trong trận, chưa thể hợp vật")
+        first, second = int(first), int(second)
+        a, b = self.bag_slots.get(first), self.bag_slots.get(second)
+        if not a or not b:
+            raise RuntimeError("Vật phẩm đã đổi slot hoặc không còn trong túi")
+        if first == second and int(a[1]) < 2:
+            raise RuntimeError("Cùng một slot cần ít nhất 2 vật phẩm")
+        items = _load_gamedata_items()
+        for slot, rec in ((first, a), (second, b)):
+            if bool((self.bag_items.get(slot) or {}).get("lock")):
+                raise RuntimeError("Vật phẩm slot %d đang khóa" % slot)
+            info = items.get(int(rec[0])) or {}
+            if int(info.get("restrict", 0) or 0) & self.RESTRICT_NOT_COMBINE_MATERIAL:
+                raise RuntimeError("Vật phẩm slot %d không thể dùng để hợp" % slot)
+        payload = (b"\x0e\x00" + struct.pack("<H", 0x100 + first) + b"\x00\x00\x00"
+                   + struct.pack("<H", 0x100 + second) + b"\x00" * 8 + b"\x01")
+        self.send(0x17, payload)
+        log.info("[%s] Hợp vật UI: slot %d + slot %d", self._label, first, second)
+        return True
+
     def _world_boss_event_open(self) -> bool:
         import datetime
         vn_hour = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).hour
@@ -9099,7 +9124,7 @@ class GameClient:
         if self.xu is None or self.xu < self.GACHA_COST:
             log.info("[%s] Gacha pet: thieu xu (%s < %d) -> bo qua",
                      self._label, self.xu, self.GACHA_COST)
-            return
+            return False
         self.send(0x42, bytes.fromhex("0100050101015bb22823010000"))
         time.sleep(0.5)
         for _ in range(3):
@@ -9107,6 +9132,7 @@ class GameClient:
             time.sleep(0.2)
         self.xu -= self.GACHA_COST   # server khong push lai balance -> tu tru
         log.info("[%s] Gacha PET hang ngay (xu con ~%d)", self._label, self.xu)
+        return True
 
     def claim_gacha_card(self):
         """Gacha CARD hang ngay. Tuong tu gacha pet, banner id = 5cb2.
@@ -9115,7 +9141,7 @@ class GameClient:
         if self.xu is None or self.xu < self.GACHA_COST:
             log.info("[%s] Gacha card: thieu xu (%s < %d) -> bo qua",
                      self._label, self.xu, self.GACHA_COST)
-            return
+            return False
         self.send(0x42, bytes.fromhex("0100050101025cb22823010000"))
         time.sleep(0.5)
         for _ in range(3):
@@ -9123,6 +9149,7 @@ class GameClient:
             time.sleep(0.2)
         self.xu -= self.GACHA_COST
         log.info("[%s] Gacha CARD hang ngay (xu con ~%d)", self._label, self.xu)
+        return True
 
     # Gói mua shop = opcode 0x42 (cùng họ gacha), bắn thẳng 1 gói, không cần mở shop/reveal.
     #   0100 [shop] [tab] [page] [slot] [item_id 2B] [gia 2B] [qty 1B] 0000   (capture ts_shop.pcap)
@@ -9801,6 +9828,9 @@ class GameClient:
         """Vut bo item trong tui. C2S 0x17 sub=0300 [slot 1B][qty 4B LE]. Xac nhan discard.pcap:
         server ack 0x17 sub=0900 (echo slot+qty) + 0x17 sub=1a00 [tid 2B LE][01] (bao tid da vut)."""
         if not self.running:
+            return False
+        if bool((self.bag_items.get(int(slot)) or {}).get("lock")):
+            log.warning("[%s] Khong vut slot %s: vat pham dang KHOA", self._label, slot)
             return False
         self.send(0x17, b"\x03\x00" + bytes([slot & 0xFF]) + int(qty).to_bytes(4, "little"))
         return True

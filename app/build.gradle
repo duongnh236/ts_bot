@@ -11,8 +11,8 @@ android {
         applicationId 'com.fen.tsbot'
         minSdk 26
         targetSdk 35
-        versionCode 128
-        versionName '0.128-workflow-lock-fix'
+        versionCode 133
+        versionName '0.133-kick-reconnect'
 
         python {
             version '3.8'

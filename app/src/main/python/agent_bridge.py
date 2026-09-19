@@ -298,6 +298,12 @@ def _restore_account_settings(username):
     config.ACCOUNT_SELECTED_PET[str(username)] = int(saved.get("pet_id", 0) or 0)
     config.ACCOUNT_PHUC_THAN[str(username)] = bool(saved.get("use_phuc_than", False))
     config.ACCOUNT_DAI_PHUC_THAN[str(username)] = bool(saved.get("use_dai_phuc_than", False))
+    if not isinstance(getattr(config, "ACCOUNT_DG_HO_PHU", None), dict):
+        config.ACCOUNT_DG_HO_PHU = {}
+    if not isinstance(getattr(config, "ACCOUNT_AUTO_BAO_HOP", None), dict):
+        config.ACCOUNT_AUTO_BAO_HOP = {}
+    config.ACCOUNT_DG_HO_PHU[str(username)] = bool(saved.get("use_digioi_ho_phu", False))
+    config.ACCOUNT_AUTO_BAO_HOP[str(username)] = bool(saved.get("auto_buy_bao_hop", False))
     if not isinstance(getattr(config, "ACCOUNT_DEATH", None), dict):
         config.ACCOUNT_DEATH = {}
     config.ACCOUNT_DEATH[str(username)] = dict(saved.get("death_return") or {"character": True, "pet": True})
@@ -365,7 +371,8 @@ def skills_json(username):
 def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                                hp_percent=70, sp_percent=70, use_phuc_than=False,
                                char_mob_min=4, pet_mob_min=4, use_dai_phuc_than=False,
-                               pet_hp_percent=None, pet_sp_percent=None):
+                               pet_hp_percent=None, pet_sp_percent=None,
+                               use_digioi_ho_phu=False, auto_buy_bao_hop=False):
     """Apply pet, skill va nguong dung item ngay cho account dang online."""
     try:
         username = str(username or "").strip()
@@ -383,29 +390,37 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
         skills = runner.account_skills(username)
         char_ids = {int(row[0]) for row in (skills.get("char") or [])}
         pet_rows = {int(row[0]): row for row in (skills.get("pets") or [])}
-        if char_skill and char_skill not in char_ids:
+        effective_pet_id = pet_id or int(skills.get("active") or 0)
+        if char_skill > 0 and char_skill not in char_ids:
             raise RuntimeError("Nhan vat chua hoc skill da chon")
         if pet_id and pet_id not in pet_rows:
             raise RuntimeError("Pet da chon khong nam trong danh sach mang theo")
-        pet_ids = {int(row[0]) for row in (pet_rows.get(pet_id, [0, "", []])[2] or [])}
-        if pet_skill and pet_skill not in pet_ids:
+        pet_ids = {int(row[0]) for row in (pet_rows.get(effective_pet_id, [0, "", []])[2] or [])}
+        if pet_skill > 0 and pet_skill not in pet_ids:
             raise RuntimeError("Pet nay chua co skill da chon")
-        char_rules = ([{"enabled": True, "condition": "mob", "op": "gte",
+        char_rules = ([{"enabled": True, "condition": "always", "skill": "normal", "target": "auto"}]
+                      if char_skill < 0 else [{"enabled": True, "condition": "mob", "op": "gte",
                         "value": char_mob_min, "skill": char_skill, "target": "auto"},
                        {"enabled": True, "condition": "always", "skill": "normal",
                         "target": "auto"}] if char_skill else [])
-        pet_rules = ([{"enabled": True, "condition": "mob", "op": "gte",
+        pet_rules = ([{"enabled": True, "condition": "always", "skill": "normal", "target": "auto"}]
+                     if pet_skill < 0 else [{"enabled": True, "condition": "mob", "op": "gte",
                        "value": pet_mob_min, "skill": pet_skill, "target": "auto"},
                       {"enabled": True, "condition": "always", "skill": "normal",
                        "target": "auto"}] if pet_skill else [])
         battle = {"char": char_rules,
-                  "pets": {str(pet_id): pet_rules} if pet_id else {}}
+                  "pets": {str(effective_pet_id): pet_rules} if effective_pet_id and pet_rules else {}}
         runner.apply_account_battle(username, battle)
         runner.apply_account_heal(username, {"hp_char": hp, "sp_char": sp,
                                              "hp_pet": pet_hp, "sp_pet": pet_sp})
         from train_bot import config
         config.ACCOUNT_PHUC_THAN[username] = bool(use_phuc_than)
         config.ACCOUNT_DAI_PHUC_THAN[username] = bool(use_dai_phuc_than)
+        if not isinstance(getattr(config, "ACCOUNT_DG_HO_PHU", None), dict): config.ACCOUNT_DG_HO_PHU = {}
+        if not isinstance(getattr(config, "ACCOUNT_AUTO_BAO_HOP", None), dict): config.ACCOUNT_AUTO_BAO_HOP = {}
+        config.ACCOUNT_DG_HO_PHU[username] = bool(use_digioi_ho_phu)
+        config.ACCOUNT_AUTO_BAO_HOP[username] = bool(auto_buy_bao_hop)
+        client.use_digioi_ho_phu = bool(use_digioi_ho_phu)
         if not isinstance(getattr(config, "ACCOUNT_SELECTED_PET", None), dict):
             config.ACCOUNT_SELECTED_PET = {}
         config.ACCOUNT_SELECTED_PET[username] = pet_id
@@ -416,7 +431,13 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
             "heal": {"hp_char": hp, "sp_char": sp, "hp_pet": pet_hp, "sp_pet": pet_sp},
             "battle": battle, "use_phuc_than": bool(use_phuc_than),
             "use_dai_phuc_than": bool(use_dai_phuc_than),
+            "use_digioi_ho_phu": bool(use_digioi_ho_phu),
+            "auto_buy_bao_hop": bool(auto_buy_bao_hop),
         })
+
+        if auto_buy_bao_hop:
+            threading.Thread(target=lambda: client.buy_trieu_goi_bao_hop(0),
+                             name="buy-bao-hop-%s" % username, daemon=True).start()
 
         def switch_selected_pet():
             if pet_id:
@@ -435,6 +456,52 @@ def apply_combat_settings_json(username, pet_id=0, char_skill=0, pet_skill=0,
                             "BAT" if use_dai_phuc_than else "TAT")}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
+
+
+def account_action_json(username, action, payload="{}"):
+    """Allowlisted, account-scoped shop/bag/furnace actions for Android."""
+    try:
+        username, action = str(username or "").strip(), str(action or "").strip()
+        data = json.loads(str(payload or "{}"))
+        client = _get_runner().account_clients.get(username)
+        if client is None or not getattr(client, "running", False):
+            raise RuntimeError("Account chưa online")
+        if action in {"buy_ho_phu", "buy_bao_hop", "gacha_pet", "gacha_card",
+                      "furnace_buy", "combine", "discard"} and client.in_combat(idle_secs=1.0):
+            raise RuntimeError("Đang trong trận, hãy chờ kết thúc trận rồi thử lại")
+        if action == "buy_ho_phu":
+            client.buy_di_gioi_ho_phu(); message = "Đã gửi mua Dị Giới Hộ Phù"
+        elif action == "buy_bao_hop":
+            client.buy_trieu_goi_bao_hop(0); message = "Đã kiểm tra và gửi mua Túi Triệu Gọi"
+        elif action == "gacha_pet":
+            if not client.claim_gacha_pet(): raise RuntimeError("Không đủ tiền đồng để rút thẻ pet")
+            message = "Đã rút thẻ pet"
+        elif action == "gacha_card":
+            if not client.claim_gacha_card(): raise RuntimeError("Không đủ tiền đồng để rút thẻ tướng")
+            message = "Đã rút thẻ tướng"
+        elif action == "combine":
+            client.combine_slots(int(data.get("first", 0)), int(data.get("second", 0)))
+            message = "Đã gửi hợp hai vật phẩm đã chọn"
+        elif action == "discard":
+            slot = int(data.get("slot", 0)); qty = max(1, int(data.get("qty", 1)))
+            if not client.discard_item(slot, qty): raise RuntimeError("Vật phẩm đang khóa hoặc server không nhận")
+            message = "Đã gửi vứt vật phẩm"
+        elif action == "furnace_scan":
+            if not client.scan_furnace(): raise RuntimeError("Server chưa trả dữ liệu lò")
+            message = "Đã tải dữ liệu lò"
+        elif action == "furnace_buy":
+            kind, slot, item_id = int(data.get("kind", 0)), int(data.get("slot", 0)), int(data.get("item_id", 0))
+            row = next((x for x in ((client.furnace_shop or {}).get("tabs", {}).get(kind, []) or [])
+                        if int(x.get("index", 0)) == slot and int(x.get("id", 0)) == item_id), None)
+            if row is None: raise RuntimeError("Mặt hàng đã thay đổi; hãy tải lại lò")
+            if row.get("bought"): raise RuntimeError("Mặt hàng này đã mua")
+            if not client.buy_furnace_item(kind, slot, item_id): raise RuntimeError("Server chưa xác nhận mua")
+            message = "Đã gửi mua vật phẩm trong lò"
+        else:
+            raise RuntimeError("Thao tác không hợp lệ")
+        return json.dumps({"ok": True, "message": message}, ensure_ascii=False)
+    except Exception as exc:
+        return json.dumps({"ok": False, "message": str(exc)}, ensure_ascii=False)
 
 
 def start_json(payload):
@@ -539,6 +606,7 @@ def start_json(payload):
             has_leader=leader_configured,
             auto_world_boss=False, auto_team_dungeon=False, do_van_tieu=False,
             fight_legion_boss=False,
+            di_gioi_level=max(1, min(15, int(data.get("di_gioi_level", 2) or 2))),
             auto_sell_noi_dat=False, auto_bag_clean=False, auto_discard_junk=False,
             auto_donate_materials=False, death_return_town=True, pet_death_return_town=True)
         from train_bot import config
@@ -695,7 +763,7 @@ def auto_battle_one_json(username, map_id=0, x=0, y=0):
         return json.dumps({"ok": False, "message": "%s" % exc}, ensure_ascii=False)
 
 
-def start_farm_mode_json(mode, map_id, x, y):
+def start_farm_mode_json(mode, map_id, x, y, di_gioi_level=2):
     """Start the selected workflow without resetting account slots or battle settings."""
     mode = str(mode)
     if mode == "train":
@@ -715,6 +783,7 @@ def start_farm_mode_json(mode, map_id, x, y):
         if any(c.in_team_dungeon() for _, c in live):
             raise RuntimeError("Hãy hoàn tất phụ bản hiện tại trước")
         map_id, x, y = int(map_id), int(x), int(y)
+        di_gioi_level = max(1, min(15, int(di_gioi_level or 2)))
         if min(map_id, x, y) <= 0:
             raise ValueError("Hãy chọn bãi farm và tọa độ trước")
         with st["lock"]:
@@ -726,6 +795,7 @@ def start_farm_mode_json(mode, map_id, x, y):
             entry["mobs"] = [(x, y)]
             config.PARTY_CONFIG[0].update(mode="digioi_train", start_city_id=map_id,
                                          mob_index=0, train_pick="", do_daily=False,
+                                         di_gioi_level=di_gioi_level,
                                          auto_world_boss=False, auto_team_dungeon=False,
                                          fight_legion_boss=False, do_van_tieu=False)
             st["dt_phase"] = "digioi"
@@ -738,6 +808,7 @@ def start_farm_mode_json(mode, map_id, x, y):
             st["ui_dg_transition_pending"] = False
             st["ui_dg_handoff_started"] = False
             for _, c in live:
+                c.di_gioi_level = di_gioi_level
                 c._dg_train_ready_token = None
             st["ui_train_target"] = None  # Khong de coordinator ra farm khi DG chua xong.
             st["cmd"] = None
@@ -747,7 +818,8 @@ def start_farm_mode_json(mode, map_id, x, y):
                 c._daily_hold = False
                 c._ui_auto_battle = True
                 c._ui_mode_restart = True
-        return json.dumps({"ok": True, "message": "Đã chạy Dị giới → farm: chờ hết trận, vào Dị giới; cả team hết giờ Dị giới sẽ ra bãi farm đã chọn"}, ensure_ascii=False)
+        dg_levels = [10, 25, 40, 55, 70, 85, 100, 110, 120, 130, 140, 150, 160, 170, 180]
+        return json.dumps({"ok": True, "message": "Đã chạy Dị giới cấp %d → farm: chờ hết trận, vào Dị giới; cả team hết giờ sẽ ra bãi farm đã chọn" % dg_levels[di_gioi_level - 1]}, ensure_ascii=False)
     except Exception as exc:
         return json.dumps({"ok": False, "message": str(exc)}, ensure_ascii=False)
 
@@ -1263,6 +1335,18 @@ def accounts_dashboard_json():
                                        "name": str(city.get("name") or city_id)})
             saved_settings = _restore_account_settings(username)
             exp_rate = client.exp_rate_snapshot() if client is not None else {}
+            furnace = None
+            if client is not None and getattr(client, "furnace_shop", None) is not None:
+                from train_bot.client import _load_gamedata_items
+                names = _load_gamedata_items()
+                raw_furnace = client.furnace_shop or {}
+                furnace = {"base_rate": raw_furnace.get("base_rate"),
+                           "active_rate": raw_furnace.get("active_rate"), "tabs": {}}
+                for kind, items in (raw_furnace.get("tabs") or {}).items():
+                    furnace["tabs"][str(kind)] = [dict(item,
+                        name=(names.get(int(item.get("id", 0))) or {}).get("name") or
+                             ("0x%04x" % int(item.get("id", 0)))) for item in items if item.get("id")]
+            quest_cells = set(getattr(client, "_quest_cells", set()) or ()) if client is not None else set()
             result.append({
                 "user": username,
                 "name": str(getattr(client, "char_name", "") or username),
@@ -1328,7 +1412,18 @@ def accounts_dashboard_json():
                 "death_return": dict(saved_settings.get("death_return") or {"character": True, "pet": True}),
                 "use_phuc_than": bool(getattr(config, "ACCOUNT_PHUC_THAN", {}).get(username, False)),
                 "use_dai_phuc_than": bool(getattr(config, "ACCOUNT_DAI_PHUC_THAN", {}).get(username, False)),
+                "use_digioi_ho_phu": bool(saved_settings.get("use_digioi_ho_phu", False)),
+                "auto_buy_bao_hop": bool(saved_settings.get("auto_buy_bao_hop", False)),
                 "phuc_than_remaining": getattr(client, "god_mission", None),
+                "shop": {
+                    "ho_phu_used": getattr(client, "shop_ho_phu_count", None),
+                    "ho_phu_max": getattr(client, "shop_ho_phu_max", 3),
+                    "bao_hop_used": getattr(client, "shop_bao_hop_count", None),
+                    "bao_hop_max": getattr(client, "shop_bao_hop_max", 1),
+                    "gacha_pet_remaining": 0 if 6 in quest_cells else 1,
+                    "gacha_card_remaining": 0 if 4 in quest_cells else 1,
+                },
+                "furnace": furnace,
                 "cities_loaded": bool(client is not None and getattr(client, "_mark_flags_loaded", False)),
                 "cities": cities,
                 "bag": bag,

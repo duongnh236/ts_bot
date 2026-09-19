@@ -13,14 +13,15 @@ def _android_dg_train_handoff(pidx, st, *, services):
     party_train_map = services.party_train_map
     threading = services.threading
     time = services.time
-    target = st.get("ui_dg_train_target")
-    if not target or st.get("ui_dg_handoff_started"):
-        return
-    session = st.get("android_workflow_session")
-    token = st.get("cmd_gen", 0)
-    st["ui_dg_handoff_started"] = True
-    st["ui_dg_transition_pending"] = True
-    st["ui_dg_transition_token"] = token
+    with st["lock"]:
+        target = st.get("ui_dg_train_target")
+        if not target or st.get("ui_dg_handoff_started"):
+            return
+        session = st.get("android_workflow_session")
+        token = st.get("cmd_gen", 0)
+        st["ui_dg_handoff_started"] = True
+        st["ui_dg_transition_pending"] = True
+        st["ui_dg_transition_token"] = token
     config.PARTY_CONFIG[pidx].update(mode="stand", start_city_id=0)
 
     def wait_and_dispatch():
